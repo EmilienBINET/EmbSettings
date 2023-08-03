@@ -1,0 +1,14 @@
+[requires]
+boost/1.82.0
+
+[generators]
+cmake
+cmake_find_package
+cmake_paths
+
+[options]
+*:shared=False
+
+[imports]
+bin, *.dll -> ./bin # Copies all dll files from packages bin folder to my "bin" folder
+lib, *.dylib* -> ./bin # Copies all dylib files from packages lib folder to my "bin" folder
