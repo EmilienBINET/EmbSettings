@@ -63,6 +63,7 @@ namespace emb {
 
         struct SettingsFileInfo {
             std::string /*const*/ strFilename{};
+            FileType eFileType{};
             std::stringstream strFilecontent{};
             boost::property_tree::ptree tree{};
 
@@ -71,7 +72,7 @@ namespace emb {
             };
             using Ptr = std::unique_ptr<SettingsFileInfo, Deleter>;
 
-            static Ptr getFileInfo(std::string const& a_strPath);
+            static Ptr getFileInfo(std::string const& a_strPath, FileType a_eFileType);
         };
 
         class SettingsManager final {
@@ -83,7 +84,7 @@ namespace emb {
 
             template<typename T, typename F>
             T read(std::string path, T defaultValue) {
-                if (auto pInfo = SettingsFileInfo::getFileInfo(F::FilePath)) {
+                if (auto pInfo = SettingsFileInfo::getFileInfo(F::FilePath, F::FileType)) {
                     if (auto val = pInfo->tree.template get_optional<T>(path)) {
                         return *val;
                     }
@@ -93,7 +94,7 @@ namespace emb {
 
             template<typename T, typename F>
             void write(std::string path, T value) {
-                if (auto pInfo = SettingsFileInfo::getFileInfo(F::FilePath)) {
+                if (auto pInfo = SettingsFileInfo::getFileInfo(F::FilePath, F::FileType)) {
                     pInfo->tree.template put<T>(path, value);
                 }
             }
