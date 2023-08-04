@@ -21,6 +21,30 @@ namespace emb {
         void setJocker(std::string const& aJocker, std::string const& aValue) {
         }
 
+        SettingsElement::SettingsElement(std::string const& a_strClassName, std::string const& a_strType, std::string const& a_strFileClassName, std::string const& a_strPath)
+                : m_strClassName{ a_strClassName }
+                , m_strType{ a_strType }
+                , m_strFileClassName{ a_strFileClassName }
+                , m_strPath{ a_strPath }
+        {}
+
+        std::string SettingsElement::getClassName() const {
+            return m_strClassName;
+        }
+
+        std::string SettingsElement::getType() const {
+            return m_strType;
+        }
+
+        std::string SettingsElement::getFileClassName() const {
+            return m_strFileClassName;
+        }
+
+        std::string SettingsElement::getPath() const {
+            return m_strPath;
+        }
+
+
         SettingsFile::SettingsFile(std::string const& a_strClassName, FileType a_eFileType, std::string const& a_strFilePath, int a_iFileVersion)
             : m_strClassName{ a_strClassName }
             , m_eFileType{ a_eFileType }

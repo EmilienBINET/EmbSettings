@@ -14,16 +14,6 @@ public:                                                                         
     static emb::settings::FileType const FileType;                                                  \
     static int const FileVersion;                                                                   \
     _name() : emb::settings::SettingsFile{#_name, _type, _path, _version} {}                        \
-    template<typename T>                                                                            \
-    static bool register_settings(char const* a_szPath) {                                           \
-        std::cout << "Registering Setting: " << typeid(T).name() << " as " << a_szPath << std::endl;\
-        getList().push_back(a_szPath);                                                              \
-        return true;                                                                                \
-    }                                                                                               \
-    static std::vector<std::string>& getList() {                                                    \
-        static std::vector<std::string> list;                                                       \
-        return list;                                                                                \
-    }                                                                                               \
 	static std::unique_ptr<SettingsFile> CreateMethod() { return std::make_unique<_name>(); }       \
 };                                                                                                  \
 bool _name::registered = emb::settings::register_file<_name>(#_name);                               \
@@ -32,21 +22,19 @@ emb::settings::FileType const _name::FileType{_type};                           
 int const _name::FileVersion{_version};                                                             \
 
 #define EMBSETTINGS_DECLARE_SETTING(_name, _type, _file, _path, _default)                           \
-class _name {                                                                                       \
+class _name : public emb::settings::SettingsElement {                                               \
     static bool registered;                                                                         \
-private:                                                                                            \
-    _name() = delete;                                                                               \
-    ~_name() = delete;                                                                              \
-    _name& operator=(_name const&) = delete;                                                        \
 public:                                                                                             \
+    _name() : emb::settings::SettingsElement{#_name, #_type, #_file, _path} {}                      \
     static _type read() {                                                                           \
         return emb::settings::SettingsManager::instance().read<_type, _file>(_path, _default);      \
     }                                                                                               \
     static void write(_type const& tVal) {                                                          \
         emb::settings::SettingsManager::instance().write<_type, _file>(_path, tVal);                \
     }                                                                                               \
+	static std::unique_ptr<SettingsElement> CreateMethod() { return std::make_unique<_name>(); }    \
 };                                                                                                  \
-bool _name::registered = _file::register_settings<_name>(_path);                                    \
+bool _name::registered = _file::register_settings<_name>(#_file, _path);                            \
 
 namespace emb {
     namespace settings {
@@ -74,6 +62,21 @@ namespace emb {
             static Ptr getFileInfo(std::string const& a_strPath, FileType a_eFileType);
         };
 
+        class SettingsElement {
+            std::string const m_strClassName;
+            std::string const m_strType;
+            std::string const m_strFileClassName;
+            std::string const m_strPath;
+        protected:
+            SettingsElement(std::string const& a_strClassName, std::string const& a_strType, std::string const& a_strFileClassName, std::string const& a_strPath);
+        public:
+            using CreateMethod = std::unique_ptr<SettingsElement>(*)();
+            std::string getClassName() const;
+            std::string getType() const;
+            std::string getFileClassName() const;
+            std::string getPath() const;
+        };
+
         class SettingsFile {
             std::string const m_strClassName;
             FileType const m_eFileType;
@@ -87,6 +90,17 @@ namespace emb {
             FileType getFileType() const;
             std::string getFilePath() const;
             int getFileVersion() const;
+
+            template<typename T>
+            static bool register_settings(char const* a_szFile, char const* a_szPath) {
+                std::cout << "Registering Setting: " << typeid(T).name() << " as " << a_szPath << " in " << a_szFile << std::endl;
+                getMap()[a_szFile][a_szPath] = T::CreateMethod;
+                return true;
+            }
+            static std::map<std::string, std::map<std::string,SettingsElement::CreateMethod>>& getMap() {
+                static std::map<std::string, std::map<std::string,SettingsElement::CreateMethod>> map{};
+                return map;
+            }
         };
 
         class SettingsManager final {
