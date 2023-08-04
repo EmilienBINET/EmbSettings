@@ -1,8 +1,10 @@
 #include "../include/EmbSettings.hpp"
+#include <string>
 #define BOOST_BIND_GLOBAL_PLACEHOLDERS // Avoid warning
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ini_parser.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include <mutex>
 #include <map>
 #include <regex>
@@ -19,7 +21,19 @@ namespace emb {
         void stop() {
         }
 
+        map<string, string>& jockers() {
+            static map<string, string> jockers{};
+            return jockers;
+        }
+
         void setJocker(std::string const& aJocker, std::string const& aValue) {
+            jockers()[aJocker] = aValue;
+        }
+
+        void parseJockers(std::string & a_rstrFilePath) {
+            for(auto const& elm : jockers()) {
+                boost::replace_all(a_rstrFilePath, "@{" + elm.first + "}", elm.second);
+            }
         }
 
         SettingsElement::SettingsElement(std::string const& a_strClassName, std::string const& a_strType, std::string const& a_strFileClassName, std::string const& a_strPath)
@@ -89,6 +103,7 @@ namespace emb {
             struct InfoWithMutex {
                 SettingsFileInfo info{};
                 std::mutex mutex{};
+                std::string strFullFileName{};
             };
             static std::map<std::string, InfoWithMutex> m_mapInfo;
 
@@ -97,9 +112,11 @@ namespace emb {
                 auto& elm = m_mapInfo[strFilename];
                 elm.mutex.lock();
                 if (elm.info.strFilename.empty()) {
+                    elm.strFullFileName = strFilename;
+                    parseJockers(elm.strFullFileName);
                     elm.info.strFilename = strFilename;
                     elm.info.eFileType = a_eFileType;
-                    std::ifstream is(elm.info.strFilename, std::ios::binary);
+                    std::ifstream is(elm.strFullFileName, std::ios::binary);
                     if (is.is_open()) {
                         std::stringstream buffer;
                         elm.info.strFilecontent.str(std::string()); // clear
@@ -141,7 +158,7 @@ namespace emb {
                         break;
                     }
                     if(elm.info.strFilecontent.str() != strFilecontent.str()) {
-                        std::ofstream os(elm.info.strFilename, std::ios::binary);
+                        std::ofstream os(elm.strFullFileName, std::ios::binary);
                         if (os.is_open()) {
                             os << strFilecontent.str();
                         }
