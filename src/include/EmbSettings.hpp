@@ -5,31 +5,55 @@
 
 #include <iostream> // temporaire
 
-#define EMBSETTINGS_DECLARE(_name, _type, _version, _path, _default)                                \
-class _name                                                                                         \
-{                                                                                                   \
+#define EMBSETTINGS_DECLARE_FILE(_name, _type, _path, _version)                                     \
+class _name {                                                                                       \
     static bool registered;                                                                         \
 private:                                                                                            \
     _name() = delete;                                                                               \
     ~_name() = delete;                                                                              \
     _name& operator=(_name const&) = delete;                                                        \
 public:                                                                                             \
-    static size_t const id;                                                                         \
+    template<typename T>                                                                            \
+    static bool register_settings(char const* a_szPath) {                                                               \
+        std::cout << "Registering Setting: " << typeid(T).name() << " as " << a_szPath << std::endl;                      \
+        getList().push_back(a_szPath);                                                                   \
+        return true;                                                                                \
+    }                                                                                               \
+    static std::vector<std::string>& getList() {                                                    \
+        static std::vector<std::string> list;                                                       \
+        return list;                                                                                \
+    }                                                                                               \
+};                                                                                                  \
+bool _name::registered = emb::settings::register_class<_name>();                                    \
+
+#define EMBSETTINGS_DECLARE(_name, _type, _file, _path, _default)                                   \
+class _name {                                                                                       \
+    static bool registered;                                                                         \
+private:                                                                                            \
+    _name() = delete;                                                                               \
+    ~_name() = delete;                                                                              \
+    _name& operator=(_name const&) = delete;                                                        \
+public:                                                                                             \
     static _type read() {                                                                           \
-        return emb::settings::SettingsManager::instance().read<_type>(_version, _path, _default);   \
+        return emb::settings::SettingsManager::instance().read<_type>(1, _path, _default);   \
     }                                                                                               \
     static void write(_type const& tVal) {                                                          \
         emb::settings::SettingsManager::instance().write<_type>(_path, tVal);                       \
     }                                                                                               \
 };                                                                                                  \
-bool _name::registered = emb::settings::register_class<_name>();                                    \
-size_t const _name::id = reinterpret_cast<size_t>(&_name::registered);                              \
+bool _name::registered = _file::register_settings<_name>(_path);                                    \
 
 namespace emb {
     namespace settings {
         void start();
         void stop();
         void setJocker(std::string const& aJocker, std::string const& aValue);
+
+        enum class FileType {
+            XML,
+            JSON,
+            INI
+        };
 
         struct SettingsFileInfo {
             std::string /*const*/ strFilename{};
