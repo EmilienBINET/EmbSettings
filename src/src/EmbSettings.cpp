@@ -4,6 +4,8 @@
 #include <map>
 #include <regex>
 
+//#define DEBUG_OUTPUT
+
 namespace emb {
     namespace settings {
         using namespace std;
@@ -25,7 +27,7 @@ namespace emb {
             static std::map<std::string, InfoWithMutex> m_mapInfo;
 
         public:
-            static SettingsFileInfo::Ptr getFileInfoAndLock(std::string strFilename) {
+            static SettingsFileInfo::Ptr getFileInfoAndLock(std::string const& strFilename) {
                 auto& elm = m_mapInfo[strFilename];
                 elm.mutex.lock();
                 if (elm.info.strFilename.empty()) {
@@ -42,11 +44,13 @@ namespace emb {
                 boost::property_tree::read_xml(elm.info.strFilecontent, elm.info.tree);
                 return SettingsFileInfo::Ptr{ &elm.info };
             }
-            static void setFileInfoAndUnlock(std::string strFilename) {
+            static void setFileInfoAndUnlock(std::string const& strFilename) {
                 auto& elm = m_mapInfo[strFilename];
                 elm.info.strFilecontent.str(std::string()); // clear
                 boost::property_tree::write_xml(elm.info.strFilecontent, elm.info.tree);
+                #ifdef DEBUG_OUTPUT
                 std::cout << elm.info.strFilecontent.str() << std::endl;
+                #endif
                 elm.mutex.unlock();
             }
         };
@@ -56,11 +60,8 @@ namespace emb {
             SettingsFileManager::setFileInfoAndUnlock(a_pObj->strFilename);
         }
 
-        SettingsFileInfo::Ptr SettingsFileInfo::getFileInfo(std::string& a_rstrPath) {
-            auto pos = a_rstrPath.find(">");
-            auto elm = SettingsFileManager::getFileInfoAndLock(a_rstrPath.substr(0, pos));
-            a_rstrPath = a_rstrPath.substr(pos + 1);
-            return elm;
+        SettingsFileInfo::Ptr SettingsFileInfo::getFileInfo(std::string const& a_strPath) {
+            return SettingsFileManager::getFileInfoAndLock(a_strPath);
         }
 
         SettingsManager::SettingsManager() {

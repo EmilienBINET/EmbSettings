@@ -13,10 +13,13 @@ private:                                                                        
     ~_name() = delete;                                                                              \
     _name& operator=(_name const&) = delete;                                                        \
 public:                                                                                             \
+    static std::string const FilePath;                                                              \
+    static emb::settings::FileType const FileType;                                                  \
+    static int const FileVersion;                                                                   \
     template<typename T>                                                                            \
-    static bool register_settings(char const* a_szPath) {                                                               \
-        std::cout << "Registering Setting: " << typeid(T).name() << " as " << a_szPath << std::endl;                      \
-        getList().push_back(a_szPath);                                                                   \
+    static bool register_settings(char const* a_szPath) {                                           \
+        std::cout << "Registering Setting: " << typeid(T).name() << " as " << a_szPath << std::endl;\
+        getList().push_back(a_szPath);                                                              \
         return true;                                                                                \
     }                                                                                               \
     static std::vector<std::string>& getList() {                                                    \
@@ -25,8 +28,11 @@ public:                                                                         
     }                                                                                               \
 };                                                                                                  \
 bool _name::registered = emb::settings::register_class<_name>();                                    \
+std::string const _name::FilePath{_path};                                                           \
+emb::settings::FileType const _name::FileType{_type};                                               \
+int const _name::FileVersion{_version};                                                             \
 
-#define EMBSETTINGS_DECLARE(_name, _type, _file, _path, _default)                                   \
+#define EMBSETTINGS_DECLARE_SETTING(_name, _type, _file, _path, _default)                           \
 class _name {                                                                                       \
     static bool registered;                                                                         \
 private:                                                                                            \
@@ -35,10 +41,10 @@ private:                                                                        
     _name& operator=(_name const&) = delete;                                                        \
 public:                                                                                             \
     static _type read() {                                                                           \
-        return emb::settings::SettingsManager::instance().read<_type>(1, _path, _default);   \
+        return emb::settings::SettingsManager::instance().read<_type, _file>(_path, _default);      \
     }                                                                                               \
     static void write(_type const& tVal) {                                                          \
-        emb::settings::SettingsManager::instance().write<_type>(_path, tVal);                       \
+        emb::settings::SettingsManager::instance().write<_type, _file>(_path, tVal);                \
     }                                                                                               \
 };                                                                                                  \
 bool _name::registered = _file::register_settings<_name>(_path);                                    \
@@ -65,7 +71,7 @@ namespace emb {
             };
             using Ptr = std::unique_ptr<SettingsFileInfo, Deleter>;
 
-            static Ptr getFileInfo(std::string& a_rstrPath);
+            static Ptr getFileInfo(std::string const& a_strPath);
         };
 
         class SettingsManager final {
@@ -75,20 +81,20 @@ namespace emb {
                 return manager;
             }
 
-            template<typename T>
-            T read(int version, std::string path, T defaultValue) {
-                if (auto pInfo = SettingsFileInfo::getFileInfo(path)) {
-                    if (auto val = pInfo->tree.get_optional<T>(path)) {
+            template<typename T, typename F>
+            T read(std::string path, T defaultValue) {
+                if (auto pInfo = SettingsFileInfo::getFileInfo(F::FilePath)) {
+                    if (auto val = pInfo->tree.template get_optional<T>(path)) {
                         return *val;
                     }
                 }
                 return defaultValue;
             }
 
-            template<typename T>
+            template<typename T, typename F>
             void write(std::string path, T value) {
-                if (auto pInfo = SettingsFileInfo::getFileInfo(path)) {
-                    pInfo->tree.put<T>(path, value);
+                if (auto pInfo = SettingsFileInfo::getFileInfo(F::FilePath)) {
+                    pInfo->tree.template put<T>(path, value);
                 }
             }
 
