@@ -15,6 +15,9 @@ public:                                                                         
     static int const FileVersion;                                                                   \
     _name() : emb::settings::SettingsFile{#_name, _type, _path, _version} {}                        \
 	static std::unique_ptr<SettingsFile> CreateMethod() { return std::make_unique<_name>(); }       \
+    static std::map<std::string, emb::settings::SettingsElement::CreateMethod>& getElementsMap() { return getMap()[#_name]; } \
+private:                                                                                            \
+    using SettingsFile::getMap;    \
 };                                                                                                  \
 bool _name::registered = emb::settings::register_file<_name>(#_name);                               \
 std::string const _name::FilePath{_path};                                                           \
@@ -75,6 +78,7 @@ namespace emb {
             std::string getType() const;
             std::string getFileClassName() const;
             std::string getPath() const;
+            std::string getValue() const;
         };
 
         class SettingsFile {
@@ -90,6 +94,7 @@ namespace emb {
             FileType getFileType() const;
             std::string getFilePath() const;
             int getFileVersion() const;
+            std::string read(std::string const& a_strPath) const;
 
             template<typename T>
             static bool register_settings(char const* a_szFile, char const* a_szPath) {
@@ -97,10 +102,7 @@ namespace emb {
                 getMap()[a_szFile][a_szPath] = T::CreateMethod;
                 return true;
             }
-            static std::map<std::string, std::map<std::string,SettingsElement::CreateMethod>>& getMap() {
-                static std::map<std::string, std::map<std::string,SettingsElement::CreateMethod>> map{};
-                return map;
-            }
+            static std::map<std::string, std::map<std::string,SettingsElement::CreateMethod>>& getMap();
         };
 
         class SettingsManager final {
