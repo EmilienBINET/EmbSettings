@@ -80,6 +80,9 @@ namespace emb {
             static std::map<std::string, std::map<std::string,SettingsElement::CreateMethod>> map{};
             return map;
         }
+        std::map<std::string, emb::settings::SettingsElement::CreateMethod>& SettingsFile::getElementsMap(std::string const& a_strFileClass) {
+            return getMap()[a_strFileClass];
+        }
 
 
         class SettingsFileManager {
