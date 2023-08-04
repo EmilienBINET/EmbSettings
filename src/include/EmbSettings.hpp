@@ -78,10 +78,13 @@ namespace emb {
             std::string getType() const;
             std::string getFileClassName() const;
             std::string getPath() const;
-            std::string getValue() const;
 
             template<typename Type>
-            Type read(Type const& a_tDefaultValue);
+            Type read(Type const& a_tDefaultValue) const;
+            std::string read() const;
+            template<typename Type>
+            void write(Type const& a_tNewValue) const;
+            void write(std::string const& a_strNewValue) const;
         };
 
         class SettingsFile {
@@ -97,7 +100,6 @@ namespace emb {
             FileType getFileType() const;
             std::string getFilePath() const;
             int getFileVersion() const;
-            std::string read(std::string const& a_strPath) const;
 
             template<typename T>
             static bool register_settings(char const* a_szFile, char const* a_szPath);

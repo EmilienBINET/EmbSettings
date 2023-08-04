@@ -44,11 +44,12 @@ namespace emb {
             return m_strPath;
         }
 
-        std::string SettingsElement::getValue() const {
-            if(auto const& elm = getFilesMap()[getFileClassName()]) {
-                return (*elm)()->read(getPath());
-            }
-            return "";
+        std::string SettingsElement::read() const {
+            return read<std::string>("");
+        }
+
+        void SettingsElement::write(std::string const& a_strNewValue) const {
+            write<std::string>(a_strNewValue);
         }
 
         SettingsFile::SettingsFile(std::string const& a_strClassName, FileType a_eFileType, std::string const& a_strFilePath, int a_iFileVersion)
@@ -72,15 +73,6 @@ namespace emb {
 
         int SettingsFile::getFileVersion() const {
             return m_iFileVersion;
-        }
-
-        std::string SettingsFile::read(std::string const& a_strPath) const {
-            /*if(auto pInfo = SettingsFileInfo::getFileInfo(getFilePath(), getFileType())) {
-                if (auto val = pInfo->tree.get_optional<std::string>(a_strPath)) {
-                    return *val;
-                }
-            }*/
-            return "";
         }
 
         std::map<std::string, std::map<std::string,SettingsElement::CreateMethod>>& SettingsFile::getMap() {

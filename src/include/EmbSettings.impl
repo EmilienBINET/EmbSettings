@@ -10,8 +10,12 @@ namespace emb {
     namespace settings {
 
         template<typename Type>
-        Type SettingsElement::read(Type const& a_tDefaultValue) {
+        Type SettingsElement::read(Type const& a_tDefaultValue) const {
             return read_setting<Type>(getFileClassName(), getPath(), a_tDefaultValue);
+        }
+        template<typename Type>
+        void SettingsElement::write(Type const& a_tNewValue) const {
+            write_setting<Type>(getFileClassName(), getPath(), a_tNewValue);
         }
 
         template<typename T>
