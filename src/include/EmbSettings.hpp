@@ -4,8 +4,6 @@
 #include <map>
 #include <boost/property_tree/ptree.hpp>
 
-#include <iostream> // temporaire
-
 #define EMBSETTINGS_DECLARE_FILE(_name, _type, _path, _version)                                     \
 class _name : public emb::settings::SettingsFile {                                                  \
     static bool registered;                                                                         \
@@ -30,10 +28,10 @@ class _name : public emb::settings::SettingsElement {                           
 public:                                                                                             \
     _name() : emb::settings::SettingsElement{#_name, #_type, #_file, _path} {}                      \
     static _type read() {                                                                           \
-        return emb::settings::SettingsElement::read<_type, _file>(_path, _default);                                                 \
+        return emb::settings::read_setting<_type>(#_file, _path, _default);                         \
     }                                                                                               \
     static void write(_type const& tVal) {                                                          \
-        emb::settings::SettingsElement::write<_type, _file>(_path, tVal);                                                           \
+        emb::settings::write_setting<_type>(#_file, _path, tVal);                                   \
     }                                                                                               \
 	static std::unique_ptr<SettingsElement> CreateMethod() { return std::make_unique<_name>(); }    \
 };                                                                                                  \
@@ -41,6 +39,8 @@ bool _name::registered = _file::register_settings<_name>(#_file, _path);        
 
 namespace emb {
     namespace settings {
+        class SettingsFile;
+
         void start();
         void stop();
         void setJocker(std::string const& aJocker, std::string const& aValue);
@@ -62,7 +62,7 @@ namespace emb {
             };
             using Ptr = std::unique_ptr<SettingsFileInfo, Deleter>;
 
-            static Ptr getFileInfo(std::string const& a_strPath, FileType a_eFileType);
+            static Ptr getFileInfo(std::unique_ptr<SettingsFile>);
         };
 
         class SettingsElement {
@@ -80,22 +80,8 @@ namespace emb {
             std::string getPath() const;
             std::string getValue() const;
 
-            template<typename T, typename F>
-            static T read(std::string path, T defaultValue) {
-                if (auto pInfo = SettingsFileInfo::getFileInfo(F::FilePath, F::FileType)) {
-                    if (auto val = pInfo->tree.template get_optional<T>(path)) {
-                        return *val;
-                    }
-                }
-                return defaultValue;
-            }
-
-            template<typename T, typename F>
-            static void write(std::string path, T value) {
-                if (auto pInfo = SettingsFileInfo::getFileInfo(F::FilePath, F::FileType)) {
-                    pInfo->tree.template put<T>(path, value);
-                }
-            }
+            template<typename Type>
+            Type read(Type const& a_tDefaultValue);
         };
 
         class SettingsFile {
@@ -114,24 +100,22 @@ namespace emb {
             std::string read(std::string const& a_strPath) const;
 
             template<typename T>
-            static bool register_settings(char const* a_szFile, char const* a_szPath) {
-                std::cout << "Registering Setting: " << typeid(T).name() << " as " << a_szPath << " in " << a_szFile << std::endl;
-                getMap()[a_szFile][a_szPath] = T::CreateMethod;
-                return true;
-            }
+            static bool register_settings(char const* a_szFile, char const* a_szPath);
             static std::map<std::string, std::map<std::string,SettingsElement::CreateMethod>>& getMap();
         };
 
         std::map<std::string, SettingsFile::CreateMethod>& getFilesMap();
 
         template<typename T>
-        bool register_file(std::string const& a_strName) {
-            std::cout << "Registering File: " << typeid(T).name() << " as " << a_strName << std::endl;
-            getFilesMap()[a_strName] = T::CreateMethod;
-            return true;
-        }
+        bool register_file(std::string const& a_strName);
+
+        template<typename Type>
+        static Type read_setting(std::string const& a_strFileClass, std::string const& a_strKey, Type const& a_tDefaultValue);
+        template<typename Type>
+        static void write_setting(std::string const& a_strFileClass, std::string const& a_strKey, Type const& a_tNewValue);
     }
 }
+#include "EmbSettings.impl"
 
 /*
 

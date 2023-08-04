@@ -1,0 +1,57 @@
+#pragma once
+//#define DEBUG_REGISTER
+#include "EmbSettings.hpp"
+#ifdef DEBUG_REGISTER
+#include <iostream>
+#endif
+
+
+namespace emb {
+    namespace settings {
+
+        template<typename Type>
+        Type SettingsElement::read(Type const& a_tDefaultValue) {
+            return read_setting<Type>(getFileClassName(), getPath(), a_tDefaultValue);
+        }
+
+        template<typename T>
+        bool SettingsFile::register_settings(char const* a_szFile, char const* a_szPath) {
+            #ifdef DEBUG_REGISTER
+            std::cout << "Registering Setting: " << typeid(T).name() << " as " << a_szPath << " in " << a_szFile << std::endl;
+            #endif
+            getMap()[a_szFile][a_szPath] = T::CreateMethod;
+            return true;
+        }
+
+        template<typename T>
+        bool register_file(std::string const& a_strName) {
+            #ifdef DEBUG_REGISTER
+            std::cout << "Registering File: " << typeid(T).name() << " as " << a_strName << std::endl;
+            #endif
+            getFilesMap()[a_strName] = T::CreateMethod;
+            return true;
+        }
+
+        template<typename Type>
+        Type read_setting(std::string const& a_strFileClass, std::string const& a_strKey, Type const& a_tDefaultValue) {
+            if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
+                if (auto pInfo = SettingsFileInfo::getFileInfo((*fileInfo)())) {
+                    if (auto val = pInfo->tree.template get_optional<Type>(a_strKey)) {
+                        return *val;
+                    }
+                }
+            }
+            return a_tDefaultValue;
+        }
+
+        template<typename Type>
+        void write_setting(std::string const& a_strFileClass, std::string const& a_strKey, Type const& a_tNewValue) {
+            if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
+                if (auto pInfo = SettingsFileInfo::getFileInfo((*fileInfo)())) {
+                    pInfo->tree.template put<Type>(a_strKey, a_tNewValue);
+                }
+            }
+        }
+
+    }
+}

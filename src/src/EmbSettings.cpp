@@ -75,11 +75,11 @@ namespace emb {
         }
 
         std::string SettingsFile::read(std::string const& a_strPath) const {
-            if(auto pInfo = SettingsFileInfo::getFileInfo(getFilePath(), getFileType())) {
+            /*if(auto pInfo = SettingsFileInfo::getFileInfo(getFilePath(), getFileType())) {
                 if (auto val = pInfo->tree.get_optional<std::string>(a_strPath)) {
                     return *val;
                 }
-            }
+            }*/
             return "";
         }
 
@@ -164,8 +164,8 @@ namespace emb {
             SettingsFileManager::setFileInfoAndUnlock(a_pObj->strFilename);
         }
 
-        SettingsFileInfo::Ptr SettingsFileInfo::getFileInfo(std::string const& a_strPath, FileType a_eFileType) {
-            return SettingsFileManager::getFileInfoAndLock(a_strPath, a_eFileType);
+        SettingsFileInfo::Ptr SettingsFileInfo::getFileInfo(std::unique_ptr<SettingsFile> a_pSettingsFile) {
+            return SettingsFileManager::getFileInfoAndLock(a_pSettingsFile->getFilePath(), a_pSettingsFile->getFileType());
         }
 
         std::map<std::string, SettingsFile::CreateMethod>& getFilesMap() {
