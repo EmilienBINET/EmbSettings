@@ -1,4 +1,5 @@
 #include "../include/EmbSettings.hpp"
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS // Avoid warning
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ini_parser.hpp>
@@ -95,15 +96,13 @@ namespace emb {
                 if (elm.info.strFilename.empty()) {
                     elm.info.strFilename = strFilename;
                     elm.info.eFileType = a_eFileType;
+                    std::ifstream is(elm.info.strFilename, std::ios::binary);
+                    if (is.is_open()) {
+                        std::stringstream buffer;
+                        elm.info.strFilecontent.str(std::string()); // clear
+                        elm.info.strFilecontent << is.rdbuf();
+                    }
                 }
-                //if(elm.info.strFilecontent.empty()) {
-                //std::ifstream is(elm.info.strFilename, std::ios::binary);
-                //if (is.is_open()) {
-                //    std::stringstream buffer;
-                //    elm.info.strFilecontent.str(std::string()); // clear
-                //    elm.info.strFilecontent << is.rdbuf();
-                //}
-                //}
                 try {
                     switch(elm.info.eFileType) {
                     case FileType::XML:
@@ -118,31 +117,35 @@ namespace emb {
                     }
                 }
                 catch(...) {
+                    elm.info.tree = decltype(elm.info.tree)();
                 }
                 return SettingsFileInfo::Ptr{ &elm.info };
             }
             static void setFileInfoAndUnlock(std::string const& strFilename) {
                 auto& elm = m_mapInfo[strFilename];
-                elm.info.strFilecontent.str(std::string()); // clear
                 try {
+                    std::stringstream strFilecontent{};
                     switch(elm.info.eFileType) {
                     case FileType::XML:
-                        boost::property_tree::write_xml(elm.info.strFilecontent, elm.info.tree,
-                            boost::property_tree::xml_writer_settings<decltype(elm.info.tree)::key_type>(' ', 4));
+                        boost::property_tree::write_xml(strFilecontent, elm.info.tree/*,
+                            boost::property_tree::xml_writer_settings<decltype(elm.info.tree)::key_type>(' ', 4)*/);
                         break;
                     case FileType::JSON:
-                        boost::property_tree::write_json(elm.info.strFilecontent, elm.info.tree);
+                        boost::property_tree::write_json(strFilecontent, elm.info.tree);
                         break;
                     case FileType::INI:
-                        boost::property_tree::write_ini(elm.info.strFilecontent, elm.info.tree);
+                        boost::property_tree::write_ini(strFilecontent, elm.info.tree);
                         break;
                     }
+                    if(elm.info.strFilecontent.str() != strFilecontent.str()) {
+                        std::ofstream os(elm.info.strFilename, std::ios::binary);
+                        if (os.is_open()) {
+                            os << strFilecontent.str();
+                        }
+                    }
+                    elm.info.strFilecontent.str(strFilecontent.str());
                 }
                 catch(...) {
-                }
-                std::ofstream os(elm.info.strFilename, std::ios::binary);
-                if (os.is_open()) {
-                    os << elm.info.strFilecontent.str();
                 }
                 #ifdef DEBUG_OUTPUT
                 std::cout << elm.info.strFilecontent.str() << std::endl;
