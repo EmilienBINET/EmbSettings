@@ -30,10 +30,10 @@ class _name : public emb::settings::SettingsElement {                           
 public:                                                                                             \
     _name() : emb::settings::SettingsElement{#_name, #_type, #_file, _path} {}                      \
     static _type read() {                                                                           \
-        return emb::settings::SettingsManager::instance().read<_type, _file>(_path, _default);      \
+        return emb::settings::SettingsElement::read<_type, _file>(_path, _default);                                                 \
     }                                                                                               \
     static void write(_type const& tVal) {                                                          \
-        emb::settings::SettingsManager::instance().write<_type, _file>(_path, tVal);                \
+        emb::settings::SettingsElement::write<_type, _file>(_path, tVal);                                                           \
     }                                                                                               \
 	static std::unique_ptr<SettingsElement> CreateMethod() { return std::make_unique<_name>(); }    \
 };                                                                                                  \
@@ -79,6 +79,23 @@ namespace emb {
             std::string getFileClassName() const;
             std::string getPath() const;
             std::string getValue() const;
+
+            template<typename T, typename F>
+            static T read(std::string path, T defaultValue) {
+                if (auto pInfo = SettingsFileInfo::getFileInfo(F::FilePath, F::FileType)) {
+                    if (auto val = pInfo->tree.template get_optional<T>(path)) {
+                        return *val;
+                    }
+                }
+                return defaultValue;
+            }
+
+            template<typename T, typename F>
+            static void write(std::string path, T value) {
+                if (auto pInfo = SettingsFileInfo::getFileInfo(F::FilePath, F::FileType)) {
+                    pInfo->tree.template put<T>(path, value);
+                }
+            }
         };
 
         class SettingsFile {
@@ -103,34 +120,6 @@ namespace emb {
                 return true;
             }
             static std::map<std::string, std::map<std::string,SettingsElement::CreateMethod>>& getMap();
-        };
-
-        class SettingsManager final {
-        public:
-            static SettingsManager& instance() {
-                static SettingsManager manager;
-                return manager;
-            }
-
-            template<typename T, typename F>
-            T read(std::string path, T defaultValue) {
-                if (auto pInfo = SettingsFileInfo::getFileInfo(F::FilePath, F::FileType)) {
-                    if (auto val = pInfo->tree.template get_optional<T>(path)) {
-                        return *val;
-                    }
-                }
-                return defaultValue;
-            }
-
-            template<typename T, typename F>
-            void write(std::string path, T value) {
-                if (auto pInfo = SettingsFileInfo::getFileInfo(F::FilePath, F::FileType)) {
-                    pInfo->tree.template put<T>(path, value);
-                }
-            }
-
-        private:
-            SettingsManager();
         };
 
         std::map<std::string, SettingsFile::CreateMethod>& getFilesMap();

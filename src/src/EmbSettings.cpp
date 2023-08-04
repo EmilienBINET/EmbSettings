@@ -168,9 +168,6 @@ namespace emb {
             return SettingsFileManager::getFileInfoAndLock(a_strPath, a_eFileType);
         }
 
-        SettingsManager::SettingsManager() {
-        }
-
         std::map<std::string, SettingsFile::CreateMethod>& getFilesMap() {
             static std::map<std::string, SettingsFile::CreateMethod> map{};
             return map;
