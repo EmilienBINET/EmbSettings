@@ -1,21 +1,19 @@
 #pragma once
 #include <string>
 #include <memory>
+#include <map>
 #include <boost/property_tree/ptree.hpp>
 
 #include <iostream> // temporaire
 
 #define EMBSETTINGS_DECLARE_FILE(_name, _type, _path, _version)                                     \
-class _name {                                                                                       \
+class _name : public emb::settings::SettingsFile {                                                  \
     static bool registered;                                                                         \
-private:                                                                                            \
-    _name() = delete;                                                                               \
-    ~_name() = delete;                                                                              \
-    _name& operator=(_name const&) = delete;                                                        \
 public:                                                                                             \
     static std::string const FilePath;                                                              \
     static emb::settings::FileType const FileType;                                                  \
     static int const FileVersion;                                                                   \
+    _name() : emb::settings::SettingsFile{#_name, _type, _path, _version} {}                        \
     template<typename T>                                                                            \
     static bool register_settings(char const* a_szPath) {                                           \
         std::cout << "Registering Setting: " << typeid(T).name() << " as " << a_szPath << std::endl;\
@@ -26,8 +24,9 @@ public:                                                                         
         static std::vector<std::string> list;                                                       \
         return list;                                                                                \
     }                                                                                               \
+	static std::unique_ptr<SettingsFile> CreateMethod() { return std::make_unique<_name>(); }       \
 };                                                                                                  \
-bool _name::registered = emb::settings::register_class<_name>();                                    \
+bool _name::registered = emb::settings::register_file<_name>(#_name);                               \
 std::string const _name::FilePath{_path};                                                           \
 emb::settings::FileType const _name::FileType{_type};                                               \
 int const _name::FileVersion{_version};                                                             \
@@ -75,6 +74,21 @@ namespace emb {
             static Ptr getFileInfo(std::string const& a_strPath, FileType a_eFileType);
         };
 
+        class SettingsFile {
+            std::string const m_strClassName;
+            FileType const m_eFileType;
+            std::string const m_strFilePath;
+            int const m_iFileVersion;
+        protected:
+            SettingsFile(std::string const& a_strClassName, FileType a_eFileType, std::string const& a_strFilePath, int a_iFileVersion);
+        public:
+            using CreateMethod = std::unique_ptr<SettingsFile>(*)();
+            std::string getClassName() const;
+            FileType getFileType() const;
+            std::string getFilePath() const;
+            int getFileVersion() const;
+        };
+
         class SettingsManager final {
         public:
             static SettingsManager& instance() {
@@ -103,9 +117,12 @@ namespace emb {
             SettingsManager();
         };
 
+        std::map<std::string, SettingsFile::CreateMethod>& getFilesMap();
+
         template<typename T>
-        bool register_class() {
-            std::cout << "Registering: " << typeid(T).name() << std::endl;
+        bool register_file(std::string const& a_strName) {
+            std::cout << "Registering File: " << typeid(T).name() << " as " << a_strName << std::endl;
+            getFilesMap()[a_strName] = T::CreateMethod;
             return true;
         }
     }

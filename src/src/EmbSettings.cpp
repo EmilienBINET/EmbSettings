@@ -21,6 +21,30 @@ namespace emb {
         void setJocker(std::string const& aJocker, std::string const& aValue) {
         }
 
+        SettingsFile::SettingsFile(std::string const& a_strClassName, FileType a_eFileType, std::string const& a_strFilePath, int a_iFileVersion)
+            : m_strClassName{ a_strClassName }
+            , m_eFileType{ a_eFileType }
+            , m_strFilePath{ a_strFilePath }
+            , m_iFileVersion{ a_iFileVersion }
+        {}
+
+        std::string SettingsFile::getClassName() const {
+            return m_strClassName;
+        }
+
+        FileType SettingsFile::getFileType() const {
+            return m_eFileType;
+        }
+
+        std::string SettingsFile::getFilePath() const {
+            return m_strFilePath;
+        }
+
+        int SettingsFile::getFileVersion() const {
+            return m_iFileVersion;
+        }
+
+
         class SettingsFileManager {
             struct InfoWithMutex {
                 SettingsFileInfo info{};
@@ -101,6 +125,11 @@ namespace emb {
         }
 
         SettingsManager::SettingsManager() {
+        }
+
+        std::map<std::string, SettingsFile::CreateMethod>& getFilesMap() {
+            static std::map<std::string, SettingsFile::CreateMethod> map{};
+            return map;
         }
     }
 }
