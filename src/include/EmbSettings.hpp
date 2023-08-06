@@ -2,6 +2,8 @@
 #include <string>
 #include <memory>
 #include <map>
+#include <vector>
+#include <functional>
 #include <boost/property_tree/ptree.hpp>
 
 #define EMBSETTINGS_DECLARE_FILE(_name, _type, _path, _version)                                                                             \
@@ -14,13 +16,23 @@ public:                                                                         
     _name() : emb::settings::SettingsFile{#_name, _type, _path, _version} {}                                                                \
 	static std::unique_ptr<SettingsFile> CreateMethod() { return std::make_unique<_name>(); }                                               \
     static std::map<std::string, emb::settings::SettingsElement::CreateMethod>& getElementsMap() { return getElementsMap(#_name); }         \
+    static void read_linked() {                                                                                                       \
+        for (auto const& elm : getElementsMap()) {                                                                            \
+            elm.second()->read_linked();                                                                                                    \
+        }                                                                                                                                   \
+    }                                                                                                                                       \
+    static void write_linked() {                                                                                                      \
+        for (auto const& elm : getElementsMap()) {                                                                            \
+            elm.second()->write_linked();                                                                                                   \
+        }                                                                                                                                   \
+    }                                                                                                                                       \
 private:                                                                                                                                    \
     using SettingsFile::getElementsMap;                                                                                                     \
 };                                                                                                                                          \
 bool _name::registered = emb::settings::register_file<_name>(#_name);                                                                       \
-std::string const _name::FilePath{_path};                                                                                                   \
-emb::settings::FileType const _name::FileType{_type};                                                                                       \
-int const _name::FileVersion{_version};                                                                                                     \
+std::string const _name::FilePath{ _path };                                                                                                 \
+emb::settings::FileType const _name::FileType{ _type };                                                                                     \
+int const _name::FileVersion{ _version };                                                                                                   \
 
 #define EMBSETTINGS_DECLARE_VALUE(_name, _type, _file, _path, _default)                                                                     \
 class _name : public emb::settings::SettingsElement {                                                                                       \
@@ -32,6 +44,9 @@ public:                                                                         
     }                                                                                                                                       \
     static void write(_type const& tVal) {                                                                                                  \
         write_setting<_type>(#_file, _path, tVal);                                                                                          \
+    }                                                                                                                                       \
+    static void link(_type & rtVal) {                                                                                                       \
+        link_setting<_type, _name>(#_file, _path, rtVal);                                                                                   \
     }                                                                                                                                       \
 	static std::unique_ptr<SettingsElement> CreateMethod() { return std::make_unique<_name>(); }                                            \
 };                                                                                                                                          \
@@ -71,11 +86,15 @@ namespace emb {
             std::string const m_strFileClassName;
             std::string const m_strPath;
         protected:
+            static std::map<std::string, std::pair<std::function<void(void)>, std::function<void(void)>>>& getLinks();
+        protected:
             SettingsElement(std::string const& a_strClassName, std::string const& a_strType, std::string const& a_strFileClassName, std::string const& a_strPath);
             template<typename Type>
             static Type read_setting(std::string const& a_strFileClass, std::string const& a_strKey, Type const& a_tDefaultValue);
             template<typename Type>
             static void write_setting(std::string const& a_strFileClass, std::string const& a_strKey, Type const& a_tNewValue);
+            template<typename Type, typename Element>
+            static void link_setting(std::string const& a_strFileClass, std::string const& a_strKey, Type& a_rtValue);
         public:
             using CreateMethod = std::unique_ptr<SettingsElement>(*)();
             std::string getClassName() const;
@@ -89,6 +108,9 @@ namespace emb {
             template<typename Type>
             void write(Type const& a_tNewValue) const;
             void write(std::string const& a_strNewValue) const;
+
+            void read_linked() const;
+            void write_linked() const;
         };
 
         class SettingsFile {
@@ -96,7 +118,7 @@ namespace emb {
             FileType const m_eFileType;
             std::string const m_strFilePath;
             int const m_iFileVersion;
-            static std::map<std::string, std::map<std::string,SettingsElement::CreateMethod>>& getMap();
+            static std::map<std::string, std::map<std::string, SettingsElement::CreateMethod>>& getMap();
         protected:
             SettingsFile(std::string const& a_strClassName, FileType a_eFileType, std::string const& a_strFilePath, int a_iFileVersion);
         public:
@@ -121,15 +143,15 @@ namespace emb {
 
 /*
 
-paramètres
+paramï¿½tres
 : communs accessibles de partout
-spécifque ajoutés facilement
+spï¿½cifque ajoutï¿½s facilement
 interface simple c/c++
 stocquage provenant de
-- json : fichier/clé
-- xml : fichier/clé
-- bdd : db/table/clé
-- paramètrs application : nomparam/val
+- json : fichier/clï¿½
+- xml : fichier/clï¿½
+- bdd : db/table/clï¿½
+- paramï¿½trs application : nomparam/val
 
 #pragma once
 

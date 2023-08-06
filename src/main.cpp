@@ -12,6 +12,25 @@ namespace MyParams {
     EMBSETTINGS_DECLARE_VALUE(Param3, std::string, Machine, "test.param3", "coucou");
 }
 
+struct MachineSettings {
+    double param1;
+    int param2;
+    std::string param3;
+
+    MachineSettings() {
+        MyParams::Param1::link(param1);
+        MyParams::Param2::link(param2);
+        MyParams::Param3::link(param3);
+    }
+
+    void read() {
+        MyParams::Machine::read_linked();
+    }
+    void write() {
+        MyParams::Machine::write_linked();
+    }
+};
+
 int main(int argc, char** argv)
 {
     emb::settings::start();
@@ -32,6 +51,14 @@ int main(int argc, char** argv)
             }
         }
     }
+
+    MachineSettings machineSettings;
+    machineSettings.read();
+    std::cout << machineSettings.param1 << std::endl;
+    std::cout << machineSettings.param2 << std::endl;
+    std::cout << machineSettings.param3 << std::endl;
+    machineSettings.param3 = "hello";
+    machineSettings.write();
 
     getc(stdin);
     return 0;

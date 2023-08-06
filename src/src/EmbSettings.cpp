@@ -30,17 +30,22 @@ namespace emb {
             jockers()[aJocker] = aValue;
         }
 
-        void parseJockers(std::string & a_rstrFilePath) {
-            for(auto const& elm : jockers()) {
+        void parseJockers(std::string& a_rstrFilePath) {
+            for (auto const& elm : jockers()) {
                 boost::replace_all(a_rstrFilePath, "@{" + elm.first + "}", elm.second);
             }
         }
 
+        std::map<std::string, std::pair<std::function<void(void)>, std::function<void(void)>>>& SettingsElement::getLinks() {
+            static std::map<std::string, std::pair<std::function<void(void)>, std::function<void(void)>>> links{};
+            return links;
+        }
+
         SettingsElement::SettingsElement(std::string const& a_strClassName, std::string const& a_strType, std::string const& a_strFileClassName, std::string const& a_strPath)
-                : m_strClassName{ a_strClassName }
-                , m_strType{ a_strType }
-                , m_strFileClassName{ a_strFileClassName }
-                , m_strPath{ a_strPath }
+            : m_strClassName{ a_strClassName }
+            , m_strType{ a_strType }
+            , m_strFileClassName{ a_strFileClassName }
+            , m_strPath{ a_strPath }
         {}
 
         std::string SettingsElement::getClassName() const {
@@ -67,6 +72,14 @@ namespace emb {
             write<std::string>(a_strNewValue);
         }
 
+        void SettingsElement::read_linked() const {
+            get<0>(SettingsElement::getLinks()[getPath()])();
+        }
+
+        void SettingsElement::write_linked() const {
+            get<1>(SettingsElement::getLinks()[getPath()])();
+        }
+
         SettingsFile::SettingsFile(std::string const& a_strClassName, FileType a_eFileType, std::string const& a_strFilePath, int a_iFileVersion)
             : m_strClassName{ a_strClassName }
             , m_eFileType{ a_eFileType }
@@ -90,14 +103,14 @@ namespace emb {
             return m_iFileVersion;
         }
 
-        std::map<std::string, std::map<std::string,SettingsElement::CreateMethod>>& SettingsFile::getMap() {
-            static std::map<std::string, std::map<std::string,SettingsElement::CreateMethod>> map{};
+        std::map<std::string, std::map<std::string, SettingsElement::CreateMethod>>& SettingsFile::getMap() {
+            static std::map<std::string, std::map<std::string, SettingsElement::CreateMethod>> map{};
             return map;
         }
+
         std::map<std::string, emb::settings::SettingsElement::CreateMethod>& SettingsFile::getElementsMap(std::string const& a_strFileClass) {
             return getMap()[a_strFileClass];
         }
-
 
         class SettingsFileManager {
             struct InfoWithMutex {
@@ -124,7 +137,7 @@ namespace emb {
                     }
                 }
                 try {
-                    switch(elm.info.eFileType) {
+                    switch (elm.info.eFileType) {
                     case FileType::XML:
                         boost::property_tree::read_xml(elm.info.strFilecontent, elm.info.tree);
                         break;
@@ -136,7 +149,7 @@ namespace emb {
                         break;
                     }
                 }
-                catch(...) {
+                catch (...) {
                     elm.info.tree = decltype(elm.info.tree)();
                 }
                 return SettingsFileInfo::Ptr{ &elm.info };
@@ -145,7 +158,7 @@ namespace emb {
                 auto& elm = m_mapInfo[strFilename];
                 try {
                     std::stringstream strFilecontent{};
-                    switch(elm.info.eFileType) {
+                    switch (elm.info.eFileType) {
                     case FileType::XML:
                         boost::property_tree::write_xml(strFilecontent, elm.info.tree/*,
                             boost::property_tree::xml_writer_settings<decltype(elm.info.tree)::key_type>(' ', 4)*/);
@@ -157,7 +170,7 @@ namespace emb {
                         boost::property_tree::write_ini(strFilecontent, elm.info.tree);
                         break;
                     }
-                    if(elm.info.strFilecontent.str() != strFilecontent.str()) {
+                    if (elm.info.strFilecontent.str() != strFilecontent.str()) {
                         std::ofstream os(elm.strFullFileName, std::ios::binary);
                         if (os.is_open()) {
                             os << strFilecontent.str();
@@ -165,11 +178,11 @@ namespace emb {
                     }
                     elm.info.strFilecontent.str(strFilecontent.str());
                 }
-                catch(...) {
+                catch (...) {
                 }
-                #ifdef DEBUG_OUTPUT
+#ifdef DEBUG_OUTPUT
                 std::cout << elm.info.strFilecontent.str() << std::endl;
-                #endif
+#endif
                 elm.mutex.unlock();
             }
         };
