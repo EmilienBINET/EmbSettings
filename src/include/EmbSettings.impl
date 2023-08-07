@@ -30,6 +30,11 @@ namespace emb {
             }
         }
 
+        template<typename Type, typename Element>
+        void SettingsElement::link_setting(std::string const& a_strFileClass, std::string const& a_strKey, Type & a_rtValue) {
+            SettingsElement::getLinks()[a_strKey] = std::make_pair([&a_rtValue]{ a_rtValue = Element::read(); }, [&a_rtValue]{ Element::write(a_rtValue); });
+        }
+
         template<typename Type>
         Type SettingsElement::read(Type const& a_tDefaultValue) const {
             return read_setting<Type>(getFileClassName(), getPath(), a_tDefaultValue);

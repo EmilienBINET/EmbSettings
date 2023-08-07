@@ -16,14 +16,15 @@ add_library(
 target_compile_features(EmbSettings PRIVATE cxx_std_11)
 
 target_include_directories(EmbSettings PUBLIC src/include)
+target_include_directories(EmbSettings PUBLIC C:/boost/boost_1_82_0)
 
 set_target_properties(EmbSettings PROPERTIES PUBLIC_HEADER "src/include/EmbSettings.hpp")
 install(TARGETS EmbSettings)
 
 if(1)
     add_definitions(-DUSE_VLD)
-    target_include_directories(EmbSettings PRIVATE "C:/Program Files (x86)/Visual Leak Detector/include")
-    target_link_directories(EmbSettings PRIVATE "C:/Program Files (x86)/Visual Leak Detector/lib/Win64")
+    target_include_directories(EmbSettings PUBLIC "C:/Program Files (x86)/Visual Leak Detector/include")
+    target_link_directories(EmbSettings PUBLIC "C:/Program Files (x86)/Visual Leak Detector/lib/Win64")
 endif()
 
 #add_custom_target(CHECK ALL "${CONAN_BIN_DIRS_CPPCHECK}/cppcheck" "../src/"])
@@ -32,3 +33,8 @@ if(MSVC)
     target_compile_options(EmbSettings PUBLIC "/Zc:__cplusplus")
 endif()
 
+add_executable(
+	EmbSettingsExe
+	src/main.cpp
+)
+target_link_libraries(EmbSettingsExe PRIVATE EmbSettings)
