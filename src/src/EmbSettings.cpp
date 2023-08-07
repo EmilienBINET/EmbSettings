@@ -210,5 +210,13 @@ namespace emb {
             static std::map<std::string, SettingsFile::CreateMethod> map{};
             return map;
         }
+
+        bool register_file(std::string const& a_strName, SettingsFile::CreateMethod a_pCreateMethod) {
+            #ifdef DEBUG_REGISTER
+            std::cout << "Registering File: " << " as " << a_strName << std::endl;
+            #endif
+            getFilesMap()[a_strName] = a_pCreateMethod;
+            return true;
+        }
     }
 }

@@ -44,14 +44,5 @@ namespace emb {
             write_setting<Type>(getFileClassName(), getPath(), a_tNewValue);
         }
 
-        template<typename T>
-        bool register_file(std::string const& a_strName) {
-            #ifdef DEBUG_REGISTER
-            std::cout << "Registering File: " << typeid(T).name() << " as " << a_strName << std::endl;
-            #endif
-            getFilesMap()[a_strName] = T::CreateMethod;
-            return true;
-        }
-
     }
 }

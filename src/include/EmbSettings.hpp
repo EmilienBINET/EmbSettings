@@ -7,62 +7,28 @@
 #include <boost/property_tree/ptree.hpp>
 
 #define EMBSETTINGS_DECLARE_FILE(_name, _type, _path, _version)                                                                             \
-class _name : public emb::settings::SettingsFile {                                                                                          \
-    static bool registered;                                                                                                                 \
-public:                                                                                                                                     \
-    static char const FilePath[];                                                                                                      \
-    static emb::settings::FileType const FileType;                                                                                          \
-    static int const FileVersion;                                                                                                           \
-    _name() : emb::settings::SettingsFile{#_name, emb::settings::FileType::_type, _path, _version} {}                                       \
-	static std::unique_ptr<SettingsFile> CreateMethod() { return std::make_unique<_name>(); }                                               \
-    static std::map<std::string, emb::settings::SettingsElement::CreateMethod>& getElementsMap() { return getElementsMap(#_name); }         \
-    static void read_linked() {                                                                                                             \
-        for (auto const& elm : getElementsMap()) {                                                                                          \
-            elm.second()->read_linked();                                                                                                    \
-        }                                                                                                                                   \
-    }                                                                                                                                       \
-    static void write_linked() {                                                                                                            \
-        for (auto const& elm : getElementsMap()) {                                                                                          \
-            elm.second()->write_linked();                                                                                                   \
-        }                                                                                                                                   \
-    }                                                                                                                                       \
-private:                                                                                                                                    \
-    using SettingsFile::getElementsMap;                                                                                                     \
-};                                                                                                                                          \
-bool _name::registered = emb::settings::register_file<_name>(#_name);                                                                       \
-char const _name::FilePath[]{ _path };                                                                                                     \
-emb::settings::FileType const _name::FileType{ emb::settings::FileType::_type };                                                            \
-int const _name::FileVersion{ _version };                                                                                                   \
+namespace _name ## Private {                                                                                                                \
+    char _name ## ClassName[]{ #_name };                                                                                                    \
+    char _name ## TypeName[]{ #_type };                                                                                                     \
+    char _name ## Path[]{ _path };                                                                                                          \
+}                                                                                                                                           \
+class _name final : public emb::settings::TSettingsFile<_name, _name ## Private :: _name ## ClassName, emb::settings::FileType::_type,      \
+    _name ## Private :: _name ## TypeName, _name ## Private :: _name ## Path, _version> {                                                   \
+    void Register() noexcept override { registered = registered; }                                                                          \
+};
 
 #define EMBSETTINGS_DECLARE_VALUE(_name, _type, _file, _path, _default)                                                                     \
-namespace _name ## Private {                                                   \
-    char _name ## ClassName[]{ #_name };                                                   \
-    char _name ## TypeName[]{ #_type };                                                   \
-    char _name ## Path[]{ _path };                                                        \
-    _type _name ## Default{ _default };                                                   \
-}                                                       \
-class _name : public emb::settings::TSettingsElement<_name, _name ## Private :: _name ## ClassName, _type, \
-_name ## Private :: _name ## TypeName, _file, _name ## Private :: _name ## Path, & _name ## Private :: _name ## Default> { \
-void Register() noexcept override { registered = registered; } \
+namespace _name ## Private {                                                                                                                \
+    char _name ## ClassName[]{ #_name };                                                                                                    \
+    char _name ## TypeName[]{ #_type };                                                                                                     \
+    char _name ## Path[]{ _path };                                                                                                          \
+    _type _name ## Default{ _default };                                                                                                     \
+}                                                                                                                                           \
+class _name final : public emb::settings::TSettingsElement<_name, _name ## Private :: _name ## ClassName, _type,                            \
+    _name ## Private :: _name ## TypeName, _file, _name ## Private :: _name ## Path, & _name ## Private :: _name ## Default> {              \
+    void Register() noexcept override { registered = registered; }                                                                          \
 };
-/*
-class _name : public emb::settings::SettingsElement {                                                                                       \
-    static bool registered;                                                                                                                 \
-public:                                                                                                                                     \
-    _name() : emb::settings::SettingsElement{#_name, #_type, #_file, _path} {}                                                              \
-    static _type read() {                                                                                                                   \
-        return read_setting<_type>(#_file, _path, _default);                                                                                \
-    }                                                                                                                                       \
-    static void write(_type const& tVal) {                                                                                                  \
-        write_setting<_type>(#_file, _path, tVal);                                                                                          \
-    }                                                                                                                                       \
-    static void link(_type & rtVal) {                                                                                                       \
-        link_setting<_type, _name>(#_file, _path, rtVal);                                                                                   \
-    }                                                                                                                                       \
-	static std::unique_ptr<SettingsElement> CreateMethod() { return std::make_unique<_name>(); }                                            \
-};                                                                                                                                          \
-bool _name::registered = _file::register_settings<_name>(#_file, _path);                                                                    \
-*/
+
 namespace emb {
     namespace settings {
         class SettingsFile;
@@ -122,7 +88,6 @@ namespace emb {
             void write_linked() const;
         };
 
-//using _name = emb::settings::TSettingsElement<_name ## ClassName, _type, _file, _name ## Path, _name ## Default>;
         template<typename Class, char const* ClassName, typename Type, char const* TypeName,
                  typename File, char const* Key, Type const* Default>
         class TSettingsElement : public SettingsElement {
@@ -130,7 +95,7 @@ namespace emb {
             static bool registered;
             virtual void Register() noexcept = 0;
         public:
-            TSettingsElement() : emb::settings::SettingsElement{ClassName, TypeName, File::FilePath, Key} {}
+            TSettingsElement() : SettingsElement{ClassName, TypeName, File::FilePath, Key} {}
             static Type read() {
                 return read_setting<Type>(File::FilePath, Key, *Default);
             }
@@ -165,10 +130,43 @@ namespace emb {
             static std::map<std::string, emb::settings::SettingsElement::CreateMethod>& getElementsMap(std::string const& a_strFileClass);
         };
 
+        template<typename Class, char const* ClassName, emb::settings::FileType Type, char const* TypeName, char const* Path, int Version>
+        class TSettingsFile : public SettingsFile {
+        protected:
+            static bool registered;
+            virtual void Register() noexcept = 0;
+        public:
+            static char const* FilePath;
+            static emb::settings::FileType const FileType;
+            static int const FileVersion;
+            TSettingsFile() : SettingsFile{ClassName, static_cast<emb::settings::FileType>(Type), Path, Version} {}
+            static std::unique_ptr<SettingsFile> CreateMethod() { return std::make_unique<Class>(); }
+            static std::map<std::string, emb::settings::SettingsElement::CreateMethod>& getElementsMap() { return getElementsMap(ClassName); }
+            static void read_linked() {
+                for (auto const& elm : getElementsMap()) {
+                    elm.second()->read_linked();
+                }
+            }
+            static void write_linked() {
+                for (auto const& elm : getElementsMap()) {
+                    elm.second()->write_linked();
+                }
+            }
+        private:
+            using SettingsFile::getElementsMap;
+        };
+        template<typename Class, char const* ClassName, FileType Type, char const* TypeName, char const* Path, int Version>
+        bool TSettingsFile<Class, ClassName, Type, TypeName, Path, Version>::registered = register_file(ClassName, Class::CreateMethod);
+        template<typename Class, char const* ClassName, FileType Type, char const* TypeName, char const* Path, int Version>
+        char const* TSettingsFile<Class, ClassName, Type, TypeName, Path, Version>::FilePath{ Path };
+        template<typename Class, char const* ClassName, FileType Type, char const* TypeName, char const* Path, int Version>
+        emb::settings::FileType const TSettingsFile<Class, ClassName, Type, TypeName, Path, Version>::FileType{ Type };
+        template<typename Class, char const* ClassName, FileType Type, char const* TypeName, char const* Path, int Version>
+        int const TSettingsFile<Class, ClassName, Type, TypeName, Path, Version>::FileVersion{ Version };
+
         std::map<std::string, SettingsFile::CreateMethod>& getFilesMap();
 
-        template<typename T>
-        bool register_file(std::string const& a_strName);
+        bool register_file(std::string const& a_strName, SettingsFile::CreateMethod a_pCreateMethod);
     }
 }
 #include "EmbSettings.impl"
