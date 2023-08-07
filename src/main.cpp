@@ -10,6 +10,8 @@ namespace MyParams {
     EMBSETTINGS_SCALAR(Param1, double, Machine, "test.param1", 1.5);
     EMBSETTINGS_SCALAR(Param2, int, Machine, "test.param2", -5);
     EMBSETTINGS_SCALAR(Param3, std::string, Machine, "test.param3", "coucou");
+    EMBSETTINGS_VECTOR(ParamVector, std::string, Machine, "test.vector");
+    EMBSETTINGS_MAP(ParamMap, std::string, Machine, "test.map");
 }
 
 struct MachineSettings {
@@ -57,6 +59,9 @@ int main(int argc, char** argv)
     std::cout << machineSettings.param3 << std::endl;
     machineSettings.param3 = "hello";
     machineSettings.write();
+
+    MyParams::ParamVector::write({ "a1", "b2", "c3", "d4" });
+    MyParams::ParamMap::write({ { "A", "a1" }, { "B", "b2" }, { "C", "c3" }, { "D", "d4" } });
 
     getc(stdin);
     return 0;
