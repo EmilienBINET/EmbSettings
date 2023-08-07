@@ -84,6 +84,7 @@ namespace emb {
             template<typename Type, typename Element>
             static void link_setting(std::string const& a_strFileClass, std::string const& a_strKey, Type& a_rtValue);
         public:
+            virtual ~SettingsElement() {}
             using CreateMethod = std::unique_ptr<SettingsElement>(*)();
             std::string getClassName() const;
             std::string getType() const;
@@ -109,20 +110,21 @@ namespace emb {
             virtual void Register() noexcept = 0;
         public:
             TSettingsElement() : SettingsElement{ClassName, TypeName, File::FilePath, Key} {}
+            virtual ~TSettingsElement() {}
             static Type read() {
-                return read_setting<Type>(File::FilePath, Key, *Default);
+                return read_setting<Type>(File::Name, Key, *Default);
             }
             static void write(Type const& tVal) {
-                write_setting<Type>(File::FilePath, Key, tVal);
+                write_setting<Type>(File::Name, Key, tVal);
             }
             static void link(Type & rtVal) {
-                link_setting<Type, Class>(File::FilePath, Key, rtVal);
+                link_setting<Type, Class>(File::Name, Key, rtVal);
             }
             static std::unique_ptr<SettingsElement> CreateMethod() { return std::make_unique<Class>(); }
         };
         template<typename Class, char const* ClassName, typename Type, char const* TypeName, typename File, char const* Key, Type const* Default>
         bool TSettingsElement<Class, ClassName, Type, TypeName, File, Key, Default>::registered =
-            File::register_settings(File::FilePath, Key, Class::CreateMethod);
+            File::register_settings(File::Name, Key, Class::CreateMethod);
 
         class SettingsFile {
             std::string const m_strClassName;
@@ -133,6 +135,7 @@ namespace emb {
         protected:
             SettingsFile(std::string const& a_strClassName, FileType a_eFileType, std::string const& a_strFilePath, int a_iFileVersion);
         public:
+            virtual ~SettingsFile() {}
             using CreateMethod = std::unique_ptr<SettingsFile>(*)();
             std::string getClassName() const;
             FileType getFileType() const;
@@ -149,10 +152,12 @@ namespace emb {
             static bool registered;
             virtual void Register() noexcept = 0;
         public:
+            static char const* Name;
             static char const* FilePath;
             static emb::settings::FileType const FileType;
             static int const FileVersion;
             TSettingsFile() : SettingsFile{ClassName, static_cast<emb::settings::FileType>(Type), Path, Version} {}
+            virtual ~TSettingsFile() {}
             static std::unique_ptr<SettingsFile> CreateMethod() { return std::make_unique<Class>(); }
             static std::map<std::string, emb::settings::SettingsElement::CreateMethod>& getElementsMap() { return getElementsMap(ClassName); }
             static void read_linked() {
@@ -170,6 +175,8 @@ namespace emb {
         };
         template<typename Class, char const* ClassName, FileType Type, char const* TypeName, char const* Path, int Version>
         bool TSettingsFile<Class, ClassName, Type, TypeName, Path, Version>::registered = register_file(ClassName, Class::CreateMethod);
+        template<typename Class, char const* ClassName, FileType Type, char const* TypeName, char const* Path, int Version>
+        char const* TSettingsFile<Class, ClassName, Type, TypeName, Path, Version>::Name{ ClassName };
         template<typename Class, char const* ClassName, FileType Type, char const* TypeName, char const* Path, int Version>
         char const* TSettingsFile<Class, ClassName, Type, TypeName, Path, Version>::FilePath{ Path };
         template<typename Class, char const* ClassName, FileType Type, char const* TypeName, char const* Path, int Version>
