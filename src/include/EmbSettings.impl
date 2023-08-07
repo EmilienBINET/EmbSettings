@@ -12,7 +12,7 @@ namespace emb {
         template<typename Type>
         Type SettingsElement::read_setting(std::string const& a_strFileClass, std::string const& a_strKey, Type const& a_tDefaultValue) {
             if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
-                if (auto pInfo = SettingsFileInfo::getFileInfo((*fileInfo)())) {
+                if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
                     if (auto val = pInfo->tree.template get_optional<Type>(a_strKey)) {
                         return *val;
                     }
@@ -24,7 +24,7 @@ namespace emb {
         template<typename Type>
         void SettingsElement::write_setting(std::string const& a_strFileClass, std::string const& a_strKey, Type const& a_tNewValue) {
             if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
-                if (auto pInfo = SettingsFileInfo::getFileInfo((*fileInfo)())) {
+                if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
                     pInfo->tree.template put<Type>(a_strKey, a_tNewValue);
                 }
             }

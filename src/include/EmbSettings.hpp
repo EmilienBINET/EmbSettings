@@ -75,25 +75,6 @@ enum class FileType {
  */
 void set_jocker(std::string const& a_strJocker, std::string const& a_strValue);
 
-// Forward declaration
-class SettingsFile;
-
-/**
- * @brief
- *
- */
-struct SettingsFileInfo {
-    std::string /*const*/ strFilename{};
-    boost::property_tree::ptree tree{};
-
-    struct Deleter {
-        void operator()(SettingsFileInfo* a_pObj);
-    };
-    using Ptr = std::unique_ptr<SettingsFileInfo, Deleter>;
-
-    static Ptr getFileInfo(std::unique_ptr<SettingsFile>);
-};
-
 class SettingsElement {
     std::string const m_strClassName;
     std::string const m_strType;
@@ -213,6 +194,27 @@ int const TSettingsFile<Class, ClassName, Type, TypeName, Path, Version>::FileVe
 std::map<std::string, SettingsFile::CreateMethod>& getFilesMap();
 
 bool register_file(std::string const& a_strName, SettingsFile::CreateMethod a_pCreateMethod);
+
+
+namespace internal {
+
+/**
+ * @brief Struct that give access to a file ptree
+ */
+struct SettingsFileInfo {
+    std::string /*const*/ strFilename{};
+    boost::property_tree::ptree tree{};
+
+    struct Deleter {
+        void operator()(SettingsFileInfo* a_pObj);
+    };
+    using Ptr = std::unique_ptr<SettingsFileInfo, Deleter>;
+
+    static Ptr getFileInfo(std::unique_ptr<SettingsFile>);
+};
+
+}
+
 
 } }
 

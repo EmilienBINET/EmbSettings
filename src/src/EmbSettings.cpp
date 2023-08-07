@@ -116,7 +116,7 @@ namespace emb {
 
         class SettingsFileManager {
             struct InfoWithMutex {
-                SettingsFileInfo info{};
+                internal::SettingsFileInfo info{};
                 std::mutex mutex{};
                 std::string strFullFileName{};
                 FileType eFileType{};
@@ -125,7 +125,7 @@ namespace emb {
             static std::map<std::string, InfoWithMutex> m_mapInfo;
 
         public:
-            static SettingsFileInfo::Ptr getFileInfoAndLock(std::string const& strFilename, FileType a_eFileType) {
+            static internal::SettingsFileInfo::Ptr getFileInfoAndLock(std::string const& strFilename, FileType a_eFileType) {
                 auto& elm = m_mapInfo[strFilename];
                 elm.mutex.lock();
                 if (elm.info.strFilename.empty()) {
@@ -156,7 +156,7 @@ namespace emb {
                         elm.info.tree = decltype(elm.info.tree)();
                     }
                 }
-                return SettingsFileInfo::Ptr{ &elm.info };
+                return internal::SettingsFileInfo::Ptr{ &elm.info };
             }
             static void setFileInfoAndUnlock(std::string const& strFilename) {
                 auto& elm = m_mapInfo[strFilename];
@@ -192,11 +192,11 @@ namespace emb {
         };
         std::map<std::string, SettingsFileManager::InfoWithMutex> SettingsFileManager::m_mapInfo{};
 
-        void SettingsFileInfo::Deleter::operator()(SettingsFileInfo* a_pObj) {
+        void internal::SettingsFileInfo::Deleter::operator()(internal::SettingsFileInfo* a_pObj) {
             SettingsFileManager::setFileInfoAndUnlock(a_pObj->strFilename);
         }
 
-        SettingsFileInfo::Ptr SettingsFileInfo::getFileInfo(std::unique_ptr<SettingsFile> a_pSettingsFile) {
+        internal::SettingsFileInfo::Ptr internal::SettingsFileInfo::getFileInfo(std::unique_ptr<SettingsFile> a_pSettingsFile) {
             return SettingsFileManager::getFileInfoAndLock(a_pSettingsFile->getFilePath(), a_pSettingsFile->getFileType());
         }
 
