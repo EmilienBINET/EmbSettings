@@ -13,16 +13,16 @@ public:                                                                         
     static std::string const FilePath;                                                                                                      \
     static emb::settings::FileType const FileType;                                                                                          \
     static int const FileVersion;                                                                                                           \
-    _name() : emb::settings::SettingsFile{#_name, _type, _path, _version} {}                                                                \
+    _name() : emb::settings::SettingsFile{#_name, emb::settings::FileType::_type, _path, _version} {}                                       \
 	static std::unique_ptr<SettingsFile> CreateMethod() { return std::make_unique<_name>(); }                                               \
     static std::map<std::string, emb::settings::SettingsElement::CreateMethod>& getElementsMap() { return getElementsMap(#_name); }         \
-    static void read_linked() {                                                                                                       \
-        for (auto const& elm : getElementsMap()) {                                                                            \
+    static void read_linked() {                                                                                                             \
+        for (auto const& elm : getElementsMap()) {                                                                                          \
             elm.second()->read_linked();                                                                                                    \
         }                                                                                                                                   \
     }                                                                                                                                       \
-    static void write_linked() {                                                                                                      \
-        for (auto const& elm : getElementsMap()) {                                                                            \
+    static void write_linked() {                                                                                                            \
+        for (auto const& elm : getElementsMap()) {                                                                                          \
             elm.second()->write_linked();                                                                                                   \
         }                                                                                                                                   \
     }                                                                                                                                       \
@@ -31,7 +31,7 @@ private:                                                                        
 };                                                                                                                                          \
 bool _name::registered = emb::settings::register_file<_name>(#_name);                                                                       \
 std::string const _name::FilePath{ _path };                                                                                                 \
-emb::settings::FileType const _name::FileType{ _type };                                                                                     \
+emb::settings::FileType const _name::FileType{ emb::settings::FileType::_type };                                                            \
 int const _name::FileVersion{ _version };                                                                                                   \
 
 #define EMBSETTINGS_DECLARE_VALUE(_name, _type, _file, _path, _default)                                                                     \

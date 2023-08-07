@@ -6,7 +6,7 @@
 #endif
 
 namespace MyParams {
-    EMBSETTINGS_DECLARE_FILE(Machine, emb::settings::FileType::XML, "Machine.xml", 1);
+    EMBSETTINGS_DECLARE_FILE(Machine, XML, "Machine.xml", 1);
     EMBSETTINGS_DECLARE_VALUE(Param1, double, Machine, "test.param1", 1.5);
     EMBSETTINGS_DECLARE_VALUE(Param2, int, Machine, "test.param2", -5);
     EMBSETTINGS_DECLARE_VALUE(Param3, std::string, Machine, "test.param3", "coucou");
