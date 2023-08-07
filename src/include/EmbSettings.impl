@@ -1,6 +1,7 @@
 #pragma once
 //#define DEBUG_REGISTER
 #include "EmbSettings.hpp"
+#include <string>
 #ifdef DEBUG_REGISTER
 #include <iostream>
 #endif
@@ -12,7 +13,7 @@ namespace emb {
         template<typename Type>
         Type SettingsElement::read_setting(std::string const& a_strFileClass, std::string const& a_strKey, Type const& a_tDefaultValue) {
             if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
-                if (auto pInfo = SettingsFileInfo::getFileInfo((*fileInfo)())) {
+                if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
                     if (auto val = pInfo->tree.template get_optional<Type>(a_strKey)) {
                         return *val;
                     }
@@ -24,7 +25,7 @@ namespace emb {
         template<typename Type>
         void SettingsElement::write_setting(std::string const& a_strFileClass, std::string const& a_strKey, Type const& a_tNewValue) {
             if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
-                if (auto pInfo = SettingsFileInfo::getFileInfo((*fileInfo)())) {
+                if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
                     pInfo->tree.template put<Type>(a_strKey, a_tNewValue);
                 }
             }
@@ -36,30 +37,78 @@ namespace emb {
         }
 
         template<typename Type>
+        std::vector<Type> SettingsElement::read_setting_vector(std::string const& a_strFileClass, std::string const& a_strKey) {
+            std::vector<Type> vecOutput{};
+            if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
+                if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
+                    for(auto const& item : pInfo->tree.get_child(a_strKey)) {
+                        vecOutput.push_back(item.second.get_value<Type>());
+                    }
+                }
+            }
+            return vecOutput;
+        }
+
+        template<typename Type>
+        void SettingsElement::write_setting_vector(std::string const& a_strFileClass, std::string const& a_strKey, std::vector<Type> const& a_tvecNewValue) {
+            if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
+                if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
+                    auto pos = a_strKey.find_last_of('.');
+                    if(std::string::npos != pos) {
+                        pInfo->tree.get_child(a_strKey.substr(0, pos)).erase(a_strKey.substr(pos+1));
+                    }
+                    switch(pInfo->eFileType) {
+                    case FileType::XML: {
+                            for(auto const& item : a_tvecNewValue) {
+                                pInfo->tree.template add<Type>(a_strKey + ".value", item);
+                            }
+                        }
+                        break;
+                    case FileType::JSON: {
+                            boost::property_tree::ptree children;
+                            for(auto const& item : a_tvecNewValue) {
+                                boost::property_tree::ptree child;
+                                child.put<Type>("", item);
+                                children.push_back(std::make_pair("", child));
+                            }
+                            pInfo->tree.add_child(a_strKey, children);
+                        }
+                        break;
+                    case FileType::INI:
+                        break;
+                    }
+                }
+            }
+        }
+
+        template<typename Type>
+        void SettingsElement::add_setting_vector(std::string const& a_strFileClass, std::string const& a_strKey, Type const& tVal) {
+            if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
+                if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
+                    switch(pInfo->eFileType) {
+                    case FileType::XML:
+                        pInfo->tree.template add<Type>(a_strKey + ".value", tVal);
+                        break;
+                    case FileType::JSON: {
+                            boost::property_tree::ptree child;
+                            child.put<Type>("", tVal);
+                            pInfo->tree.get_child(a_strKey).push_back(std::make_pair("", child));
+                        }
+                        break;
+                    case FileType::INI:
+                        break;
+                    }
+                }
+            }
+        }
+
+        template<typename Type>
         Type SettingsElement::read(Type const& a_tDefaultValue) const {
             return read_setting<Type>(getFileClassName(), getPath(), a_tDefaultValue);
         }
         template<typename Type>
         void SettingsElement::write(Type const& a_tNewValue) const {
             write_setting<Type>(getFileClassName(), getPath(), a_tNewValue);
-        }
-
-        template<typename T>
-        bool SettingsFile::register_settings(char const* a_szFile, char const* a_szPath) {
-            #ifdef DEBUG_REGISTER
-            std::cout << "Registering Setting: " << typeid(T).name() << " as " << a_szPath << " in " << a_szFile << std::endl;
-            #endif
-            getMap()[a_szFile][a_szPath] = T::CreateMethod;
-            return true;
-        }
-
-        template<typename T>
-        bool register_file(std::string const& a_strName) {
-            #ifdef DEBUG_REGISTER
-            std::cout << "Registering File: " << typeid(T).name() << " as " << a_strName << std::endl;
-            #endif
-            getFilesMap()[a_strName] = T::CreateMethod;
-            return true;
         }
 
     }

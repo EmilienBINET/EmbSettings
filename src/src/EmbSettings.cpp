@@ -15,19 +15,13 @@ namespace emb {
     namespace settings {
         using namespace std;
 
-        void start() {
-        }
-
-        void stop() {
-        }
-
         map<string, string>& jockers() {
             static map<string, string> jockers{};
             return jockers;
         }
 
-        void setJocker(std::string const& aJocker, std::string const& aValue) {
-            jockers()[aJocker] = aValue;
+        void set_jocker(std::string const& a_strJocker, std::string const& a_strValue) {
+            jockers()[a_strJocker] = a_strValue;
         }
 
         void parseJockers(std::string& a_rstrFilePath) {
@@ -73,11 +67,15 @@ namespace emb {
         }
 
         void SettingsElement::read_linked() const {
-            get<0>(SettingsElement::getLinks()[getPath()])();
+            if(auto fct = get<0>(SettingsElement::getLinks()[getPath()])) {
+                fct();
+            }
         }
 
         void SettingsElement::write_linked() const {
-            get<1>(SettingsElement::getLinks()[getPath()])();
+            if(auto fct = get<1>(SettingsElement::getLinks()[getPath()])) {
+                fct();
+            }
         }
 
         SettingsFile::SettingsFile(std::string const& a_strClassName, FileType a_eFileType, std::string const& a_strFilePath, int a_iFileVersion)
@@ -108,20 +106,30 @@ namespace emb {
             return map;
         }
 
+        bool SettingsFile::register_settings(char const* a_szFile, char const* a_szPath, SettingsElement::CreateMethod a_pCreateMethod) {
+            #ifdef DEBUG_REGISTER
+            std::cout << "Registering Setting: " << a_szPath << " in " << a_szFile << std::endl;
+            #endif
+            getMap()[a_szFile][a_szPath] = a_pCreateMethod;
+            return true;
+        }
+
         std::map<std::string, emb::settings::SettingsElement::CreateMethod>& SettingsFile::getElementsMap(std::string const& a_strFileClass) {
             return getMap()[a_strFileClass];
         }
 
         class SettingsFileManager {
             struct InfoWithMutex {
-                SettingsFileInfo info{};
+                internal::SettingsFileInfo info{};
                 std::mutex mutex{};
                 std::string strFullFileName{};
+                FileType eFileType{};
+                std::stringstream strFilecontent{};
             };
             static std::map<std::string, InfoWithMutex> m_mapInfo;
 
         public:
-            static SettingsFileInfo::Ptr getFileInfoAndLock(std::string const& strFilename, FileType a_eFileType) {
+            static internal::SettingsFileInfo::Ptr getFileInfoAndLock(std::string const& strFilename, FileType a_eFileType) {
                 auto& elm = m_mapInfo[strFilename];
                 elm.mutex.lock();
                 if (elm.info.strFilename.empty()) {
@@ -129,39 +137,40 @@ namespace emb {
                     parseJockers(elm.strFullFileName);
                     elm.info.strFilename = strFilename;
                     elm.info.eFileType = a_eFileType;
+                    elm.eFileType = a_eFileType;
                     std::ifstream is(elm.strFullFileName, std::ios::binary);
                     if (is.is_open()) {
                         std::stringstream buffer;
-                        elm.info.strFilecontent.str(std::string()); // clear
-                        elm.info.strFilecontent << is.rdbuf();
+                        elm.strFilecontent.str(std::string()); // clear
+                        elm.strFilecontent << is.rdbuf();
+                    }
+                    try {
+                        switch (elm.eFileType) {
+                        case FileType::XML:
+                            boost::property_tree::read_xml(elm.strFilecontent, elm.info.tree);
+                            break;
+                        case FileType::JSON:
+                            boost::property_tree::read_json(elm.strFilecontent, elm.info.tree);
+                            break;
+                        case FileType::INI:
+                            boost::property_tree::read_ini(elm.strFilecontent, elm.info.tree);
+                            break;
+                        }
+                    }
+                    catch (...) {
+                        elm.info.tree = decltype(elm.info.tree)();
                     }
                 }
-                try {
-                    switch (elm.info.eFileType) {
-                    case FileType::XML:
-                        boost::property_tree::read_xml(elm.info.strFilecontent, elm.info.tree);
-                        break;
-                    case FileType::JSON:
-                        boost::property_tree::read_json(elm.info.strFilecontent, elm.info.tree);
-                        break;
-                    case FileType::INI:
-                        boost::property_tree::read_ini(elm.info.strFilecontent, elm.info.tree);
-                        break;
-                    }
-                }
-                catch (...) {
-                    elm.info.tree = decltype(elm.info.tree)();
-                }
-                return SettingsFileInfo::Ptr{ &elm.info };
+                return internal::SettingsFileInfo::Ptr{ &elm.info };
             }
             static void setFileInfoAndUnlock(std::string const& strFilename) {
                 auto& elm = m_mapInfo[strFilename];
                 try {
                     std::stringstream strFilecontent{};
-                    switch (elm.info.eFileType) {
+                    switch (elm.eFileType) {
                     case FileType::XML:
-                        boost::property_tree::write_xml(strFilecontent, elm.info.tree/*,
-                            boost::property_tree::xml_writer_settings<decltype(elm.info.tree)::key_type>(' ', 4)*/);
+                        boost::property_tree::write_xml(strFilecontent, elm.info.tree,
+                            boost::property_tree::xml_writer_settings<decltype(elm.info.tree)::key_type>(' ', 4));
                         break;
                     case FileType::JSON:
                         boost::property_tree::write_json(strFilecontent, elm.info.tree);
@@ -170,13 +179,13 @@ namespace emb {
                         boost::property_tree::write_ini(strFilecontent, elm.info.tree);
                         break;
                     }
-                    if (elm.info.strFilecontent.str() != strFilecontent.str()) {
+                    if (elm.strFilecontent.str() != strFilecontent.str()) {
                         std::ofstream os(elm.strFullFileName, std::ios::binary);
                         if (os.is_open()) {
                             os << strFilecontent.str();
                         }
                     }
-                    elm.info.strFilecontent.str(strFilecontent.str());
+                    elm.strFilecontent.str(strFilecontent.str());
                 }
                 catch (...) {
                 }
@@ -188,17 +197,25 @@ namespace emb {
         };
         std::map<std::string, SettingsFileManager::InfoWithMutex> SettingsFileManager::m_mapInfo{};
 
-        void SettingsFileInfo::Deleter::operator()(SettingsFileInfo* a_pObj) {
+        void internal::SettingsFileInfo::Deleter::operator()(internal::SettingsFileInfo* a_pObj) {
             SettingsFileManager::setFileInfoAndUnlock(a_pObj->strFilename);
         }
 
-        SettingsFileInfo::Ptr SettingsFileInfo::getFileInfo(std::unique_ptr<SettingsFile> a_pSettingsFile) {
+        internal::SettingsFileInfo::Ptr internal::SettingsFileInfo::getFileInfo(std::unique_ptr<SettingsFile> a_pSettingsFile) {
             return SettingsFileManager::getFileInfoAndLock(a_pSettingsFile->getFilePath(), a_pSettingsFile->getFileType());
         }
 
         std::map<std::string, SettingsFile::CreateMethod>& getFilesMap() {
             static std::map<std::string, SettingsFile::CreateMethod> map{};
             return map;
+        }
+
+        bool register_file(std::string const& a_strName, SettingsFile::CreateMethod a_pCreateMethod) {
+            #ifdef DEBUG_REGISTER
+            std::cout << "Registering File: " << " as " << a_strName << std::endl;
+            #endif
+            getFilesMap()[a_strName] = a_pCreateMethod;
+            return true;
         }
     }
 }
