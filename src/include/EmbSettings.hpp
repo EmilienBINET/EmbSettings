@@ -45,7 +45,7 @@ namespace EmbSettings_Private { namespace _name {                               
     char Key[]{ _key };                                                                                                                     \
     _type Default{ _default };                                                                                                              \
 } }                                                                                                                                         \
-class _name final : public emb::settings::TSettingsElement<                                                                                 \
+class _name final : public emb::settings::TSettingsScalar<                                                                                  \
         _name,                                                                                                                              \
         EmbSettings_Private::_name::ClassName,                                                                                              \
         _type,                                                                                                                              \
@@ -53,6 +53,23 @@ class _name final : public emb::settings::TSettingsElement<                     
         _file,                                                                                                                              \
         EmbSettings_Private::_name::Key,                                                                                                    \
         &EmbSettings_Private::_name::Default                                                                                                \
+    > {                                                                                                                                     \
+    void Register() noexcept override { registered = registered; }                                                                          \
+};
+
+#define EMBSETTINGS_VECTOR(_name, _type, _file, _key)                                                                                       \
+namespace EmbSettings_Private { namespace _name {                                                                                           \
+    char ClassName[]{ #_name };                                                                                                             \
+    char TypeName[]{ "std::vector<" #_type ">" };                                                                                           \
+    char Key[]{ _key };                                                                                                                     \
+} }                                                                                                                                         \
+class _name final : public emb::settings::TSettingsVector<                                                                                  \
+        _name,                                                                                                                              \
+        EmbSettings_Private::_name::ClassName,                                                                                              \
+        _type,                                                                                                                              \
+        EmbSettings_Private::_name::TypeName,                                                                                               \
+        _file,                                                                                                                              \
+        EmbSettings_Private::_name::Key                                                                                                     \
     > {                                                                                                                                     \
     void Register() noexcept override { registered = registered; }                                                                          \
 };
@@ -90,6 +107,10 @@ protected:
     static void write_setting(std::string const& a_strFileClass, std::string const& a_strKey, Type const& a_tNewValue);
     template<typename Type, typename Element>
     static void link_setting(std::string const& a_strFileClass, std::string const& a_strKey, Type& a_rtValue);
+    template<typename Type>
+    static std::vector<Type> read_setting_vector(std::string const& a_strFileClass, std::string const& a_strKey);
+    template<typename Type>
+    static void write_setting_vector(std::string const& a_strFileClass, std::string const& a_strKey, std::vector<Type> const& a_tvecNewValue);
 public:
     virtual ~SettingsElement() {}
     using CreateMethod = std::unique_ptr<SettingsElement>(*)();
@@ -111,13 +132,13 @@ public:
 
 template<typename Class, char const* ClassName, typename Type, char const* TypeName,
             typename File, char const* Key, Type const* Default>
-class TSettingsElement : public SettingsElement {
+class TSettingsScalar : public SettingsElement {
 protected:
     static bool registered;
     virtual void Register() noexcept = 0;
 public:
-    TSettingsElement() : SettingsElement{ClassName, TypeName, File::FilePath, Key} {}
-    virtual ~TSettingsElement() {}
+    TSettingsScalar() : SettingsElement{ClassName, TypeName, File::FilePath, Key} {}
+    virtual ~TSettingsScalar() {}
     static Type read() {
         return read_setting<Type>(File::Name, Key, *Default);
     }
@@ -130,8 +151,37 @@ public:
     static std::unique_ptr<SettingsElement> CreateMethod() { return std::make_unique<Class>(); }
 };
 template<typename Class, char const* ClassName, typename Type, char const* TypeName, typename File, char const* Key, Type const* Default>
-bool TSettingsElement<Class, ClassName, Type, TypeName, File, Key, Default>::registered =
+bool TSettingsScalar<Class, ClassName, Type, TypeName, File, Key, Default>::registered =
     File::register_settings(File::Name, Key, Class::CreateMethod);
+
+
+template<typename Class, char const* ClassName, typename Type, char const* TypeName,
+            typename File, char const* Key>
+class TSettingsVector : public SettingsElement {
+protected:
+    static bool registered;
+    virtual void Register() noexcept = 0;
+public:
+    TSettingsVector() : SettingsElement{ClassName, TypeName, File::FilePath, Key} {}
+    virtual ~TSettingsVector() {}
+    static std::vector<Type> read() {
+        return read_setting_vector<Type>(File::Name, Key);
+    }
+    static void write(std::vector<Type> const& tvecVal) {
+        write_setting_vector<Type>(File::Name, Key, tvecVal);
+    }
+    //static void add(Type const& tVal) {
+    //    add_setting_vector<Type>(File::Name, Key, tVal);
+    //}
+    //static void link(Type & rtVal) {
+    //    link_setting<Type, Class>(File::Name, Key, rtVal);
+    //}
+    static std::unique_ptr<SettingsElement> CreateMethod() { return std::make_unique<Class>(); }
+};
+template<typename Class, char const* ClassName, typename Type, char const* TypeName, typename File, char const* Key>
+bool TSettingsVector<Class, ClassName, Type, TypeName, File, Key>::registered =
+    File::register_settings(File::Name, Key, Class::CreateMethod);
+
 
 class SettingsFile {
     std::string const m_strClassName;
@@ -203,6 +253,7 @@ namespace internal {
  */
 struct SettingsFileInfo {
     std::string /*const*/ strFilename{};
+    FileType eFileType{};
     boost::property_tree::ptree tree{};
 
     struct Deleter {

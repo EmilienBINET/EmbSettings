@@ -67,11 +67,15 @@ namespace emb {
         }
 
         void SettingsElement::read_linked() const {
-            get<0>(SettingsElement::getLinks()[getPath()])();
+            if(auto fct = get<0>(SettingsElement::getLinks()[getPath()])) {
+                fct();
+            }
         }
 
         void SettingsElement::write_linked() const {
-            get<1>(SettingsElement::getLinks()[getPath()])();
+            if(auto fct = get<1>(SettingsElement::getLinks()[getPath()])) {
+                fct();
+            }
         }
 
         SettingsFile::SettingsFile(std::string const& a_strClassName, FileType a_eFileType, std::string const& a_strFilePath, int a_iFileVersion)
@@ -132,6 +136,7 @@ namespace emb {
                     elm.strFullFileName = strFilename;
                     parseJockers(elm.strFullFileName);
                     elm.info.strFilename = strFilename;
+                    elm.info.eFileType = a_eFileType;
                     elm.eFileType = a_eFileType;
                     std::ifstream is(elm.strFullFileName, std::ios::binary);
                     if (is.is_open()) {
@@ -164,8 +169,8 @@ namespace emb {
                     std::stringstream strFilecontent{};
                     switch (elm.eFileType) {
                     case FileType::XML:
-                        boost::property_tree::write_xml(strFilecontent, elm.info.tree/*,
-                            boost::property_tree::xml_writer_settings<decltype(elm.info.tree)::key_type>(' ', 4)*/);
+                        boost::property_tree::write_xml(strFilecontent, elm.info.tree,
+                            boost::property_tree::xml_writer_settings<decltype(elm.info.tree)::key_type>(' ', 4));
                         break;
                     case FileType::JSON:
                         boost::property_tree::write_json(strFilecontent, elm.info.tree);

@@ -36,6 +36,47 @@ namespace emb {
         }
 
         template<typename Type>
+        std::vector<Type> SettingsElement::read_setting_vector(std::string const& a_strFileClass, std::string const& a_strKey) {
+            std::vector<Type> vecOutput{};
+            if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
+                if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
+                    for(auto const& item : pInfo->tree.get_child(a_strKey)) {
+                        vecOutput.push_back(item.second.get_value<Type>());
+                    }
+                }
+            }
+            return vecOutput;
+        }
+
+        template<typename Type>
+        void SettingsElement::write_setting_vector(std::string const& a_strFileClass, std::string const& a_strKey, std::vector<Type> const& a_tvecNewValue) {
+            if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
+                if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
+                    switch(pInfo->eFileType) {
+                    case FileType::XML: {
+                            for(auto const& item : a_tvecNewValue) {
+                                pInfo->tree.template add<Type>(a_strKey + ".value", item);
+                            }
+                        }
+                        break;
+                    case FileType::JSON: {
+                            boost::property_tree::ptree children;
+                            for(auto const& item : a_tvecNewValue) {
+                                boost::property_tree::ptree child;
+                                child.put("", item);
+                                children.push_back(std::make_pair("", child));
+                            }
+                            pInfo->tree.add_child(a_strKey, children);
+                        }
+                        break;
+                    case FileType::INI:
+                        break;
+                    }
+                }
+            }
+        }
+
+        template<typename Type>
         Type SettingsElement::read(Type const& a_tDefaultValue) const {
             return read_setting<Type>(getFileClassName(), getPath(), a_tDefaultValue);
         }
