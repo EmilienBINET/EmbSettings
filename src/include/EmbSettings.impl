@@ -68,10 +68,31 @@ namespace emb {
                             boost::property_tree::ptree children;
                             for(auto const& item : a_tvecNewValue) {
                                 boost::property_tree::ptree child;
-                                child.put("", item);
+                                child.put<Type>("", item);
                                 children.push_back(std::make_pair("", child));
                             }
                             pInfo->tree.add_child(a_strKey, children);
+                        }
+                        break;
+                    case FileType::INI:
+                        break;
+                    }
+                }
+            }
+        }
+
+        template<typename Type>
+        void SettingsElement::add_setting_vector(std::string const& a_strFileClass, std::string const& a_strKey, Type const& tVal) {
+            if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
+                if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
+                    switch(pInfo->eFileType) {
+                    case FileType::XML:
+                        pInfo->tree.template add<Type>(a_strKey + ".value", tVal);
+                        break;
+                    case FileType::JSON: {
+                            boost::property_tree::ptree child;
+                            child.put<Type>("", tVal);
+                            pInfo->tree.get_child(a_strKey).push_back(std::make_pair("", child));
                         }
                         break;
                     case FileType::INI:

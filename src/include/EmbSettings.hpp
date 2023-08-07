@@ -111,6 +111,8 @@ protected:
     static std::vector<Type> read_setting_vector(std::string const& a_strFileClass, std::string const& a_strKey);
     template<typename Type>
     static void write_setting_vector(std::string const& a_strFileClass, std::string const& a_strKey, std::vector<Type> const& a_tvecNewValue);
+    template<typename Type>
+    static void add_setting_vector(std::string const& a_strFileClass, std::string const& a_strKey, Type const& tVal);
 public:
     virtual ~SettingsElement() {}
     using CreateMethod = std::unique_ptr<SettingsElement>(*)();
@@ -170,9 +172,9 @@ public:
     static void write(std::vector<Type> const& tvecVal) {
         write_setting_vector<Type>(File::Name, Key, tvecVal);
     }
-    //static void add(Type const& tVal) {
-    //    add_setting_vector<Type>(File::Name, Key, tVal);
-    //}
+    static void add(Type const& tVal) {
+        add_setting_vector<Type>(File::Name, Key, tVal);
+    }
     //static void link(Type & rtVal) {
     //    link_setting<Type, Class>(File::Name, Key, rtVal);
     //}
