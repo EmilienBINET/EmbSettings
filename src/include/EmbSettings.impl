@@ -1,6 +1,7 @@
 #pragma once
 //#define DEBUG_REGISTER
 #include "EmbSettings.hpp"
+#include <string>
 #ifdef DEBUG_REGISTER
 #include <iostream>
 #endif
@@ -52,6 +53,10 @@ namespace emb {
         void SettingsElement::write_setting_vector(std::string const& a_strFileClass, std::string const& a_strKey, std::vector<Type> const& a_tvecNewValue) {
             if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
                 if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
+                    auto pos = a_strKey.find_last_of('.');
+                    if(std::string::npos != pos) {
+                        pInfo->tree.get_child(a_strKey.substr(0, pos)).erase(a_strKey.substr(pos+1));
+                    }
                     switch(pInfo->eFileType) {
                     case FileType::XML: {
                             for(auto const& item : a_tvecNewValue) {
