@@ -117,6 +117,8 @@ namespace emb {
                 SettingsFileInfo info{};
                 std::mutex mutex{};
                 std::string strFullFileName{};
+                FileType eFileType{};
+                std::stringstream strFilecontent{};
             };
             static std::map<std::string, InfoWithMutex> m_mapInfo;
 
@@ -128,24 +130,24 @@ namespace emb {
                     elm.strFullFileName = strFilename;
                     parseJockers(elm.strFullFileName);
                     elm.info.strFilename = strFilename;
-                    elm.info.eFileType = a_eFileType;
+                    elm.eFileType = a_eFileType;
                     std::ifstream is(elm.strFullFileName, std::ios::binary);
                     if (is.is_open()) {
                         std::stringstream buffer;
-                        elm.info.strFilecontent.str(std::string()); // clear
-                        elm.info.strFilecontent << is.rdbuf();
+                        elm.strFilecontent.str(std::string()); // clear
+                        elm.strFilecontent << is.rdbuf();
                     }
                 }
                 try {
-                    switch (elm.info.eFileType) {
+                    switch (elm.eFileType) {
                     case FileType::XML:
-                        boost::property_tree::read_xml(elm.info.strFilecontent, elm.info.tree);
+                        boost::property_tree::read_xml(elm.strFilecontent, elm.info.tree);
                         break;
                     case FileType::JSON:
-                        boost::property_tree::read_json(elm.info.strFilecontent, elm.info.tree);
+                        boost::property_tree::read_json(elm.strFilecontent, elm.info.tree);
                         break;
                     case FileType::INI:
-                        boost::property_tree::read_ini(elm.info.strFilecontent, elm.info.tree);
+                        boost::property_tree::read_ini(elm.strFilecontent, elm.info.tree);
                         break;
                     }
                 }
@@ -158,7 +160,7 @@ namespace emb {
                 auto& elm = m_mapInfo[strFilename];
                 try {
                     std::stringstream strFilecontent{};
-                    switch (elm.info.eFileType) {
+                    switch (elm.eFileType) {
                     case FileType::XML:
                         boost::property_tree::write_xml(strFilecontent, elm.info.tree/*,
                             boost::property_tree::xml_writer_settings<decltype(elm.info.tree)::key_type>(' ', 4)*/);
@@ -170,13 +172,13 @@ namespace emb {
                         boost::property_tree::write_ini(strFilecontent, elm.info.tree);
                         break;
                     }
-                    if (elm.info.strFilecontent.str() != strFilecontent.str()) {
+                    if (elm.strFilecontent.str() != strFilecontent.str()) {
                         std::ofstream os(elm.strFullFileName, std::ios::binary);
                         if (os.is_open()) {
                             os << strFilecontent.str();
                         }
                     }
-                    elm.info.strFilecontent.str(strFilecontent.str());
+                    elm.strFilecontent.str(strFilecontent.str());
                 }
                 catch (...) {
                 }

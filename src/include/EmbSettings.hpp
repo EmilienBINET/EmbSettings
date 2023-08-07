@@ -68,8 +68,6 @@ namespace emb {
 
         struct SettingsFileInfo {
             std::string /*const*/ strFilename{};
-            FileType eFileType{};
-            std::stringstream strFilecontent{};
             boost::property_tree::ptree tree{};
 
             struct Deleter {
