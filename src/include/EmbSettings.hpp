@@ -175,9 +175,9 @@ public:
     static void add(Type const& tVal) {
         add_setting_vector<Type>(File::Name, Key, tVal);
     }
-    //static void link(Type & rtVal) {
-    //    link_setting<Type, Class>(File::Name, Key, rtVal);
-    //}
+    static void link(std::vector<Type> & rtvecVal) {
+        link_setting<std::vector<Type>, Class>(File::Name, Key, rtvecVal);
+    }
     static std::unique_ptr<SettingsElement> CreateMethod() { return std::make_unique<Class>(); }
 };
 template<typename Class, char const* ClassName, typename Type, char const* TypeName, typename File, char const* Key>
