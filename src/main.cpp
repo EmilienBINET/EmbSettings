@@ -6,10 +6,10 @@
 #endif
 
 namespace MyParams {
-    EMBSETTINGS_DECLARE_FILE(Machine, XML, "Machine.xml", 1);
-    EMBSETTINGS_DECLARE_VALUE(Param1, double, Machine, "test.param1", 1.5);
-    EMBSETTINGS_DECLARE_VALUE(Param2, int, Machine, "test.param2", -5);
-    EMBSETTINGS_DECLARE_VALUE(Param3, std::string, Machine, "test.param3", "coucou");
+    EMBSETTINGS_FILE(Machine, XML, "Machine.xml", 1);
+    EMBSETTINGS_SCALAR(Param1, double, Machine, "test.param1", 1.5);
+    EMBSETTINGS_SCALAR(Param2, int, Machine, "test.param2", -5);
+    EMBSETTINGS_SCALAR(Param3, std::string, Machine, "test.param3", "coucou");
 }
 
 struct MachineSettings {
@@ -33,11 +33,9 @@ struct MachineSettings {
 
 int main(int argc, char** argv)
 {
-    emb::settings::start();
-    emb::settings::setJocker("folder1", "c:/temp/");
+    emb::settings::set_jocker("folder1", "c:/temp/");
     std::cout << MyParams::Param3::read() << std::endl;
     MyParams::Param2::write(12);
-    emb::settings::stop();
 
     for (auto const& file : emb::settings::getFilesMap()) {
         std::cout << "FILE " << file.first << std::endl;

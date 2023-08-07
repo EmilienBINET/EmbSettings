@@ -15,19 +15,13 @@ namespace emb {
     namespace settings {
         using namespace std;
 
-        void start() {
-        }
-
-        void stop() {
-        }
-
         map<string, string>& jockers() {
             static map<string, string> jockers{};
             return jockers;
         }
 
-        void setJocker(std::string const& aJocker, std::string const& aValue) {
-            jockers()[aJocker] = aValue;
+        void set_jocker(std::string const& a_strJocker, std::string const& a_strValue) {
+            jockers()[a_strJocker] = a_strValue;
         }
 
         void parseJockers(std::string& a_rstrFilePath) {
