@@ -137,22 +137,22 @@ namespace emb {
                         elm.strFilecontent.str(std::string()); // clear
                         elm.strFilecontent << is.rdbuf();
                     }
-                }
-                try {
-                    switch (elm.eFileType) {
-                    case FileType::XML:
-                        boost::property_tree::read_xml(elm.strFilecontent, elm.info.tree);
-                        break;
-                    case FileType::JSON:
-                        boost::property_tree::read_json(elm.strFilecontent, elm.info.tree);
-                        break;
-                    case FileType::INI:
-                        boost::property_tree::read_ini(elm.strFilecontent, elm.info.tree);
-                        break;
+                    try {
+                        switch (elm.eFileType) {
+                        case FileType::XML:
+                            boost::property_tree::read_xml(elm.strFilecontent, elm.info.tree);
+                            break;
+                        case FileType::JSON:
+                            boost::property_tree::read_json(elm.strFilecontent, elm.info.tree);
+                            break;
+                        case FileType::INI:
+                            boost::property_tree::read_ini(elm.strFilecontent, elm.info.tree);
+                            break;
+                        }
                     }
-                }
-                catch (...) {
-                    elm.info.tree = decltype(elm.info.tree)();
+                    catch (...) {
+                        elm.info.tree = decltype(elm.info.tree)();
+                    }
                 }
                 return SettingsFileInfo::Ptr{ &elm.info };
             }
