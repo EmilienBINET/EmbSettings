@@ -7,25 +7,38 @@
 #include <boost/property_tree/ptree.hpp>
 
 #define EMBSETTINGS_DECLARE_FILE(_name, _type, _path, _version)                                                                             \
-namespace _name ## Private {                                                                                                                \
-    char _name ## ClassName[]{ #_name };                                                                                                    \
-    char _name ## TypeName[]{ #_type };                                                                                                     \
-    char _name ## Path[]{ _path };                                                                                                          \
-}                                                                                                                                           \
-class _name final : public emb::settings::TSettingsFile<_name, _name ## Private :: _name ## ClassName, emb::settings::FileType::_type,      \
-    _name ## Private :: _name ## TypeName, _name ## Private :: _name ## Path, _version> {                                                   \
+namespace EmbSettings_Private { namespace _name {                                                                                           \
+    char ClassName[]{ #_name };                                                                                                             \
+    char TypeName[]{ #_type };                                                                                                              \
+    char Path[]{ _path };                                                                                                                   \
+} }                                                                                                                                         \
+class _name final : public emb::settings::TSettingsFile<                                                                                    \
+        _name,                                                                                                                              \
+        EmbSettings_Private::_name::ClassName,                                                                                              \
+        emb::settings::FileType::_type,                                                                                                     \
+        EmbSettings_Private::_name::TypeName,                                                                                               \
+        EmbSettings_Private::_name::Path,                                                                                                   \
+        _version                                                                                                                            \
+    > {                                                                                                                                     \
     void Register() noexcept override { registered = registered; }                                                                          \
 };
 
 #define EMBSETTINGS_DECLARE_VALUE(_name, _type, _file, _path, _default)                                                                     \
-namespace _name ## Private {                                                                                                                \
-    char _name ## ClassName[]{ #_name };                                                                                                    \
-    char _name ## TypeName[]{ #_type };                                                                                                     \
-    char _name ## Path[]{ _path };                                                                                                          \
-    _type _name ## Default{ _default };                                                                                                     \
-}                                                                                                                                           \
-class _name final : public emb::settings::TSettingsElement<_name, _name ## Private :: _name ## ClassName, _type,                            \
-    _name ## Private :: _name ## TypeName, _file, _name ## Private :: _name ## Path, & _name ## Private :: _name ## Default> {              \
+namespace EmbSettings_Private { namespace _name {                                                                                           \
+    char ClassName[]{ #_name };                                                                                                             \
+    char TypeName[]{ #_type };                                                                                                              \
+    char Path[]{ _path };                                                                                                                   \
+    _type Default{ _default };                                                                                                              \
+} }                                                                                                                                         \
+class _name final : public emb::settings::TSettingsElement<                                                                                 \
+        _name,                                                                                                                              \
+        EmbSettings_Private::_name::ClassName,                                                                                              \
+        _type,                                                                                                                              \
+        EmbSettings_Private::_name::TypeName,                                                                                               \
+        _file,                                                                                                                              \
+        EmbSettings_Private::_name::Path,                                                                                                   \
+        &EmbSettings_Private::_name::Default                                                                                                \
+    > {                                                                                                                                     \
     void Register() noexcept override { registered = registered; }                                                                          \
 };
 
