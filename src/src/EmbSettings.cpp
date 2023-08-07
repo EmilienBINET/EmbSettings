@@ -108,6 +108,14 @@ namespace emb {
             return map;
         }
 
+        bool SettingsFile::register_settings(char const* a_szFile, char const* a_szPath, SettingsElement::CreateMethod a_pCreateMethod) {
+            #ifdef DEBUG_REGISTER
+            std::cout << "Registering Setting: " << a_szPath << " in " << a_szFile << std::endl;
+            #endif
+            getMap()[a_szFile][a_szPath] = a_pCreateMethod;
+            return true;
+        }
+
         std::map<std::string, emb::settings::SettingsElement::CreateMethod>& SettingsFile::getElementsMap(std::string const& a_strFileClass) {
             return getMap()[a_strFileClass];
         }

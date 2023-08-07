@@ -45,15 +45,6 @@ namespace emb {
         }
 
         template<typename T>
-        bool SettingsFile::register_settings(char const* a_szFile, char const* a_szPath) {
-            #ifdef DEBUG_REGISTER
-            std::cout << "Registering Setting: " << typeid(T).name() << " as " << a_szPath << " in " << a_szFile << std::endl;
-            #endif
-            getMap()[a_szFile][a_szPath] = T::CreateMethod;
-            return true;
-        }
-
-        template<typename T>
         bool register_file(std::string const& a_strName) {
             #ifdef DEBUG_REGISTER
             std::cout << "Registering File: " << typeid(T).name() << " as " << a_strName << std::endl;

@@ -10,7 +10,7 @@
 class _name : public emb::settings::SettingsFile {                                                                                          \
     static bool registered;                                                                                                                 \
 public:                                                                                                                                     \
-    static std::string const FilePath;                                                                                                      \
+    static char const FilePath[];                                                                                                      \
     static emb::settings::FileType const FileType;                                                                                          \
     static int const FileVersion;                                                                                                           \
     _name() : emb::settings::SettingsFile{#_name, emb::settings::FileType::_type, _path, _version} {}                                       \
@@ -30,11 +30,22 @@ private:                                                                        
     using SettingsFile::getElementsMap;                                                                                                     \
 };                                                                                                                                          \
 bool _name::registered = emb::settings::register_file<_name>(#_name);                                                                       \
-std::string const _name::FilePath{ _path };                                                                                                 \
+char const _name::FilePath[]{ _path };                                                                                                     \
 emb::settings::FileType const _name::FileType{ emb::settings::FileType::_type };                                                            \
 int const _name::FileVersion{ _version };                                                                                                   \
 
 #define EMBSETTINGS_DECLARE_VALUE(_name, _type, _file, _path, _default)                                                                     \
+namespace _name ## Private {                                                   \
+    char _name ## ClassName[]{ #_name };                                                   \
+    char _name ## TypeName[]{ #_type };                                                   \
+    char _name ## Path[]{ _path };                                                        \
+    _type _name ## Default{ _default };                                                   \
+}                                                       \
+class _name : public emb::settings::TSettingsElement<_name, _name ## Private :: _name ## ClassName, _type, \
+_name ## Private :: _name ## TypeName, _file, _name ## Private :: _name ## Path, & _name ## Private :: _name ## Default> { \
+void Register() noexcept override { registered = registered; } \
+};
+/*
 class _name : public emb::settings::SettingsElement {                                                                                       \
     static bool registered;                                                                                                                 \
 public:                                                                                                                                     \
@@ -51,7 +62,7 @@ public:                                                                         
 	static std::unique_ptr<SettingsElement> CreateMethod() { return std::make_unique<_name>(); }                                            \
 };                                                                                                                                          \
 bool _name::registered = _file::register_settings<_name>(#_file, _path);                                                                    \
-
+*/
 namespace emb {
     namespace settings {
         class SettingsFile;
@@ -111,6 +122,30 @@ namespace emb {
             void write_linked() const;
         };
 
+//using _name = emb::settings::TSettingsElement<_name ## ClassName, _type, _file, _name ## Path, _name ## Default>;
+        template<typename Class, char const* ClassName, typename Type, char const* TypeName,
+                 typename File, char const* Key, Type const* Default>
+        class TSettingsElement : public SettingsElement {
+        protected:
+            static bool registered;
+            virtual void Register() noexcept = 0;
+        public:
+            TSettingsElement() : emb::settings::SettingsElement{ClassName, TypeName, File::FilePath, Key} {}
+            static Type read() {
+                return read_setting<Type>(File::FilePath, Key, *Default);
+            }
+            static void write(Type const& tVal) {
+                write_setting<Type>(File::FilePath, Key, tVal);
+            }
+            static void link(Type & rtVal) {
+                link_setting<Type, Class>(File::FilePath, Key, rtVal);
+            }
+            static std::unique_ptr<SettingsElement> CreateMethod() { return std::make_unique<Class>(); }
+        };
+        template<typename Class, char const* ClassName, typename Type, char const* TypeName, typename File, char const* Key, Type const* Default>
+        bool TSettingsElement<Class, ClassName, Type, TypeName, File, Key, Default>::registered =
+            File::register_settings(File::FilePath, Key, Class::CreateMethod);
+
         class SettingsFile {
             std::string const m_strClassName;
             FileType const m_eFileType;
@@ -126,8 +161,7 @@ namespace emb {
             std::string getFilePath() const;
             int getFileVersion() const;
 
-            template<typename T>
-            static bool register_settings(char const* a_szFile, char const* a_szPath);
+            static bool register_settings(char const* a_szFile, char const* a_szPath, SettingsElement::CreateMethod a_pCreateMethod);
             static std::map<std::string, emb::settings::SettingsElement::CreateMethod>& getElementsMap(std::string const& a_strFileClass);
         };
 
