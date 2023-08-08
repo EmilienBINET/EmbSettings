@@ -12,8 +12,8 @@ add_library(
 	src/src/EmbSettings.cpp
 )
 
-# Need C++11
-target_compile_features(EmbSettings PRIVATE cxx_std_11)
+# Need C++17
+target_compile_features(EmbSettings PUBLIC cxx_std_17)
 
 target_include_directories(EmbSettings PUBLIC src/include)
 target_include_directories(EmbSettings PUBLIC C:/boost/boost_1_82_0)
