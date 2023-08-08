@@ -60,9 +60,12 @@ namespace emb {
             std::vector<Type> vecOutput{};
             if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
                 if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
-                    for(auto const& item : pInfo->tree.get_child(a_strKey)) {
-                        vecOutput.push_back(read_tree(item.second, Type{}));
+                    try {
+                        for(auto const& item : pInfo->tree.get_child(a_strKey)) {
+                            vecOutput.push_back(read_tree(item.second, Type{}));
+                        }
                     }
+                    catch(...) {}
                 }
             }
             return vecOutput;
@@ -113,12 +116,15 @@ namespace emb {
             if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
                 if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
                     switch(pInfo->eFileType) {
-                    case FileType::XML:
-                        pInfo->tree.template add<Type>(a_strKey + "." + internal::xml_vector_element_name(), tVal);
+                    case FileType::XML: {
+                            boost::property_tree::ptree child{};
+                            write_tree(child, tVal);
+                            pInfo->tree.add_child(a_strKey + "." + internal::xml_vector_element_name(), child);
+                        }
                         break;
                     case FileType::JSON: {
                             boost::property_tree::ptree child;
-                            child.put<Type>("", tVal);
+                            write_tree(child, tVal);
                             pInfo->tree.get_child(a_strKey).push_back(std::make_pair("", child));
                         }
                         break;
@@ -180,8 +186,11 @@ namespace emb {
                 if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
                     switch(pInfo->eFileType) {
                     case FileType::XML:
-                    case FileType::JSON:
-                            pInfo->tree.template put<Type>(a_strKey + "." + a_strK, tVal);
+                    case FileType::JSON: {
+                            boost::property_tree::ptree child{};
+                            write_tree(child, tVal);
+                            pInfo->tree.put_child(a_strKey + "." + a_strK, child);
+                        }
                         break;
                     case FileType::INI:
                         break;
