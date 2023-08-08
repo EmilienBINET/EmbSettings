@@ -104,7 +104,15 @@ namespace emb {
 
         template<typename Type>
         std::map<std::string, Type> SettingsElement::read_setting_map(std::string const& a_strFileClass, std::string const& a_strKey) {
-            return {};
+            std::map<std::string, Type> mapOutput{};
+            if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
+                if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
+                    for(auto const& item : pInfo->tree.get_child(a_strKey)) {
+                        mapOutput[item.first] = item.second.get_value<Type>();
+                    }
+                }
+            }
+            return mapOutput;
         }
 
         template<typename Type>
