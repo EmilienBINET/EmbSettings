@@ -225,7 +225,7 @@ namespace emb {
                     set_setting_map<Type>(File::Name, Key, a_strKey, a_tVal);
                 }
                 static void link(std::map<std::string, Type>& a_rtmapVal) {
-                    link_setting<std::map<std::string, Type>, Class>(File::Name, Key, a_rtvecVal);
+                    link_setting<std::map<std::string, Type>, Class>(File::Name, Key, a_rtmapVal);
                 }
                 static std::unique_ptr<SettingsElement> CreateMethod() { return std::make_unique<Class>(); }
         };
