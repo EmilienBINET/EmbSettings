@@ -10,12 +10,23 @@
 namespace emb {
     namespace settings {
 
+        template<typename T>
+        T read_tree(boost::property_tree::ptree const& a_rTree, T const& tDefaultVal) {
+            return a_rTree.get<T>("", tDefaultVal);
+        }
+
+        template<typename T>
+        void write_tree(boost::property_tree::ptree & a_rTree, T const& tVal) {
+            a_rTree.put<T>("", tVal);
+        }
+
         template<typename Type>
         Type SettingsElement::read_setting(std::string const& a_strFileClass, std::string const& a_strKey, Type const& a_tDefaultValue) {
             if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
                 if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
-                    if (auto val = pInfo->tree.template get_optional<Type>(a_strKey)) {
-                        return *val;
+                    // Get the child pointed by a_strKey
+                    if(auto const& tree = pInfo->tree.get_child_optional(a_strKey)) {
+                        return read_tree(*tree, a_tDefaultValue);
                     }
                 }
             }
@@ -26,7 +37,15 @@ namespace emb {
         void SettingsElement::write_setting(std::string const& a_strFileClass, std::string const& a_strKey, Type const& a_tNewValue) {
             if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
                 if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
-                    pInfo->tree.template put<Type>(a_strKey, a_tNewValue);
+                    // Get the child pointed by a_strKey or tree if it does not exist
+                    boost::property_tree::ptree tree{};
+                    auto& rTree = pInfo->tree.get_child(a_strKey, tree);
+                    // Write the subtree
+                    write_tree(rTree, a_tNewValue);
+                    // If it is a new subtree, it needs to be written in the main tree
+                    if(rTree == tree) {
+                        pInfo->tree.add_child(a_strKey, tree);
+                    }
                 }
             }
         }
