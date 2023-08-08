@@ -59,9 +59,9 @@ class _name final : public emb::settings::TSettingsScalar<                      
 
 #define EMBSETTINGS_VECTOR(_name, _type, _file, _key)                                                                                       \
 namespace EmbSettings_Private { namespace _name {                                                                                           \
-    char ClassName[]{ #_name };                                                                                                             \
-    char TypeName[]{ "std::vector<" #_type ">" };                                                                                           \
-    char Key[]{ _key };                                                                                                                     \
+    inline char ClassName[]{ #_name };                                                                                                      \
+    inline char TypeName[]{ "std::vector<" #_type ">" };                                                                                    \
+    inline char Key[]{ _key };                                                                                                              \
 } }                                                                                                                                         \
 class _name final : public emb::settings::TSettingsVector<                                                                                  \
         _name,                                                                                                                              \
@@ -76,9 +76,9 @@ class _name final : public emb::settings::TSettingsVector<                      
 
 #define EMBSETTINGS_MAP(_name, _type, _file, _key)                                                                                          \
 namespace EmbSettings_Private { namespace _name {                                                                                           \
-    char ClassName[]{ #_name };                                                                                                             \
-    char TypeName[]{ "std::map<std::string," #_type ">" };                                                                                  \
-    char Key[]{ _key };                                                                                                                     \
+    inline char ClassName[]{ #_name };                                                                                                      \
+    inline char TypeName[]{ "std::map<std::string," #_type ">" };                                                                           \
+    inline char Key[]{ _key };                                                                                                              \
 } }                                                                                                                                         \
 class _name final : public emb::settings::TSettingsMap<                                                                                     \
         _name,                                                                                                                              \
