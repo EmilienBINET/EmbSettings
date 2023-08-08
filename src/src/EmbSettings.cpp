@@ -31,7 +31,7 @@ namespace emb {
         }
 
         string& internal::xml_vector_element_name() {
-            static string xml_vector_element_name{"value"};
+            static string xml_vector_element_name{ "value" };
             return xml_vector_element_name;
         }
 
@@ -76,13 +76,13 @@ namespace emb {
         }
 
         void SettingsElement::read_linked() const {
-            if(auto fct = get<0>(SettingsElement::getLinks()[getPath()])) {
+            if (auto fct = get<0>(SettingsElement::getLinks()[getPath()])) {
                 fct();
             }
         }
 
         void SettingsElement::write_linked() const {
-            if(auto fct = get<1>(SettingsElement::getLinks()[getPath()])) {
+            if (auto fct = get<1>(SettingsElement::getLinks()[getPath()])) {
                 fct();
             }
         }
@@ -116,9 +116,9 @@ namespace emb {
         }
 
         bool SettingsFile::register_settings(char const* a_szFile, char const* a_szPath, SettingsElement::CreateMethod a_pCreateMethod) {
-            #ifdef DEBUG_REGISTER
+#ifdef DEBUG_REGISTER
             std::cout << "Registering Setting: " << a_szPath << " in " << a_szFile << std::endl;
-            #endif
+#endif
             getMap()[a_szFile][a_szPath] = a_pCreateMethod;
             return true;
         }
@@ -156,7 +156,7 @@ namespace emb {
                     try {
                         switch (elm.eFileType) {
                         case FileType::XML:
-                            boost::property_tree::read_xml(elm.strFilecontent, elm.info.tree);
+                            boost::property_tree::read_xml(elm.strFilecontent, elm.info.tree, boost::property_tree::xml_parser::trim_whitespace);
                             break;
                         case FileType::JSON:
                             boost::property_tree::read_json(elm.strFilecontent, elm.info.tree);
@@ -220,9 +220,9 @@ namespace emb {
         }
 
         bool register_file(std::string const& a_strName, SettingsFile::CreateMethod a_pCreateMethod) {
-            #ifdef DEBUG_REGISTER
+#ifdef DEBUG_REGISTER
             std::cout << "Registering File: " << " as " << a_strName << std::endl;
-            #endif
+#endif
             getFilesMap()[a_strName] = a_pCreateMethod;
             return true;
         }
