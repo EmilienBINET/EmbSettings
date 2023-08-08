@@ -104,7 +104,20 @@ namespace emb {
                             pInfo->tree.add_child(a_strKey, children);
                         }
                         break;
-                    case FileType::INI:
+                    case FileType::INI: {
+                            int iIdx{ 0 };
+                            for (auto const& item : a_tvecNewValue) {
+                                // Create a new subtree
+                                boost::property_tree::ptree tree{};
+                                // Write the subtree
+                                write_tree(tree, item);
+                                // Write the subtree into the main tree
+                                std::string key{ a_strKey };
+                                std::replace(key.begin(), key.end(), '.', '\\');
+                                key += "." + std::to_string(iIdx++);
+                                pInfo->tree.add_child(key, tree);
+                            }
+                        }
                         break;
                     }
                 }
