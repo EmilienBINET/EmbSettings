@@ -36,14 +36,14 @@ class _name final : public emb::settings::TSettingsFile<                        
   * @param _type     Data type of the setting
   * @param _file     Class name of the file used to save the setting
   * @param _key      Key string representing the position of the setting in the file (using boost property_tree synthax)
-  * @param _default  Default value of the setting if not found in the file
+  * @param ...       Optionnal default value of the setting if not found in the file (if not provided default value is {} )
   */
-#define EMBSETTINGS_SCALAR(_name, _type, _file, _key, _default)                                                                             \
+#define EMBSETTINGS_SCALAR(_name, _type, _file, _key, ...)                                                                                  \
 namespace EmbSettings_Private { namespace _name {                                                                                           \
     char ClassName[]{ #_name };                                                                                                             \
     char TypeName[]{ #_type };                                                                                                              \
     char Key[]{ _key };                                                                                                                     \
-    _type Default{ _default };                                                                                                              \
+    _type Default{ __VA_ARGS__ };                                                                                                           \
 } }                                                                                                                                         \
 class _name final : public emb::settings::TSettingsScalar<                                                                                  \
         _name,                                                                                                                              \
