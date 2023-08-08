@@ -36,14 +36,14 @@ class _name final : public emb::settings::TSettingsFile<                        
   * @param _type     Data type of the setting
   * @param _file     Class name of the file used to save the setting
   * @param _key      Key string representing the position of the setting in the file (using boost property_tree synthax)
-  * @param _default  Default value of the setting if not found in the file
+  * @param ...       Optionnal default value of the setting if not found in the file (if not provided default value is {} )
   */
-#define EMBSETTINGS_SCALAR(_name, _type, _file, _key, _default)                                                                             \
+#define EMBSETTINGS_SCALAR(_name, _type, _file, _key, ...)                                                                                  \
 namespace EmbSettings_Private { namespace _name {                                                                                           \
     char ClassName[]{ #_name };                                                                                                             \
     char TypeName[]{ #_type };                                                                                                              \
     char Key[]{ _key };                                                                                                                     \
-    _type Default{ _default };                                                                                                              \
+    _type Default{ __VA_ARGS__ };                                                                                                           \
 } }                                                                                                                                         \
 class _name final : public emb::settings::TSettingsScalar<                                                                                  \
         _name,                                                                                                                              \
@@ -108,6 +108,14 @@ namespace emb {
          * @param a_strValue    Value that will replace the pattern @{a_strJocker}
          */
         void set_jocker(std::string const& a_strJocker, std::string const& a_strValue);
+
+        /**
+         * @brief Defines the name of the node used to store each element of a vector in XML format. Default is value
+         * @details In XML format, vectors are stored as <vector_name><value>value1</value><value>value2</value></vector_name>
+         *          That method affects the <value> and </value> nodes
+         * @param a_strName     Name of node used in XML vector
+         */
+        void set_xml_vector_element_name(std::string const& a_strName);
 
         class SettingsElement {
             std::string const m_strClassName;
@@ -311,6 +319,8 @@ namespace emb {
 
                 static Ptr getFileInfo(std::unique_ptr<SettingsFile>);
             };
+
+            std::string& xml_vector_element_name();
         }
     }
 }

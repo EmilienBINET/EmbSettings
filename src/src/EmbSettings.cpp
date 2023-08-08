@@ -30,6 +30,15 @@ namespace emb {
             }
         }
 
+        string& internal::xml_vector_element_name() {
+            static string xml_vector_element_name{"value"};
+            return xml_vector_element_name;
+        }
+
+        void set_xml_vector_element_name(std::string const& a_strName) {
+            internal::xml_vector_element_name() = a_strName;
+        }
+
         std::map<std::string, std::pair<std::function<void(void)>, std::function<void(void)>>>& SettingsElement::getLinks() {
             static std::map<std::string, std::pair<std::function<void(void)>, std::function<void(void)>>> links{};
             return links;
