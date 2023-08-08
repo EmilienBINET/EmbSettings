@@ -103,6 +103,62 @@ namespace emb {
         }
 
         template<typename Type>
+        std::map<std::string, Type> SettingsElement::read_setting_map(std::string const& a_strFileClass, std::string const& a_strKey) {
+            std::map<std::string, Type> mapOutput{};
+            if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
+                if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
+                    for(auto const& item : pInfo->tree.get_child(a_strKey)) {
+                        mapOutput[item.first] = item.second.get_value<Type>();
+                    }
+                }
+            }
+            return mapOutput;
+        }
+
+        template<typename Type>
+        void SettingsElement::write_setting_map(std::string const& a_strFileClass, std::string const& a_strKey, std::map<std::string, Type> const& a_tmapNewValue) {
+            if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
+                if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
+                    auto pos = a_strKey.find_last_of('.');
+                    if(std::string::npos != pos) {
+                        try {
+                            pInfo->tree.get_child(a_strKey.substr(0, pos)).erase(a_strKey.substr(pos+1));
+                        }
+                        catch(...) {
+                        }
+                    }
+                    switch(pInfo->eFileType) {
+                    case FileType::XML:
+                    case FileType::JSON: {
+                            for(auto const& item : a_tmapNewValue) {
+                                pInfo->tree.template add<Type>(a_strKey + "." + item.first, item.second);
+                            }
+                        }
+                        break;
+                    case FileType::INI:
+                        break;
+                    }
+                }
+            }
+        }
+
+        template<typename Type>
+        void SettingsElement::set_setting_map(std::string const& a_strFileClass, std::string const& a_strKey, std::string const& a_strK, Type const& tVal) {
+            if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
+                if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
+                    switch(pInfo->eFileType) {
+                    case FileType::XML:
+                    case FileType::JSON:
+                            pInfo->tree.template put<Type>(a_strKey + "." + a_strK, tVal);
+                        break;
+                    case FileType::INI:
+                        break;
+                    }
+                }
+            }
+        }
+
+        template<typename Type>
         Type SettingsElement::read(Type const& a_tDefaultValue) const {
             return read_setting<Type>(getFileClassName(), getPath(), a_tDefaultValue);
         }
