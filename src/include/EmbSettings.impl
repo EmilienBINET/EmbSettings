@@ -106,7 +106,7 @@ namespace emb {
                 if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
                     switch(pInfo->eFileType) {
                     case FileType::XML:
-                        pInfo->tree.template add<Type>(a_strKey + ".value", tVal);
+                        pInfo->tree.template add<Type>(a_strKey + "." + internal::xml_vector_element_name(), tVal);
                         break;
                     case FileType::JSON: {
                             boost::property_tree::ptree child;

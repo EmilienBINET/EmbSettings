@@ -109,6 +109,14 @@ namespace emb {
          */
         void set_jocker(std::string const& a_strJocker, std::string const& a_strValue);
 
+        /**
+         * @brief Defines the name of the node used to store each element of a vector in XML format. Default is value
+         * @details In XML format, vectors are stored as <vector_name><value>value1</value><value>value2</value></vector_name>
+         *          That method affects the <value> and </value> nodes
+         * @param a_strName     Name of node used in XML vector
+         */
+        void set_xml_vector_element_name(std::string const& a_strName);
+
         class SettingsElement {
             std::string const m_strClassName;
             std::string const m_strType;
@@ -311,6 +319,8 @@ namespace emb {
 
                 static Ptr getFileInfo(std::unique_ptr<SettingsFile>);
             };
+
+            std::string& xml_vector_element_name();
         }
     }
 }
