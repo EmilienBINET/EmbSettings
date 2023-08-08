@@ -135,7 +135,7 @@ namespace emb {
             if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
                 if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
                     for(auto const& item : pInfo->tree.get_child(a_strKey)) {
-                        mapOutput[item.first] = item.second.get_value<Type>();
+                        mapOutput[item.first] = read_tree(item.second, Type{});
                     }
                 }
             }
@@ -158,7 +158,12 @@ namespace emb {
                     case FileType::XML:
                     case FileType::JSON: {
                             for(auto const& item : a_tmapNewValue) {
-                                pInfo->tree.template add<Type>(a_strKey + "." + item.first, item.second);
+                                // Create a new subtree
+                                boost::property_tree::ptree tree{};
+                                // Write the subtree
+                                write_tree(tree, item.second);
+                                // Write the subtree into the main tree
+                                pInfo->tree.add_child(a_strKey + "." + item.first, tree);
                             }
                         }
                         break;
