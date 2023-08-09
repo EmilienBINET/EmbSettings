@@ -15,6 +15,16 @@ namespace emb {
     namespace settings {
         using namespace std;
 
+        char const* str(FileType a_eFileType) {
+            #define str_FileType_case(__elm) case FileType::__elm : return #__elm;
+            switch(a_eFileType) {
+                str_FileType_case(XML)
+                str_FileType_case(JSON)
+                str_FileType_case(INI)
+            }
+            return "FileType::?";
+        }
+
         map<string, string>& jockers() {
             static map<string, string> jockers{};
             return jockers;

@@ -101,6 +101,7 @@ namespace emb {
             JSON,   ///< JSON file
             INI     ///< INI file
         };
+        char const* str(FileType a_eFileType);
 
         /**
          * @brief Defines a jocker value, that can be used in settings files' path
