@@ -15,6 +15,16 @@ namespace emb {
     namespace settings {
         using namespace std;
 
+        char const* str(FileType a_eFileType) {
+            #define str_FileType_case(__elm) case FileType::__elm : return #__elm;
+            switch(a_eFileType) {
+                str_FileType_case(XML)
+                str_FileType_case(JSON)
+                str_FileType_case(INI)
+            }
+            return "FileType::?";
+        }
+
         map<string, string>& jockers() {
             static map<string, string> jockers{};
             return jockers;
@@ -135,11 +145,14 @@ namespace emb {
                 FileType eFileType{};
                 std::stringstream strFilecontent{};
             };
-            static std::map<std::string, InfoWithMutex> m_mapInfo;
+            static std::map<std::string, InfoWithMutex>& getMapInfo() {
+                static std::map<std::string, InfoWithMutex> mapInfo{};
+                return mapInfo;
+            }
 
         public:
             static internal::SettingsFileInfo::Ptr getFileInfoAndLock(std::string const& strFilename, FileType a_eFileType) {
-                auto& elm = m_mapInfo[strFilename];
+                auto& elm = getMapInfo()[strFilename];
                 elm.mutex.lock();
                 if (elm.info.strFilename.empty()) {
                     elm.strFullFileName = strFilename;
@@ -173,7 +186,7 @@ namespace emb {
                 return internal::SettingsFileInfo::Ptr{ &elm.info };
             }
             static void setFileInfoAndUnlock(std::string const& strFilename) {
-                auto& elm = m_mapInfo[strFilename];
+                auto& elm = getMapInfo()[strFilename];
                 try {
                     std::stringstream strFilecontent{};
                     switch (elm.eFileType) {
@@ -204,7 +217,6 @@ namespace emb {
                 elm.mutex.unlock();
             }
         };
-        std::map<std::string, SettingsFileManager::InfoWithMutex> SettingsFileManager::m_mapInfo{};
 
         void internal::SettingsFileInfo::Deleter::operator()(internal::SettingsFileInfo* a_pObj) {
             SettingsFileManager::setFileInfoAndUnlock(a_pObj->strFilename);
