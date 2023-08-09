@@ -135,11 +135,14 @@ namespace emb {
                 FileType eFileType{};
                 std::stringstream strFilecontent{};
             };
-            static std::map<std::string, InfoWithMutex> m_mapInfo;
+            static std::map<std::string, InfoWithMutex>& getMapInfo() {
+                static std::map<std::string, InfoWithMutex> mapInfo{};
+                return mapInfo;
+            }
 
         public:
             static internal::SettingsFileInfo::Ptr getFileInfoAndLock(std::string const& strFilename, FileType a_eFileType) {
-                auto& elm = m_mapInfo[strFilename];
+                auto& elm = getMapInfo()[strFilename];
                 elm.mutex.lock();
                 if (elm.info.strFilename.empty()) {
                     elm.strFullFileName = strFilename;
@@ -173,7 +176,7 @@ namespace emb {
                 return internal::SettingsFileInfo::Ptr{ &elm.info };
             }
             static void setFileInfoAndUnlock(std::string const& strFilename) {
-                auto& elm = m_mapInfo[strFilename];
+                auto& elm = getMapInfo()[strFilename];
                 try {
                     std::stringstream strFilecontent{};
                     switch (elm.eFileType) {
@@ -204,7 +207,6 @@ namespace emb {
                 elm.mutex.unlock();
             }
         };
-        std::map<std::string, SettingsFileManager::InfoWithMutex> SettingsFileManager::m_mapInfo{};
 
         void internal::SettingsFileInfo::Deleter::operator()(internal::SettingsFileInfo* a_pObj) {
             SettingsFileManager::setFileInfoAndUnlock(a_pObj->strFilename);

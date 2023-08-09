@@ -153,8 +153,12 @@ namespace emb {
             std::map<std::string, Type> mapOutput{};
             if (auto const& fileInfo = getFilesMap()[a_strFileClass]) {
                 if (auto pInfo = internal::SettingsFileInfo::getFileInfo((*fileInfo)())) {
-                    for(auto const& item : pInfo->tree.get_child(a_strKey)) {
-                        mapOutput[item.first] = read_tree(item.second, Type{});
+                    try {
+                        for(auto const& item : pInfo->tree.get_child(a_strKey)) {
+                            mapOutput[item.first] = read_tree(item.second, Type{});
+                        }
+                    }
+                    catch(...) {
                     }
                 }
             }
