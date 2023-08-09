@@ -325,4 +325,4 @@ namespace emb {
     }
 }
 
-#include "EmbSettings.impl"
+#include "EmbSettings_impl.hpp"
