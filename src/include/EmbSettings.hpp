@@ -170,7 +170,7 @@ namespace emb {
                 static bool registered;
                 virtual void Register() noexcept = 0;
             public:
-                TSettingsScalar() : SettingsElement{ ClassName, TypeName, File::FilePath, Key } {}
+                TSettingsScalar() : SettingsElement{ ClassName, TypeName, File::Name, Key } {}
                 virtual ~TSettingsScalar() {}
                 static Type read() {
                     return read_setting<Type>(File::Name, Key, *Default);
@@ -194,7 +194,7 @@ namespace emb {
                 static bool registered;
                 virtual void Register() noexcept = 0;
             public:
-                TSettingsVector() : SettingsElement{ ClassName, TypeName, File::FilePath, Key } {}
+                TSettingsVector() : SettingsElement{ ClassName, TypeName, File::Name, Key } {}
                 virtual ~TSettingsVector() {}
                 static std::vector<Type> read() {
                     return read_setting_vector<Type>(File::Name, Key);
@@ -221,7 +221,7 @@ namespace emb {
                 static bool registered;
                 virtual void Register() noexcept = 0;
             public:
-                TSettingsMap() : SettingsElement{ ClassName, TypeName, File::FilePath, Key } {}
+                TSettingsMap() : SettingsElement{ ClassName, TypeName, File::Name, Key } {}
                 virtual ~TSettingsMap() {}
                 static std::map<std::string, Type> read() {
                     return read_setting_map<Type>(File::Name, Key);
