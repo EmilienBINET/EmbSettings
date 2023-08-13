@@ -94,6 +94,12 @@ class _name final : public emb::settings::TSettingsMap<                         
 namespace emb {
     namespace settings {
         /**
+         * @brief Version of the EmbSettings library
+         * @return char const* BVersion as a string
+         */
+        char const* version();
+
+        /**
          * @brief Type of a settings file
          */
         enum class FileType {

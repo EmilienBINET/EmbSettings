@@ -15,9 +15,13 @@ namespace emb {
     namespace settings {
         using namespace std;
 
+        char const* version() {
+            return "0.1.0";
+        }
+
         char const* str(FileType a_eFileType) {
             #define str_FileType_case(__elm) case FileType::__elm : return #__elm;
-            switch(a_eFileType) {
+            switch (a_eFileType) {
                 str_FileType_case(XML)
                 str_FileType_case(JSON)
                 str_FileType_case(INI)
