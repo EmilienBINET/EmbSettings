@@ -16,28 +16,26 @@
 #define EMBSETTINGS_FILE(_name, _type, _path, _version)                                                                                     \
 namespace EmbSettings_Private { namespace _name {                                                                                           \
     inline char ClassName[]{ #_name };                                                                                                      \
-    inline char TypeName[]{ #_type };                                                                                                       \
     inline char Path[]{ _path };                                                                                                            \
 } }                                                                                                                                         \
 class _name final : public emb::settings::TSettingsFile<                                                                                    \
         _name,                                                                                                                              \
         EmbSettings_Private::_name::ClassName,                                                                                              \
         emb::settings::FileType::_type,                                                                                                     \
-        EmbSettings_Private::_name::TypeName,                                                                                               \
         EmbSettings_Private::_name::Path,                                                                                                   \
         _version                                                                                                                            \
     > {                                                                                                                                     \
     void Register() noexcept override { registered = registered; }                                                                          \
 };
 
- /**
-  * @brief Declare a scalar setting inside a previously declared setting file
-  * @param _name     Name of the class representing the setting
-  * @param _type     Data type of the setting
-  * @param _file     Class name of the file used to save the setting
-  * @param _key      Key string representing the position of the setting in the file (using boost property_tree synthax)
-  * @param ...       Optionnal default value of the setting if not found in the file (if not provided default value is {} )
-  */
+/**
+ * @brief Declare a scalar setting inside a previously declared setting file
+ * @param _name     Name of the class representing the setting
+ * @param _type     Data type of the setting
+ * @param _file     Class name of the file used to save the setting
+ * @param _key      Key string representing the position of the setting in the file (using boost property_tree synthax)
+ * @param ...       Optionnal default value of the setting if not found in the file (if not provided default value is {} )
+ */
 #define EMBSETTINGS_SCALAR(_name, _type, _file, _key, ...)                                                                                  \
 namespace EmbSettings_Private { namespace _name {                                                                                           \
     inline char ClassName[]{ #_name };                                                                                                      \
@@ -57,6 +55,13 @@ class _name final : public emb::settings::TSettingsScalar<                      
     void Register() noexcept override { registered = registered; }                                                                          \
 };
 
+/**
+ * @brief Declare a vector setting inside a previously declared setting file
+ * @param _name     Name of the class representing the setting
+ * @param _type     Base data type of the setting. The final setting's data type is std::vector<_type>
+ * @param _file     Class name of the file used to save the setting
+ * @param _key      Key string representing the position of the setting in the file (using boost property_tree synthax)
+ */
 #define EMBSETTINGS_VECTOR(_name, _type, _file, _key)                                                                                       \
 namespace EmbSettings_Private { namespace _name {                                                                                           \
     inline char ClassName[]{ #_name };                                                                                                      \
@@ -74,6 +79,13 @@ class _name final : public emb::settings::TSettingsVector<                      
     void Register() noexcept override { registered = registered; }                                                                          \
 };
 
+/**
+ * @brief Declare a map setting inside a previously declared setting file
+ * @param _name     Name of the class representing the setting
+ * @param _type     Base data type of the setting. The final setting's data type is std::map<std::string,_type>
+ * @param _file     Class name of the file used to save the setting
+ * @param _key      Key string representing the position of the setting in the file (using boost property_tree synthax)
+ */
 #define EMBSETTINGS_MAP(_name, _type, _file, _key)                                                                                          \
 namespace EmbSettings_Private { namespace _name {                                                                                           \
     inline char ClassName[]{ #_name };                                                                                                      \
@@ -124,6 +136,9 @@ namespace emb {
          */
         void set_xml_vector_element_name(std::string const& a_strName);
 
+        /**
+         * @brief Base class of a each setting element
+         */
         class SettingsElement {
             std::string const m_strClassName;
             std::string const m_strType;
@@ -170,6 +185,17 @@ namespace emb {
             void write_linked() const;
         };
 
+        /**
+         * @brief Base class of a scalar setting element
+         * 
+         * @tparam Class        Class name of the element
+         * @tparam ClassName    Class name of the element, as a string
+         * @tparam Type         Type of the element
+         * @tparam TypeName     Type of the element, as a string
+         * @tparam File         Class name of the file when the element must be stored
+         * @tparam Key          Key locating the element inside the file
+         * @tparam Default      Default value of the element, if not present in the file
+         */
         template<typename Class, char const* ClassName, typename Type, char const* TypeName,
             typename File, char const* Key, Type const* Default>
             class TSettingsScalar : public SettingsElement {
@@ -194,6 +220,16 @@ namespace emb {
         bool TSettingsScalar<Class, ClassName, Type, TypeName, File, Key, Default>::registered =
             File::register_settings(File::Name, Key, Class::CreateMethod);
 
+        /**
+         * @brief Base class of a vector setting element
+         * 
+         * @tparam Class        Class name of the element
+         * @tparam ClassName    Class name of the element, as a string
+         * @tparam Type         Type of the element
+         * @tparam TypeName     Type of the element, as a string
+         * @tparam File         Class name of the file when the element must be stored
+         * @tparam Key          Key locating the element inside the file
+         */
         template<typename Class, char const* ClassName, typename Type, char const* TypeName,
             typename File, char const* Key>
             class TSettingsVector : public SettingsElement {
@@ -221,6 +257,16 @@ namespace emb {
         bool TSettingsVector<Class, ClassName, Type, TypeName, File, Key>::registered =
             File::register_settings(File::Name, Key, Class::CreateMethod);
 
+        /**
+         * @brief Base class of a map setting element
+         * 
+         * @tparam Class        Class name of the element
+         * @tparam ClassName    Class name of the element, as a string
+         * @tparam Type         Type of the element
+         * @tparam TypeName     Type of the element, as a string
+         * @tparam File         Class name of the file when the element must be stored
+         * @tparam Key          Key locating the element inside the file
+         */
         template<typename Class, char const* ClassName, typename Type, char const* TypeName,
             typename File, char const* Key>
             class TSettingsMap : public SettingsElement {
@@ -248,6 +294,9 @@ namespace emb {
         bool TSettingsMap<Class, ClassName, Type, TypeName, File, Key>::registered =
             File::register_settings(File::Name, Key, Class::CreateMethod);
 
+        /**
+         * @brief Base class of a each settings file
+         */
         class SettingsFile {
             std::string const m_strClassName;
             FileType const m_eFileType;
@@ -268,7 +317,16 @@ namespace emb {
             static std::map<std::string, emb::settings::SettingsElement::CreateMethod>& getElementsMap(std::string const& a_strFileClass);
         };
 
-        template<typename Class, char const* ClassName, emb::settings::FileType Type, char const* TypeName, char const* Path, int Version>
+        /**
+         * @brief Base class of settings file
+         * 
+         * @tparam Class        Class name of the file
+         * @tparam ClassName    Class name of the file, as a string
+         * @tparam Type         Type of the file (from emb::settings::FileType)
+         * @tparam Path         Path of the file on the system (may contain jocker in the form of @{jocker})
+         * @tparam Version      Version of the file
+         */
+        template<typename Class, char const* ClassName, emb::settings::FileType Type, char const* Path, int Version>
         class TSettingsFile : public SettingsFile {
         protected:
             static bool registered;
@@ -295,16 +353,16 @@ namespace emb {
         private:
             using SettingsFile::getElementsMap;
         };
-        template<typename Class, char const* ClassName, FileType Type, char const* TypeName, char const* Path, int Version>
-        bool TSettingsFile<Class, ClassName, Type, TypeName, Path, Version>::registered = register_file(ClassName, Class::CreateMethod);
-        template<typename Class, char const* ClassName, FileType Type, char const* TypeName, char const* Path, int Version>
-        char const* TSettingsFile<Class, ClassName, Type, TypeName, Path, Version>::Name{ ClassName };
-        template<typename Class, char const* ClassName, FileType Type, char const* TypeName, char const* Path, int Version>
-        char const* TSettingsFile<Class, ClassName, Type, TypeName, Path, Version>::FilePath{ Path };
-        template<typename Class, char const* ClassName, FileType Type, char const* TypeName, char const* Path, int Version>
-        emb::settings::FileType const TSettingsFile<Class, ClassName, Type, TypeName, Path, Version>::FileType{ Type };
-        template<typename Class, char const* ClassName, FileType Type, char const* TypeName, char const* Path, int Version>
-        int const TSettingsFile<Class, ClassName, Type, TypeName, Path, Version>::FileVersion{ Version };
+        template<typename Class, char const* ClassName, FileType Type, char const* Path, int Version>
+        bool TSettingsFile<Class, ClassName, Type, Path, Version>::registered = register_file(ClassName, Class::CreateMethod);
+        template<typename Class, char const* ClassName, FileType Type, char const* Path, int Version>
+        char const* TSettingsFile<Class, ClassName, Type, Path, Version>::Name{ ClassName };
+        template<typename Class, char const* ClassName, FileType Type, char const* Path, int Version>
+        char const* TSettingsFile<Class, ClassName, Type, Path, Version>::FilePath{ Path };
+        template<typename Class, char const* ClassName, FileType Type, char const* Path, int Version>
+        emb::settings::FileType const TSettingsFile<Class, ClassName, Type, Path, Version>::FileType{ Type };
+        template<typename Class, char const* ClassName, FileType Type, char const* Path, int Version>
+        int const TSettingsFile<Class, ClassName, Type, Path, Version>::FileVersion{ Version };
 
         std::map<std::string, SettingsFile::CreateMethod>& getFilesMap();
 
