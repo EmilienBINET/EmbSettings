@@ -9,7 +9,94 @@
 
 namespace emb {
     namespace settings {
+        namespace internal {
 
+            //////////////////////////////////////////////////
+            ///// Default read/write methods             /////
+            //////////////////////////////////////////////////
+            
+            template<typename T>
+            T read_tree(boost::property_tree::ptree const& a_rTree, T const& tDefaultVal) {
+                return a_rTree.get<T>("", tDefaultVal);
+            }
+
+            template<typename T>
+            void write_tree(boost::property_tree::ptree & a_rTree, T const& tVal) {
+                a_rTree.put<T>("", tVal);
+            }
+
+            //////////////////////////////////////////////////
+            ///// SettingElement                         /////
+            //////////////////////////////////////////////////
+
+            template<typename Type>
+            Type SettingElement::read_setting(std::string const& a_strFile, std::string const& a_strElement, Type const& a_tDefault) {
+                // Request the boost::property_tree containing the current setting element
+                // The given tree is automatically locked & read on request and written & unlocked on deletion
+                if (auto const& pTree = get_tree(a_strFile, a_strElement)) {
+                    // Get the subtree corresponding to the 
+                    if(auto const& subTree = pTree->get_child_optional(get_element(a_strFile, a_strElement)->get_key())) {
+                        return read_tree(*subTree, a_tDefault);
+                    }
+                }
+                return a_tDefault;
+            }
+
+            template<typename Type>
+            void SettingElement::write_setting(std::string const& a_strFile, std::string const& a_strElement, Type const& a_tNew) {
+                if (auto const& pTree = get_tree(a_strFile, a_strElement)) {
+                    auto strKey = get_element(a_strFile, a_strElement)->get_key();
+                    // Get the child pointed by a_strKey or tree if it does not exist
+                    boost::property_tree::ptree subTree{};
+                    auto& rSubTree = pTree->get_child(strKey, subTree);
+                    // Write the subtree
+                    write_tree(rSubTree, a_tNew);
+                    // If it is a new subtree, it needs to be written in the main tree
+                    if(rSubTree == subTree) {
+                        pTree->add_child(strKey, subTree);
+                    }
+                }
+            }
+
+            template<typename Type, typename Element>
+            void SettingElement::link_setting(std::string const& a_strFile, std::string const& a_strElement, Type& a_rtVariable) {
+                
+            }
+
+            template<typename Type>
+            std::vector<Type> SettingElement::read_setting_vector(std::string const& a_strFile, std::string const& a_strElement) {
+                return {};
+            }
+
+            template<typename Type>
+            void SettingElement::write_setting_vector(std::string const& a_strFile, std::string const& a_strElement, std::vector<Type> const& a_tvecNew) {
+                
+            }
+
+            template<typename Type>
+            void SettingElement::add_setting_vector(std::string const& a_strFile, std::string const& a_strElement, Type const& a_tNew) {
+                
+            }
+
+            template<typename Type>
+            std::map<std::string, Type> SettingElement::read_setting_map(std::string const& a_strFile, std::string const& a_strElement) {
+                return {};
+            }
+
+            template<typename Type>
+            void SettingElement::write_setting_map(std::string const& a_strFile, std::string const& a_strElement, std::map<std::string, Type> const& a_tmapNew) {
+                
+            }
+
+            template<typename Type>
+            void SettingElement::set_setting_map(std::string const& a_strFile, std::string const& a_strElement, std::string const& a_strK, Type const& a_tNew) {
+                
+            }
+        
+
+        }
+
+/*
         template<typename T>
         T read_tree(boost::property_tree::ptree const& a_rTree, T const& tDefaultVal) {
             return a_rTree.get<T>("", tDefaultVal);
@@ -224,6 +311,18 @@ namespace emb {
         void SettingsElement::write(Type const& a_tNewValue) const {
             write_setting<Type>(getFileClassName(), getPath(), a_tNewValue);
         }
+
+
+        namespace internal {
+            template<typename Name, char const* NameStr, typename Type, char const* TypeStr,
+                typename File, char const* KeyStr, Type const* Default>
+            TSettingsScalar::TSettingsScalar()
+                : SettingsElement{ NameStr, TypeStr, File::Name, KeyStr }
+            {}
+
+
+
+        }*/
 
     }
 }

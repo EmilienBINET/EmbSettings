@@ -30,9 +30,14 @@ namespace MyParams {
     EMBSETTINGS_SCALAR(Param1, double, Machine, "test.param1", 1.5);
     EMBSETTINGS_SCALAR(Param2, int, Machine, "test.param2", -5);
     EMBSETTINGS_SCALAR(Param3, std::string, Machine, "test.param3", "coucou");
-    EMBSETTINGS_VECTOR(ParamVector, std::string, Machine, "test.vector");
-    EMBSETTINGS_MAP(ParamMap, std::string, Machine, "test.map");
+    //EMBSETTINGS_VECTOR(ParamVector, std::string, Machine, "test.vector");
+    //EMBSETTINGS_MAP(ParamMap, std::string, Machine, "test.map");
     EMBSETTINGS_SCALAR(ParamEnum, EEnum, Machine, "test.enum", EEnum::D4);
+}
+
+namespace Test {
+    //EMBSETTINGS_FILE(Machine, JSON, "Machine.json", 1);
+    //EMBSETTINGS_SCALAR(Param1, double, MyParams::Machine, "test.param1", 1.5);
 }
 
 struct MachineSettings {
@@ -76,15 +81,15 @@ int main(int argc, char** argv)
 
     print(MyParams::ParamEnum::read());
 
-    for (auto const& file : emb::settings::getFilesMap()) {
-        std::cout << "FILE " << file.first << std::endl;
-        if (auto const& fileInfo = file.second()) {
-            std::cout << "{" << fileInfo->getFilePath() << "}" << std::endl;
+    for (auto const& file : emb::settings::get_file_names_list()) {
+        std::cout << "FILE " << file << std::endl;
+        if (auto const& fileInfo = emb::settings::get_file(file)) {
+            std::cout << "{" << fileInfo->get_path() << "}" << std::endl;
         }
-        for (auto const& elm : emb::settings::SettingsFile::getElementsMap(file.first)) {
-            std::cout << "- ELM " << elm.first << std::endl;
-            if (auto const& elmInfo = elm.second()) {
-                std::cout << "  {" << elmInfo->getPath() << "}" << std::endl;
+        for (auto const& elm : emb::settings::get_element_names_list(file)) {
+            std::cout << "- ELM " << elm << std::endl;
+            if (auto const& elmInfo = emb::settings::get_element(file, elm)) {
+                std::cout << "  {" << elmInfo->get_key() << "}" << std::endl;
             }
         }
     }
@@ -97,8 +102,8 @@ int main(int argc, char** argv)
     machineSettings.param3 = "hello";
     machineSettings.write();
 
-    MyParams::ParamVector::write({ "a1", "b2", "c3", "d4" });
-    MyParams::ParamMap::write({ { "A", "a1" }, { "B", "b2" }, { "C", "c3" }, { "D", "d4" } });
+    //MyParams::ParamVector::write({ "a1", "b2", "c3", "d4" });
+    //MyParams::ParamMap::write({ { "A", "a1" }, { "B", "b2" }, { "C", "c3" }, { "D", "d4" } });
 
     getc(stdin);
     return 0;
