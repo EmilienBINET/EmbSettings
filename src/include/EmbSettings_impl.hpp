@@ -65,7 +65,12 @@ namespace emb {
 
             template<typename Type, typename Element>
             void SettingElement::link_setting(std::string const& a_strFile, std::string const& a_strElement, Type& a_rtVariable) {
-                
+                if(auto const& pElm = get_element(a_strFile, a_strElement)) {
+                    pElm->link_variable(
+                        [&a_rtVariable] { a_rtVariable = Element::read(); },
+                        [&a_rtVariable] { Element::write(a_rtVariable); }
+                    );
+                }
             }
 
             template<typename Type>

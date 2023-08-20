@@ -185,6 +185,14 @@ namespace emb {
                  * @return std::string  Key of the setting element
                  */
                 std::string get_key() const;
+                /**
+                 * @brief Read the linked variables
+                 */
+                void read_linked() const;
+                /**
+                 * @brief Write the linked variables
+                 */
+                void write_linked() const;
             
             // protected types
             protected:
@@ -223,6 +231,12 @@ namespace emb {
                  */
                 template<typename Type>
                 static void write_setting(std::string const& a_strFile, std::string const& a_strElement, Type const& a_tNew);
+                /**
+                 * @brief link a variable to a setting element
+                 * @param a_funcRead    Read function
+                 * @param a_funcWrite   Write function
+                 */
+                void link_variable(std::function<void(void)> const& a_funcRead, std::function<void(void)> const& a_funcWrite);
                 /**
                  * @brief Link a setting value to a variable
                  * @tparam Type         Type of the setting
@@ -622,14 +636,18 @@ namespace emb {
                     
                 }
                 static void read_linked() {
-                    //for (auto const& elm : getElementsMap()) {
-                    //    elm.second()->read_linked();
-                    //}
+                    for(auto const& elm: get_element_names_list(_NameStr)) {
+                        if(auto const& pElm = get_element(_NameStr, elm)) {
+                            pElm->read_linked();
+                        }
+                    }
                 }
                 static void write_linked() {
-                    //for (auto const& elm : getElementsMap()) {
-                    //    elm.second()->write_linked();
-                    //}
+                    for(auto const& elm: get_element_names_list(_NameStr)) {
+                        if(auto const& pElm = get_element(_NameStr, elm)) {
+                            pElm->write_linked();
+                        }
+                    }
                 }
                 static void backup_to() {
                     

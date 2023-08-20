@@ -35,6 +35,8 @@ namespace {
 
     struct SettingElementInfo {
         emb::settings::internal::creation_method<emb::settings::internal::SettingElement> funcCreate{};
+        std::function<void(void)> funcReadLinked{};
+        std::function<void(void)> funcWriteLinked{};
     };
 
     struct SettingsFileInfo {
@@ -231,6 +233,18 @@ namespace emb {
                 return m_strKey;
             }
             
+            void SettingElement::read_linked() const {
+                if (auto fct = files_info()[get_file()].elm_info[get_name()].funcReadLinked) {
+                    fct();
+                }
+            }
+            
+            void SettingElement::write_linked() const {
+                if (auto fct = files_info()[get_file()].elm_info[get_name()].funcWriteLinked) {
+                    fct();
+                }
+            }
+            
             SettingElement::SettingElement(std::string const& a_strName, std::string const& a_strType, std::string const& a_strFile, std::string const& a_strKey)
                 : m_strName{ a_strName }
                 , m_strType{ a_strType }
@@ -240,6 +254,15 @@ namespace emb {
 
             SettingElement::~SettingElement()
             {}
+            
+            void SettingElement::link_variable(std::function<void(void)> const& a_funcRead, std::function<void(void)> const& a_funcWrite) {
+                if(auto itFile = files_info().find(get_file()); itFile != files_info().end()) {
+                    if(auto itElm = itFile->second.elm_info.find(get_name()); itElm != itFile->second.elm_info.end()) {
+                        itElm->second.funcReadLinked = a_funcRead;
+                        itElm->second.funcWriteLinked = a_funcWrite;
+                    }
+                }
+            }
 
             bool SettingElement::register_element(char const* a_szFile, char const* a_szElement, creation_method<SettingElement> a_funcCreationMethod) {
                 DEBUG_SELF_REGISTERING(cout << "register_element(" << a_szFile << "," << a_szElement << ")" << endl);
