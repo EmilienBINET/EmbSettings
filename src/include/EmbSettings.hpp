@@ -68,7 +68,7 @@ namespace EmbSettings_Private { namespace _name {                               
     inline char TypeStr[]{ "std::vector<" #_type ">" };                                                                                     \
     inline char KeyStr[]{ _key };                                                                                                           \
 } }                                                                                                                                         \
-class _name final : public emb::settings::internal::TSettingsVector<                                                                        \
+class _name final : public emb::settings::internal::TSettingVector<                                                                         \
         _name,                                                                                                                              \
         EmbSettings_Private::_name::NameStr,                                                                                                \
         _type,                                                                                                                              \
@@ -92,7 +92,7 @@ namespace EmbSettings_Private { namespace _name {                               
     inline char TypeStr[]{ "std::map<std::string," #_type ">" };                                                                            \
     inline char KeyStr[]{ _key };                                                                                                           \
 } }                                                                                                                                         \
-class _name final : public emb::settings::internal::TSettingsMap<                                                                           \
+class _name final : public emb::settings::internal::TSettingMap<                                                                            \
         _name,                                                                                                                              \
         EmbSettings_Private::_name::NameStr,                                                                                                \
         _type,                                                                                                                              \
@@ -377,6 +377,155 @@ namespace emb {
                 SettingElement::register_element(_File::Name, _NameStr, _Name::_create_);
 
             /**
+             * @brief Base class of a vector setting element
+             * 
+             * @tparam Name         Class name of the element
+             * @tparam NameStr      Class name of the element, as a string
+             * @tparam Type         Type of the element
+             * @tparam TypeStr      Type of the element, as a string
+             * @tparam File         Class name of the file when the element must be stored
+             * @tparam KeyStr       Key locating the element inside the file
+             */
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+                class TSettingVector
+                        : public SettingElement {
+                // public methods
+                public:
+                    /**
+                     * @brief Construct a new TSettingVector object
+                     */
+                    TSettingVector()
+                        : SettingElement{ _NameStr, _TypeStr, _File::Name, _KeyStr }
+                    {}
+                    /**
+                     * @brief Destroy the TSettingVector object
+                     */
+                    virtual ~TSettingVector()
+                    {}
+                    /**
+                     * @brief Read the vector setting element
+                     * @return Type     Value of the setting element
+                     */
+                    static std::vector<_Type> read() {
+                        return read_setting_vector<_Type>(_File::Name, _NameStr);
+                    }
+                    /**
+                     * @brief Write the vector setting element
+                     * @param a_tvecVal New value of the setting element
+                     */
+                    static void write(std::vector<_Type> const& a_tvecVal) {
+                        write_setting_vector<_Type>(_File::Name, _NameStr, a_tvecVal);
+                    }
+                    /**
+                     * @brief Add a value to the vector setting element
+                     * @param a_tVal    New value of the setting element
+                     */
+                    static void add(_Type const& a_tVal) {
+                        add_setting_vector<_Type>(_File::Name, _NameStr, a_tVal);
+                    }
+                    /**
+                     * @brief Link the vector setting element to a vector variable
+                     * 
+                     * @param a_rtvecVal Variable to link the setting element to
+                     */
+                    static void link(std::vector<_Type>& a_rtvecVal) {
+                        link_setting<std::vector<_Type>, _Name>(_File::Name, _NameStr, a_rtvecVal);
+                    }
+
+                // protected methods
+                protected:
+                    /**
+                     * @brief Create an object of type \c Name
+                     * @return std::unique_ptr<SettingsElement> Newly created object
+                     */
+                    static std::unique_ptr<SettingElement> _create_() {
+                        return std::make_unique<_Name>();
+                    }
+
+                // protected attributes
+                protected:
+                    static bool s_bRegistered;
+            };
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            bool TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::s_bRegistered =
+                SettingElement::register_element(_File::Name, _NameStr, _Name::_create_);
+            
+            /**
+             * @brief Base class of a map setting element
+             * 
+             * @tparam Name         Class name of the element
+             * @tparam NameStr      Class name of the element, as a string
+             * @tparam Type         Type of the element
+             * @tparam TypeStr      Type of the element, as a string
+             * @tparam File         Class name of the file when the element must be stored
+             * @tparam KeyStr       Key locating the element inside the file
+             */
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+                class TSettingMap
+                        : public SettingElement {
+                // public methods
+                public:
+                    /**
+                     * @brief Construct a new TSettingMap object
+                     */
+                    TSettingMap()
+                        : SettingElement{ _NameStr, _TypeStr, _File::Name, _KeyStr }
+                    {}
+                    /**
+                     * @brief Destroy the TSettingMap object
+                     */
+                    virtual ~TSettingMap()
+                    {}
+                    /**
+                     * @brief Read the map setting element
+                     * @return Type     Value of the map setting element
+                     */
+                    static std::map<std::string, _Type> read() {
+                        return read_setting_map<_Type>(_File::Name, _NameStr);
+                    }
+                    /**
+                     * @brief Write the map setting element
+                     * @param a_tmapVal New value of the map setting element
+                     */
+                    static void write(std::map<std::string, _Type> const& a_tmapVal) {
+                        write_setting_map<_Type>(_File::Name, _NameStr, a_tmapVal);
+                    }
+                    /**
+                     * @brief Set the map setting element value at a given key
+                     * @param a_strKey  Key of the map setting element
+                     * @param a_tVal    New value of map the setting element
+                     */
+                    static void set(std::string const& a_strKey, _Type const& a_tVal) {
+                        set_setting_map<_Type>(_File::Name, _NameStr, a_strKey, a_tVal);
+                    }
+                    /**
+                     * @brief Link the setting element to a variable
+                     * 
+                     * @param a_rtmapVal Variable to link the setting element to
+                     */
+                    static void link(std::map<std::string, _Type>& a_rtmapVal) {
+                        link_setting<std::map<std::string, _Type>, _Name>(_File::Name, _NameStr, a_rtmapVal);
+                    }
+
+                // protected methods
+                protected:
+                    /**
+                     * @brief Create an object of type \c Name
+                     * @return std::unique_ptr<SettingsElement> Newly created object
+                     */
+                    static std::unique_ptr<SettingElement> _create_() {
+                        return std::make_unique<_Name>();
+                    }
+
+                // protected attributes
+                protected:
+                    static bool s_bRegistered;
+            };
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            bool TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::s_bRegistered =
+                SettingElement::register_element(_File::Name, _NameStr, _Name::_create_);
+            
+            /**
              * @brief Base class of a each settings file
              */
             class SettingsFile {
@@ -521,6 +670,7 @@ namespace emb {
             tree_ptr get_tree(std::string const& a_strFileName, std::string const& a_strElementName);
 
             std::string& xml_vector_element_name();
+            void remove_tree(boost::property_tree::ptree & a_rTree, std::string const& a_strKeyToRemove);
         }
 
         /**

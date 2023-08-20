@@ -196,6 +196,21 @@ namespace emb {
                 return xml_vector_element_name;
             }
             
+            void remove_tree(boost::property_tree::ptree & a_rTree, std::string const& a_strKeyToRemove) {
+                auto pos = a_strKeyToRemove.find_last_of('.');
+                if(std::string::npos != pos) {
+                    try {
+                        a_rTree.get_child(a_strKeyToRemove.substr(0, pos)).erase(a_strKeyToRemove.substr(pos+1));
+                    }
+                    catch(boost::property_tree::ptree_bad_path) {
+                        // get_child() may throw if the key does not exist
+                    }
+                }
+                else {
+                    a_rTree.erase(a_strKeyToRemove);
+                }
+            }
+            
             //////////////////////////////////////////////////
             ///// SettingElement                         /////
             //////////////////////////////////////////////////

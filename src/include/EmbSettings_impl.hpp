@@ -34,8 +34,10 @@ namespace emb {
                 // Request the boost::property_tree containing the current setting element
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
                 if (auto const& pTree = get_tree(a_strFile, a_strElement)) {
-                    // Get the subtree corresponding to the 
-                    if(auto const& subTree = pTree->get_child_optional(get_element(a_strFile, a_strElement)->get_key())) {
+                    // Get the key that points to where the data is stored in the tree
+                    auto strKey = get_element(a_strFile, a_strElement)->get_key();
+                    // Get the subtree corresponding to the key
+                    if(auto const& subTree = pTree->get_child_optional(strKey)) {
                         return read_tree(*subTree, a_tDefault);
                     }
                 }
@@ -44,9 +46,12 @@ namespace emb {
 
             template<typename Type>
             void SettingElement::write_setting(std::string const& a_strFile, std::string const& a_strElement, Type const& a_tNew) {
+                // Request the boost::property_tree containing the current setting element
+                // The given tree is automatically locked & read on request and written & unlocked on deletion
                 if (auto const& pTree = get_tree(a_strFile, a_strElement)) {
+                    // Get the key that points to where the data is stored in the tree
                     auto strKey = get_element(a_strFile, a_strElement)->get_key();
-                    // Get the child pointed by a_strKey or tree if it does not exist
+                    // Get the subtree pointed by the key or a new tree if it does not exist
                     boost::property_tree::ptree subTree{};
                     auto& rSubTree = pTree->get_child(strKey, subTree);
                     // Write the subtree
@@ -65,32 +70,183 @@ namespace emb {
 
             template<typename Type>
             std::vector<Type> SettingElement::read_setting_vector(std::string const& a_strFile, std::string const& a_strElement) {
-                return {};
+                std::vector<Type> vecOutput{};
+                // Request the boost::property_tree containing the current setting element
+                // The given tree is automatically locked & read on request and written & unlocked on deletion
+                if (auto const& pTree = get_tree(a_strFile, a_strElement)) {
+                    // Get the key that points to where the data is stored in the tree
+                    auto strKey = get_element(a_strFile, a_strElement)->get_key();
+                    // Get each the subtree corresponding to the key
+                    try {
+                        for(auto const& subTree : pTree->get_child(strKey)) {
+                            // Read subTree content and add it to the vector
+                            vecOutput.push_back(read_tree(subTree.second, Type{}));
+                        }
+                    }
+                    catch(boost::property_tree::ptree_bad_path) {
+                        // get_child() may throw if the key does not exist
+                    }
+                }
+                return vecOutput;
             }
 
             template<typename Type>
             void SettingElement::write_setting_vector(std::string const& a_strFile, std::string const& a_strElement, std::vector<Type> const& a_tvecNew) {
-                
+                // Request the boost::property_tree containing the current setting element
+                // The given tree is automatically locked & read on request and written & unlocked on deletion
+                if (auto const& pTree = get_tree(a_strFile, a_strElement)) {
+                    // Get the key that points to where the data is stored in the tree
+                    auto strKey = get_element(a_strFile, a_strElement)->get_key();
+                    // Get the file type to customize data representation
+                    auto eType = emb::settings::get_file(a_strFile)->get_type();
+                    // Remove old subtree
+                    remove_tree(*pTree, strKey);
+                    // Create and add the subtree accordingly to the file type
+                    switch(eType) {
+                    case FileType::XML:
+                        for(auto const& value : a_tvecNew) {
+                            // Create a new subtree
+                            boost::property_tree::ptree subTree{};
+                            // Write the subtree
+                            write_tree(subTree, value);
+                            // Write the subtree into the main tree
+                            pTree->add_child(strKey + "." + internal::xml_vector_element_name(), subTree);
+                        }
+                        break;
+                    case FileType::JSON: {
+                            boost::property_tree::ptree children;
+                            for(auto const& value : a_tvecNew) {
+                                // Create a new subtree
+                                boost::property_tree::ptree subTree{};
+                                // Write the subtree
+                                write_tree(subTree, value);
+                                // Write the subtree into the main tree
+                                children.push_back(std::make_pair("", subTree));
+                            }
+                            pTree->add_child(strKey, children);
+                        }
+                        break;
+                    case FileType::INI:
+                        /// @todo
+                        break;
+                    }
+                }
             }
 
             template<typename Type>
             void SettingElement::add_setting_vector(std::string const& a_strFile, std::string const& a_strElement, Type const& a_tNew) {
-                
+                // Request the boost::property_tree containing the current setting element
+                // The given tree is automatically locked & read on request and written & unlocked on deletion
+                if (auto const& pTree = get_tree(a_strFile, a_strElement)) {
+                    // Get the key that points to where the data is stored in the tree
+                    auto strKey = get_element(a_strFile, a_strElement)->get_key();
+                    // Get the file type to customize data representation
+                    auto eType = emb::settings::get_file(a_strFile)->get_type();
+                    // Create and add the subtree accordingly to the file type
+                    switch(eType) {
+                    case FileType::XML: {
+                            // Create a new subtree
+                            boost::property_tree::ptree subTree{};
+                            // Write the subtree
+                            write_tree(subTree, a_tNew);
+                            // Write the subtree into the main tree
+                            pTree->add_child(strKey + "." + internal::xml_vector_element_name(), subTree);
+                        }
+                        break;
+                    case FileType::JSON: {
+                            // Create a new subtree
+                            boost::property_tree::ptree subTree;
+                            // Write the subtree
+                            write_tree(subTree, a_tNew);
+                            // Write the subtree into the main tree
+                            pTree->get_child(strKey).push_back(std::make_pair("", subTree));
+                        }
+                        break;
+                    case FileType::INI:
+                        break;
+                    }
+                }
             }
 
             template<typename Type>
             std::map<std::string, Type> SettingElement::read_setting_map(std::string const& a_strFile, std::string const& a_strElement) {
-                return {};
+                std::map<std::string, Type> mapOutput{};
+                // Request the boost::property_tree containing the current setting element
+                // The given tree is automatically locked & read on request and written & unlocked on deletion
+                if (auto const& pTree = get_tree(a_strFile, a_strElement)) {
+                    // Get the key that points to where the data is stored in the tree
+                    auto strKey = get_element(a_strFile, a_strElement)->get_key();
+                    // Get each the subtree corresponding to the key
+                    try {
+                        for(auto const& subTree : pTree->get_child(strKey)) {
+                            // Read subTree content and add it to the map
+                            mapOutput[subTree.first] = read_tree(subTree.second, Type{});
+                        }
+                    }
+                    catch(boost::property_tree::ptree_bad_path) {
+                        // get_child() may throw if the key does not exist
+                    }
+                }
+                return mapOutput;
             }
 
             template<typename Type>
             void SettingElement::write_setting_map(std::string const& a_strFile, std::string const& a_strElement, std::map<std::string, Type> const& a_tmapNew) {
-                
+                // Request the boost::property_tree containing the current setting element
+                // The given tree is automatically locked & read on request and written & unlocked on deletion
+                if (auto const& pTree = get_tree(a_strFile, a_strElement)) {
+                    // Get the key that points to where the data is stored in the tree
+                    auto strKey = get_element(a_strFile, a_strElement)->get_key();
+                    // Get the file type to customize data representation
+                    auto eType = emb::settings::get_file(a_strFile)->get_type();
+                    // Remove old subtree
+                    remove_tree(*pTree, strKey);
+                    // Create and add the subtree accordingly to the file type
+                    switch(eType) {
+                    case FileType::XML:
+                    case FileType::JSON:
+                        for(auto const& value : a_tmapNew) {
+                            // Create a new subtree
+                            boost::property_tree::ptree subTree{};
+                            // Write the subtree
+                            write_tree(subTree, value.second);
+                            // Write the subtree into the main tree
+                            pTree->add_child(strKey + "." + value.first, subTree);
+                        }
+                        break;
+                    case FileType::INI:
+                        /// @todo
+                        break;
+                    }
+                }
             }
 
             template<typename Type>
             void SettingElement::set_setting_map(std::string const& a_strFile, std::string const& a_strElement, std::string const& a_strK, Type const& a_tNew) {
-                
+                // Request the boost::property_tree containing the current setting element
+                // The given tree is automatically locked & read on request and written & unlocked on deletion
+                if (auto const& pTree = get_tree(a_strFile, a_strElement)) {
+                    // Get the key that points to where the data is stored in the tree
+                    auto strKey = get_element(a_strFile, a_strElement)->get_key();
+                    // Get the file type to customize data representation
+                    auto eType = emb::settings::get_file(a_strFile)->get_type();
+                    // Create and set the subtree accordingly to the file type
+                    switch(eType) {
+                    case FileType::XML:
+                    case FileType::JSON: {
+                            // Create a new subtree
+                            boost::property_tree::ptree subTree{};
+                            // Write the subtree
+                            write_tree(subTree, a_tNew);
+                            // Write the subtree into the main tree
+                            pTree->put_child(strKey + "." + a_strK, subTree);
+                        }
+                        break;
+                    case FileType::INI:
+                        /// @todo
+                        break;
+                    }
+                }
             }
         
 
