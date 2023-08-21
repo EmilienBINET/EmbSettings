@@ -122,6 +122,15 @@ namespace emb {
         char const* str(FileType a_eFileType);
 
         /**
+         * @brief How default values are handled
+         */
+        enum class DefaultMode {
+            DefaultValueIfAbsentFromFile,   ///< A setting element has its default value if is is not present in the associated settings file
+            DefaultValueWrittenInFile,      ///< A setting element has its default value written in the associated settings file 
+        };
+        char const* str(DefaultMode a_eDefaultMode);
+
+        /**
          * @brief Defines a jocker value, that can be used in settings files' path
          * @param a_strJocker   Name of the jocker, without the @{...} pattern
          * @param a_strValue    Value that will replace the pattern @{a_strJocker}
@@ -135,6 +144,12 @@ namespace emb {
          * @param a_strName     Name of node used in XML vector
          */
         void set_xml_vector_element_name(std::string const& a_strName);
+
+        /**
+         * @brief Defines how the default values are handled. Must be called before any read or write operation
+         * @param a_eDefaultMode New default mode
+         */
+        void set_default_value_mode(DefaultMode a_eDefaultMode);
 
         /**
          * @brief Get the file names list object
@@ -151,6 +166,9 @@ namespace emb {
          */
         std::vector<std::string> get_element_names_list(std::string const& a_strFileName);
 
+        /**
+         * @brief The internal namespace contains elements that are not part of the public API and are not meant to be called directly
+         */
         namespace internal {
 
             /**
@@ -193,6 +211,21 @@ namespace emb {
                  * @brief Write the linked variables
                  */
                 void write_linked() const;
+                /**
+                 * @brief Read the setting element as a string
+                 * @return std::string Value of the element
+                 */
+                virtual std::string read_str() const = 0;
+                /**
+                 * @brief Indicate if the setting element has its default value
+                 * @return true     the setting element has its default value
+                 * @return false    otherwise
+                 */
+                virtual bool is_default_value() const { return false; }
+                /**
+                 * @brief Reset the setting element to its default value
+                 */
+                virtual void reset_to_default() const {}
             
             // protected types
             protected:
@@ -231,6 +264,21 @@ namespace emb {
                  */
                 template<typename Type>
                 static void write_setting(std::string const& a_strFile, std::string const& a_strElement, Type const& a_tNew);
+                /**
+                 * @brief Reset a setting element to its default value
+                 * @tparam Element      Setting element to reset
+                 */
+                template<typename Element>
+                static void reset_setting();
+                /**
+                 * @brief Indicate if a setting element has its default value
+                 * 
+                 * @tparam Element      Setting element to test
+                 * @return true         The setting element has its default value
+                 * @return false        Otherwise
+                 */
+                template<typename Element>
+                static bool is_default_setting();
                 /**
                  * @brief link a variable to a setting element
                  * @param a_funcRead    Read function
@@ -336,6 +384,14 @@ namespace emb {
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
                 class TSettingScalar
                         : public SettingElement {
+                // public attributes
+                public:
+                    static char const* Name;
+                    using Type = _Type;
+                    using File = _File;
+                    static char const* Key;
+                    static _Type const Default;
+                
                 // public methods
                 public:
                     /**
@@ -364,12 +420,38 @@ namespace emb {
                         write_setting<_Type>(_File::Name, _NameStr, a_tVal);
                     }
                     /**
+                     * @brief Reset the setting element to its default value
+                     */
+                    static void reset() {
+                        reset_setting<_Name>();
+                    }
+                    /**
+                     * @brief Indicate if setting element has its default value
+                     * @return true     The setting element has its default value
+                     * @return false    Otherwise
+                     */
+                    static bool is_default() {
+                        return is_default_setting<_Name>();
+                    }
+                    /**
                      * @brief Link the setting element to a variable
                      * 
                      * @param a_rtVar   Variable to link the setting element to
                      */
                     static void link(_Type& a_rtVar) {
                         link_setting<_Type, _Name>(_File::Name, _NameStr, a_rtVar);
+                    }
+
+                    std::string read_str() const override {
+                        return read_setting<std::string>(_File::Name, _NameStr, "");
+                    }
+                    
+                    bool is_default_value() const override {
+                        return is_default();
+                    }
+
+                    void reset_to_default() const override {
+                        reset();
                     }
 
                 // protected methods
@@ -389,6 +471,12 @@ namespace emb {
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
             bool TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::s_bRegistered =
                 SettingElement::register_element(_File::Name, _NameStr, _Name::_create_);
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
+            char const* TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::Name{ _NameStr };
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
+            char const* TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::Key{ _KeyStr };
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
+            _Type const TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::Default{ *_Default };
 
             /**
              * @brief Base class of a vector setting element
@@ -444,6 +532,10 @@ namespace emb {
                      */
                     static void link(std::vector<_Type>& a_rtvecVal) {
                         link_setting<std::vector<_Type>, _Name>(_File::Name, _NameStr, a_rtvecVal);
+                    }
+
+                    std::string read_str() const override{
+                        return "[?]";
                     }
 
                 // protected methods
@@ -519,6 +611,10 @@ namespace emb {
                      */
                     static void link(std::map<std::string, _Type>& a_rtmapVal) {
                         link_setting<std::map<std::string, _Type>, _Name>(_File::Name, _NameStr, a_rtmapVal);
+                    }
+
+                    std::string read_str() const override{
+                        return "{?}";
                     }
 
                 // protected methods
@@ -688,6 +784,7 @@ namespace emb {
             tree_ptr get_tree(std::string const& a_strFileName, std::string const& a_strElementName);
 
             std::string& xml_vector_element_name();
+            emb::settings::DefaultMode& default_mode();
             void remove_tree(boost::property_tree::ptree & a_rTree, std::string const& a_strKeyToRemove);
         }
 
