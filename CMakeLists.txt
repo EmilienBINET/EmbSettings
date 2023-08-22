@@ -39,3 +39,6 @@ add_executable(
 	src/main.cpp
 )
 target_link_libraries(EmbSettingsExe PRIVATE EmbSettings)
+
+enable_testing()
+add_subdirectory(tests)
