@@ -8,18 +8,16 @@
 #include <mutex>
 #include <map>
 #include <regex>
-
-//#define DEBUG_OUTPUT
-
-#if 1 // 1 to debug registering
 #include <iostream>
+
+#if 0 // 1 to debug registering
 #define DEBUG_SELF_REGISTERING(_cmd) _cmd
 #else
 #define DEBUG_SELF_REGISTERING(_cmd)
 #endif
 
-
 using namespace std;
+
 namespace {
 
     map<string, string>& jockers() {
