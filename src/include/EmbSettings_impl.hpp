@@ -295,6 +295,195 @@ namespace emb {
                 }
             }
 
+            //////////////////////////////////////////////////
+            ///// TSettingScalar                         /////
+            //////////////////////////////////////////////////
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
+            TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::TSettingScalar()
+                : SettingElement{ _NameStr, _TypeStr, _File::Name, _KeyStr }
+            {}
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
+            TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::~TSettingScalar() {
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
+            _Type TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::read() {
+                return read_setting<_Type>(_File::Name, _NameStr, *_Default);
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
+            void TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::write(_Type const& a_tVal) {
+                write_setting<_Type>(_File::Name, _NameStr, a_tVal);
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
+            void TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::reset() {
+                reset_setting<_Name>();
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
+            bool TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::is_default() {
+                return is_default_setting<_Name>();
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
+            void TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::link(_Type& a_rtVar) {
+                link_setting<_Type, _Name>(_File::Name, _NameStr, a_rtVar);
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
+            std::string TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::read_str() const {
+                return read_setting<std::string>(_File::Name, _NameStr, "");
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
+            bool TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::is_default_value() const {
+                return is_default();
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
+            void TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::reset_to_default() const {
+                reset();
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
+            std::unique_ptr<SettingElement> TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::_create_() {
+                return std::make_unique<_Name>();
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
+            bool TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::s_bRegistered =
+                SettingElement::register_element(_File::Name, _NameStr, _Name::_create_);
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
+            char const* TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::Name{ _NameStr };
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
+            char const* TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::Key{ _KeyStr };
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
+            _Type const TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::Default{ *_Default };
+
+            //////////////////////////////////////////////////
+            ///// TSettingVector                         /////
+            //////////////////////////////////////////////////
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::TSettingVector()
+                    : SettingElement{ _NameStr, _TypeStr, _File::Name, _KeyStr }
+            {}
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::~TSettingVector() {
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            std::vector<_Type> TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::read() {
+                return read_setting_vector<_Type>(_File::Name, _NameStr);
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            void TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::write(std::vector<_Type> const& a_tvecVal) {
+                write_setting_vector<_Type>(_File::Name, _NameStr, a_tvecVal);
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            void TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::add(_Type const& a_tVal) {
+                add_setting_vector<_Type>(_File::Name, _NameStr, a_tVal);
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            void TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::link(std::vector<_Type>& a_rtvecVal) {
+                link_setting<std::vector<_Type>, _Name>(_File::Name, _NameStr, a_rtvecVal);
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            std::string TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::read_str() const {
+                return "[?]";
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            std::unique_ptr<SettingElement> TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::_create_() {
+                return std::make_unique<_Name>();
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            bool TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::s_bRegistered =
+                SettingElement::register_element(_File::Name, _NameStr, _Name::_create_);
+
+            //////////////////////////////////////////////////
+            ///// TSettingMap                            /////
+            //////////////////////////////////////////////////
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::TSettingMap()
+                    : SettingElement{ _NameStr, _TypeStr, _File::Name, _KeyStr }
+            {}
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::~TSettingMap() {
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            std::map<std::string, _Type> TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::read() {
+                return read_setting_map<_Type>(_File::Name, _NameStr);
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            void TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::write(std::map<std::string, _Type> const& a_tmapVal) {
+                write_setting_map<_Type>(_File::Name, _NameStr, a_tmapVal);
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            void TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::set(std::string const& a_strKey, _Type const& a_tVal) {
+                set_setting_map<_Type>(_File::Name, _NameStr, a_strKey, a_tVal);
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            void TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::link(std::map<std::string, _Type>& a_rtmapVal) {
+                link_setting<std::map<std::string, _Type>, _Name>(_File::Name, _NameStr, a_rtmapVal);
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            std::string TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::read_str() const {
+                return "{?}";
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            std::unique_ptr<SettingElement> TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::_create_() {
+                return std::make_unique<_Name>();
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            bool TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::s_bRegistered =
+                SettingElement::register_element(_File::Name, _NameStr, _Name::_create_);
+
+            //////////////////////////////////////////////////
+            ///// TSettingsFile                          /////
+            //////////////////////////////////////////////////
+
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
+            TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::TSettingsFile()
+                    : SettingsFile{ _NameStr, _Type, _PathStr, _Version }
+            {}
+
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
+            TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::~TSettingsFile() {
+            }
+
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
+            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::begin() {
+
+            }
+
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
+            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::commit() {
+
+            }
+
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
+            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::abort() {
+
+            }
 
             template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
             void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::read_linked() {
@@ -313,6 +502,31 @@ namespace emb {
                     }
                 }
             }
+
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
+            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::backup_to() {
+
+            }
+
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
+            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::restore_from() {
+            }
+
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
+            std::unique_ptr<SettingsFile> TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::_create_() {
+                return std::make_unique<_Name>();
+            }
+
+            template<typename _Name, char const* _NameStr, FileType _Type, char const* _PathStr, int _Version>
+            bool TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::s_bRegistered = SettingsFile::register_file(_NameStr, _Name::_create_);
+            template<typename _Name, char const* _NameStr, FileType _Type, char const* _PathStr, int _Version>
+            char const* TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::Name{ _NameStr };
+            template<typename _Name, char const* _NameStr, FileType _Type, char const* _PathStr, int _Version>
+            char const* TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::Path{ _PathStr };
+            template<typename _Name, char const* _NameStr, FileType _Type, char const* _PathStr, int _Version>
+            emb::settings::FileType const TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::Type{ _Type };
+            template<typename _Name, char const* _NameStr, FileType _Type, char const* _PathStr, int _Version>
+            int const TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::Version{ _Version };
 
         }
     }

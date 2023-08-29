@@ -382,101 +382,71 @@ namespace emb {
              * @tparam Default      Default value of the element, if not present in the file
              */
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
-                class TSettingScalar
-                        : public SettingElement {
-                // public attributes
-                public:
-                    static char const* Name;
-                    using Type = _Type;
-                    using File = _File;
-                    static char const* Key;
-                    static _Type const Default;
+            class TSettingScalar
+                    : public SettingElement {
+            // public attributes
+            public:
+                static char const* Name;
+                using Type = _Type;
+                using File = _File;
+                static char const* Key;
+                static _Type const Default;
 
-                // public methods
-                public:
-                    /**
-                     * @brief Construct a new TSettingScalar object
-                     */
-                    TSettingScalar()
-                        : SettingElement{ _NameStr, _TypeStr, _File::Name, _KeyStr }
-                    {}
-                    /**
-                     * @brief Destroy the TSettingScalar object
-                     */
-                    virtual ~TSettingScalar()
-                    {}
-                    /**
-                     * @brief Read the setting element
-                     * @return Type     Value of the setting element
-                     */
-                    static _Type read() {
-                        return read_setting<_Type>(_File::Name, _NameStr, *_Default);
-                    }
-                    /**
-                     * @brief Write the setting element
-                     * @param a_tVal    New value of the setting element
-                     */
-                    static void write(_Type const& a_tVal) {
-                        write_setting<_Type>(_File::Name, _NameStr, a_tVal);
-                    }
-                    /**
-                     * @brief Reset the setting element to its default value
-                     */
-                    static void reset() {
-                        reset_setting<_Name>();
-                    }
-                    /**
-                     * @brief Indicate if setting element has its default value
-                     * @return true     The setting element has its default value
-                     * @return false    Otherwise
-                     */
-                    static bool is_default() {
-                        return is_default_setting<_Name>();
-                    }
-                    /**
-                     * @brief Link the setting element to a variable
-                     *
-                     * @param a_rtVar   Variable to link the setting element to
-                     */
-                    static void link(_Type& a_rtVar) {
-                        link_setting<_Type, _Name>(_File::Name, _NameStr, a_rtVar);
-                    }
+            // public methods
+            public:
+                /**
+                 * @brief Construct a new TSettingScalar object
+                 */
+                TSettingScalar();
+                /**
+                 * @brief Destroy the TSettingScalar object
+                 */
+                virtual ~TSettingScalar();
+                /**
+                 * @brief Read the setting element
+                 * @return Type     Value of the setting element
+                 */
+                static _Type read();
+                /**
+                 * @brief Write the setting element
+                 * @param a_tVal    New value of the setting element
+                 */
+                static void write(_Type const& a_tVal);
+                /**
+                 * @brief Reset the setting element to its default value
+                 */
+                static void reset();
+                /**
+                 * @brief Indicate if setting element has its default value
+                 * @return true     The setting element has its default value
+                 * @return false    Otherwise
+                 */
+                static bool is_default();
+                /**
+                 * @brief Link the setting element to a variable
+                 *
+                 * @param a_rtVar   Variable to link the setting element to
+                 */
+                static void link(_Type& a_rtVar);
 
-                    std::string read_str() const override {
-                        return read_setting<std::string>(_File::Name, _NameStr, "");
-                    }
+                std::string read_str() const override;
 
-                    bool is_default_value() const override {
-                        return is_default();
-                    }
+                bool is_default_value() const override;
 
-                    void reset_to_default() const override {
-                        reset();
-                    }
+                void reset_to_default() const override;
 
-                // protected methods
-                protected:
-                    /**
-                     * @brief Create an object of type \c Name
-                     * @return std::unique_ptr<SettingsElement> Newly created object
-                     */
-                    static std::unique_ptr<SettingElement> _create_() {
-                        return std::make_unique<_Name>();
-                    }
+            // protected methods
+            protected:
+                /**
+                 * @brief Create an object of type \c Name
+                 * @return std::unique_ptr<SettingsElement> Newly created object
+                 */
+                static std::unique_ptr<SettingElement> _create_();
 
-                // protected attributes
-                protected:
-                    static bool s_bRegistered;
+            // protected attributes
+            protected:
+                static bool s_bRegistered;
             };
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
-            bool TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::s_bRegistered =
-                SettingElement::register_element(_File::Name, _NameStr, _Name::_create_);
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
-            char const* TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::Name{ _NameStr };
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
-            char const* TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::Key{ _KeyStr };
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
-            _Type const TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::Default{ *_Default };
 
             /**
              * @brief Base class of a vector setting element
@@ -489,72 +459,54 @@ namespace emb {
              * @tparam KeyStr       Key locating the element inside the file
              */
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-                class TSettingVector
-                        : public SettingElement {
-                // public methods
-                public:
-                    /**
-                     * @brief Construct a new TSettingVector object
-                     */
-                    TSettingVector()
-                        : SettingElement{ _NameStr, _TypeStr, _File::Name, _KeyStr }
-                    {}
-                    /**
-                     * @brief Destroy the TSettingVector object
-                     */
-                    virtual ~TSettingVector()
-                    {}
-                    /**
-                     * @brief Read the vector setting element
-                     * @return Type     Value of the setting element
-                     */
-                    static std::vector<_Type> read() {
-                        return read_setting_vector<_Type>(_File::Name, _NameStr);
-                    }
-                    /**
-                     * @brief Write the vector setting element
-                     * @param a_tvecVal New value of the setting element
-                     */
-                    static void write(std::vector<_Type> const& a_tvecVal) {
-                        write_setting_vector<_Type>(_File::Name, _NameStr, a_tvecVal);
-                    }
-                    /**
-                     * @brief Add a value to the vector setting element
-                     * @param a_tVal    New value of the setting element
-                     */
-                    static void add(_Type const& a_tVal) {
-                        add_setting_vector<_Type>(_File::Name, _NameStr, a_tVal);
-                    }
-                    /**
-                     * @brief Link the vector setting element to a vector variable
-                     *
-                     * @param a_rtvecVal Variable to link the setting element to
-                     */
-                    static void link(std::vector<_Type>& a_rtvecVal) {
-                        link_setting<std::vector<_Type>, _Name>(_File::Name, _NameStr, a_rtvecVal);
-                    }
+            class TSettingVector
+                    : public SettingElement {
+            // public methods
+            public:
+                /**
+                 * @brief Construct a new TSettingVector object
+                 */
+                TSettingVector();
+                /**
+                 * @brief Destroy the TSettingVector object
+                 */
+                virtual ~TSettingVector();
+                /**
+                 * @brief Read the vector setting element
+                 * @return Type     Value of the setting element
+                 */
+                static std::vector<_Type> read();
+                /**
+                 * @brief Write the vector setting element
+                 * @param a_tvecVal New value of the setting element
+                 */
+                static void write(std::vector<_Type> const& a_tvecVal);
+                /**
+                 * @brief Add a value to the vector setting element
+                 * @param a_tVal    New value of the setting element
+                 */
+                static void add(_Type const& a_tVal);
+                /**
+                 * @brief Link the vector setting element to a vector variable
+                 *
+                 * @param a_rtvecVal Variable to link the setting element to
+                 */
+                static void link(std::vector<_Type>& a_rtvecVal);
 
-                    std::string read_str() const override{
-                        return "[?]";
-                    }
+                std::string read_str() const override;
 
-                // protected methods
-                protected:
-                    /**
-                     * @brief Create an object of type \c Name
-                     * @return std::unique_ptr<SettingsElement> Newly created object
-                     */
-                    static std::unique_ptr<SettingElement> _create_() {
-                        return std::make_unique<_Name>();
-                    }
+            // protected methods
+            protected:
+                /**
+                 * @brief Create an object of type \c Name
+                 * @return std::unique_ptr<SettingsElement> Newly created object
+                 */
+                static std::unique_ptr<SettingElement> _create_();
 
-                // protected attributes
-                protected:
-                    static bool s_bRegistered;
+            // protected attributes
+            protected:
+                static bool s_bRegistered;
             };
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            bool TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::s_bRegistered =
-                SettingElement::register_element(_File::Name, _NameStr, _Name::_create_);
 
             /**
              * @brief Base class of a map setting element
@@ -567,73 +519,55 @@ namespace emb {
              * @tparam KeyStr       Key locating the element inside the file
              */
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-                class TSettingMap
-                        : public SettingElement {
-                // public methods
-                public:
-                    /**
-                     * @brief Construct a new TSettingMap object
-                     */
-                    TSettingMap()
-                        : SettingElement{ _NameStr, _TypeStr, _File::Name, _KeyStr }
-                    {}
-                    /**
-                     * @brief Destroy the TSettingMap object
-                     */
-                    virtual ~TSettingMap()
-                    {}
-                    /**
-                     * @brief Read the map setting element
-                     * @return Type     Value of the map setting element
-                     */
-                    static std::map<std::string, _Type> read() {
-                        return read_setting_map<_Type>(_File::Name, _NameStr);
-                    }
-                    /**
-                     * @brief Write the map setting element
-                     * @param a_tmapVal New value of the map setting element
-                     */
-                    static void write(std::map<std::string, _Type> const& a_tmapVal) {
-                        write_setting_map<_Type>(_File::Name, _NameStr, a_tmapVal);
-                    }
-                    /**
-                     * @brief Set the map setting element value at a given key
-                     * @param a_strKey  Key of the map setting element
-                     * @param a_tVal    New value of map the setting element
-                     */
-                    static void set(std::string const& a_strKey, _Type const& a_tVal) {
-                        set_setting_map<_Type>(_File::Name, _NameStr, a_strKey, a_tVal);
-                    }
-                    /**
-                     * @brief Link the setting element to a variable
-                     *
-                     * @param a_rtmapVal Variable to link the setting element to
-                     */
-                    static void link(std::map<std::string, _Type>& a_rtmapVal) {
-                        link_setting<std::map<std::string, _Type>, _Name>(_File::Name, _NameStr, a_rtmapVal);
-                    }
+            class TSettingMap
+                    : public SettingElement {
+            // public methods
+            public:
+                /**
+                 * @brief Construct a new TSettingMap object
+                 */
+                TSettingMap();
+                /**
+                  * @brief Destroy the TSettingMap object
+                  */
+                virtual ~TSettingMap();
+                /**
+                  * @brief Read the map setting element
+                  * @return Type     Value of the map setting element
+                  */
+                static std::map<std::string, _Type> read();
+                /**
+                  * @brief Write the map setting element
+                  * @param a_tmapVal New value of the map setting element
+                  */
+                static void write(std::map<std::string, _Type> const& a_tmapVal);
+                /**
+                  * @brief Set the map setting element value at a given key
+                  * @param a_strKey  Key of the map setting element
+                  * @param a_tVal    New value of map the setting element
+                  */
+                static void set(std::string const& a_strKey, _Type const& a_tVal);
+                /**
+                  * @brief Link the setting element to a variable
+                  *
+                  * @param a_rtmapVal Variable to link the setting element to
+                  */
+                static void link(std::map<std::string, _Type>& a_rtmapVal);
 
-                    std::string read_str() const override{
-                        return "{?}";
-                    }
+                std::string read_str() const override;
 
-                // protected methods
-                protected:
-                    /**
-                     * @brief Create an object of type \c Name
-                     * @return std::unique_ptr<SettingsElement> Newly created object
-                     */
-                    static std::unique_ptr<SettingElement> _create_() {
-                        return std::make_unique<_Name>();
-                    }
+            // protected methods
+            protected:
+                /**
+                  * @brief Create an object of type \c Name
+                  * @return std::unique_ptr<SettingsElement> Newly created object
+                  */
+                static std::unique_ptr<SettingElement> _create_();
 
-                // protected attributes
-                protected:
-                    static bool s_bRegistered;
+            // protected attributes
+            protected:
+                static bool s_bRegistered;
             };
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            bool TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::s_bRegistered =
-                SettingElement::register_element(_File::Name, _NameStr, _Name::_create_);
 
             /**
              * @brief Base class of a each settings file
@@ -706,7 +640,8 @@ namespace emb {
              * @tparam Version      Version of the file
              */
             template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
-            class TSettingsFile : public SettingsFile {
+            class TSettingsFile
+                    : public SettingsFile {
             // public attributes
             public:
                 static char const* Name;
@@ -716,29 +651,15 @@ namespace emb {
 
             // public methods
             public:
-                TSettingsFile()
-                    : SettingsFile{ _NameStr, _Type, _PathStr, _Version }
-                {}
-                virtual ~TSettingsFile()
-                {}
-
-                static void begin() {
-
-                }
-                static void commit() {
-
-                }
-                static void abort() {
-
-                }
+                TSettingsFile();
+                virtual ~TSettingsFile();
+                static void begin();
+                static void commit();
+                static void abort();
                 static void read_linked();
                 static void write_linked();
-                static void backup_to() {
-
-                }
-                static void restore_from() {
-
-                }
+                static void backup_to();
+                static void restore_from();
 
             // protected methods
             protected:
@@ -746,24 +667,12 @@ namespace emb {
                  * @brief Create an object of type \c Name
                  * @return std::unique_ptr<SettingsFile> Newly created object
                  */
-                static std::unique_ptr<SettingsFile> _create_() {
-                    return std::make_unique<_Name>();
-                }
+                static std::unique_ptr<SettingsFile> _create_();
 
             // protected attributes
             protected:
                 static bool s_bRegistered;
             };
-            template<typename _Name, char const* _NameStr, FileType _Type, char const* _PathStr, int _Version>
-            bool TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::s_bRegistered = SettingsFile::register_file(_NameStr, _Name::_create_);
-            template<typename _Name, char const* _NameStr, FileType _Type, char const* _PathStr, int _Version>
-            char const* TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::Name{ _NameStr };
-            template<typename _Name, char const* _NameStr, FileType _Type, char const* _PathStr, int _Version>
-            char const* TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::Path{ _PathStr };
-            template<typename _Name, char const* _NameStr, FileType _Type, char const* _PathStr, int _Version>
-            emb::settings::FileType const TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::Type{ _Type };
-            template<typename _Name, char const* _NameStr, FileType _Type, char const* _PathStr, int _Version>
-            int const TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::Version{ _Version };
 
             struct tree_ptr_deleter {
                 void operator()(boost::property_tree::ptree* a_pObj);
