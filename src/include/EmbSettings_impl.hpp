@@ -14,7 +14,7 @@ namespace emb {
             //////////////////////////////////////////////////
             ///// Default read/write methods             /////
             //////////////////////////////////////////////////
-            
+
             template<typename T>
             T read_tree(boost::property_tree::ptree const& a_rTree, T const& tDefaultVal) {
                 return a_rTree.get<T>("", tDefaultVal);
@@ -75,7 +75,7 @@ namespace emb {
                     }
                     break;
                 case DefaultMode::DefaultValueWrittenInFile:
-                    write_setting<Element::Type>(Element::File::Name, Element::Name, Element::Default);
+                    write_setting<typename Element::Type>(Element::File::Name, Element::Name, Element::Default);
                     break;
                 }
             }
@@ -91,14 +91,14 @@ namespace emb {
                         try {
                             (void)pTree->get_child(Element::Key);
                         }
-                        catch(boost::property_tree::ptree_bad_path) {
+                        catch(boost::property_tree::ptree_bad_path&) {
                             // get_child() may throw if the key does not exist
                             bRes = true;
                         }
                     }
                     break;
                 case DefaultMode::DefaultValueWrittenInFile:
-                    bRes = Element::Default == read_setting<Element::Type>(Element::File::Name, Element::Name, Element::Default);
+                    bRes = Element::Default == read_setting<typename Element::Type>(Element::File::Name, Element::Name, Element::Default);
                     break;
                 }
                 return bRes;
@@ -129,7 +129,7 @@ namespace emb {
                             vecOutput.push_back(read_tree(subTree.second, Type{}));
                         }
                     }
-                    catch(boost::property_tree::ptree_bad_path) {
+                    catch(boost::property_tree::ptree_bad_path&) {
                         // get_child() may throw if the key does not exist
                     }
                 }
@@ -229,7 +229,7 @@ namespace emb {
                             mapOutput[subTree.first] = read_tree(subTree.second, Type{});
                         }
                     }
-                    catch(boost::property_tree::ptree_bad_path) {
+                    catch(boost::property_tree::ptree_bad_path&) {
                         // get_child() may throw if the key does not exist
                     }
                 }
@@ -294,7 +294,25 @@ namespace emb {
                     }
                 }
             }
-        
+
+
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
+            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::read_linked() {
+                for(auto const& elm: get_element_names_list(_NameStr)) {
+                    if(auto const& pElm = get_element(_NameStr, elm)) {
+                        pElm->read_linked();
+                    }
+                }
+            }
+
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
+            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::write_linked() {
+                for(auto const& elm: get_element_names_list(_NameStr)) {
+                    if(auto const& pElm = get_element(_NameStr, elm)) {
+                        pElm->write_linked();
+                    }
+                }
+            }
 
         }
     }

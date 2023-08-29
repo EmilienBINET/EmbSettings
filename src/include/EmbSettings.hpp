@@ -126,7 +126,7 @@ namespace emb {
          */
         enum class DefaultMode {
             DefaultValueIfAbsentFromFile,   ///< A setting element has its default value if is is not present in the associated settings file
-            DefaultValueWrittenInFile,      ///< A setting element has its default value written in the associated settings file 
+            DefaultValueWrittenInFile,      ///< A setting element has its default value written in the associated settings file
         };
         char const* str(DefaultMode a_eDefaultMode);
 
@@ -153,16 +153,16 @@ namespace emb {
 
         /**
          * @brief Get the file names list object
-         * 
-         * @return std::vector<std::string> 
+         *
+         * @return std::vector<std::string>
          */
         std::vector<std::string> get_file_names_list();
 
         /**
          * @brief Get the element names list object
-         * 
-         * @param a_strFileName 
-         * @return std::vector<std::string> 
+         *
+         * @param a_strFileName
+         * @return std::vector<std::string>
          */
         std::vector<std::string> get_element_names_list(std::string const& a_strFileName);
 
@@ -226,11 +226,11 @@ namespace emb {
                  * @brief Reset the setting element to its default value
                  */
                 virtual void reset_to_default() const {}
-            
+
             // protected types
             protected:
                 friend std::default_delete<SettingElement>;
-            
+
             // protected methods
             protected:
                 /**
@@ -272,7 +272,7 @@ namespace emb {
                 static void reset_setting();
                 /**
                  * @brief Indicate if a setting element has its default value
-                 * 
+                 *
                  * @tparam Element      Setting element to test
                  * @return true         The setting element has its default value
                  * @return false        Otherwise
@@ -291,78 +291,78 @@ namespace emb {
                  * @tparam Element      Element representing the setting
                  * @param a_strFile     Name of the file where the setting element is stored
                  * @param a_strElement  Name of the setting element in the file
-                 * @param a_rtVariable   
+                 * @param a_rtVariable
                  */
                 template<typename Type, typename Element>
                 static void link_setting(std::string const& a_strFile, std::string const& a_strElement, Type& a_rtVariable);
                 /**
-                 * @brief 
-                 * 
-                 * @tparam Type 
-                 * @param a_strFile 
+                 * @brief
+                 *
+                 * @tparam Type
+                 * @param a_strFile
                  * @param a_strElement  Name of the setting element in the file
-                 * @return std::vector<Type> 
+                 * @return std::vector<Type>
                  */
                 template<typename Type>
                 static std::vector<Type> read_setting_vector(std::string const& a_strFile, std::string const& a_strElement);
                 /**
-                 * @brief 
-                 * 
-                 * @tparam Type 
-                 * @param a_strFile 
+                 * @brief
+                 *
+                 * @tparam Type
+                 * @param a_strFile
                  * @param a_strElement  Name of the setting element in the file
-                 * @param a_tvecNew 
+                 * @param a_tvecNew
                  */
                 template<typename Type>
                 static void write_setting_vector(std::string const& a_strFile, std::string const& a_strElement, std::vector<Type> const& a_tvecNew);
                 /**
-                 * @brief 
-                 * 
-                 * @tparam Type 
-                 * @param a_strFile 
+                 * @brief
+                 *
+                 * @tparam Type
+                 * @param a_strFile
                  * @param a_strElement  Name of the setting element in the file
-                 * @param a_tNew 
+                 * @param a_tNew
                  */
                 template<typename Type>
                 static void add_setting_vector(std::string const& a_strFile, std::string const& a_strElement, Type const& a_tNew);
                 /**
-                 * @brief 
-                 * 
-                 * @tparam Type 
-                 * @param a_strFile 
+                 * @brief
+                 *
+                 * @tparam Type
+                 * @param a_strFile
                  * @param a_strElement  Name of the setting element in the file
-                 * @return std::map<std::string, Type> 
+                 * @return std::map<std::string, Type>
                  */
                 template<typename Type>
                 static std::map<std::string, Type> read_setting_map(std::string const& a_strFile, std::string const& a_strElement);
                 /**
-                 * @brief 
-                 * 
-                 * @tparam Type 
-                 * @param a_strFile 
+                 * @brief
+                 *
+                 * @tparam Type
+                 * @param a_strFile
                  * @param a_strElement  Name of the setting element in the file
-                 * @param a_tmapNew 
+                 * @param a_tmapNew
                  */
                 template<typename Type>
                 static void write_setting_map(std::string const& a_strFile, std::string const& a_strElement, std::map<std::string, Type> const& a_tmapNew);
                 /**
                  * @brief Set the setting map object
-                 * 
-                 * @tparam Type 
-                 * @param a_strFile 
+                 *
+                 * @tparam Type
+                 * @param a_strFile
                  * @param a_strElement  Name of the setting element in the file
-                 * @param a_strK 
-                 * @param a_tNew 
+                 * @param a_strK
+                 * @param a_tNew
                  */
                 template<typename Type>
                 static void set_setting_map(std::string const& a_strFile, std::string const& a_strElement, std::string const& a_strK, Type const& a_tNew);
-            
+
                 /**
-                 * @brief 
+                 * @brief
                  */
                 virtual void _register_() noexcept = 0;
                 static bool register_element(char const* a_szFile, char const* a_szElement, creation_method<SettingElement> a_funcCreationMethod);
-            
+
             private:
                 std::string const m_strName;
                 std::string const m_strType;
@@ -372,7 +372,7 @@ namespace emb {
 
             /**
              * @brief Base class of a scalar setting element
-             * 
+             *
              * @tparam Name         Class name of the element
              * @tparam NameStr      Class name of the element, as a string
              * @tparam Type         Type of the element
@@ -391,7 +391,7 @@ namespace emb {
                     using File = _File;
                     static char const* Key;
                     static _Type const Default;
-                
+
                 // public methods
                 public:
                     /**
@@ -435,7 +435,7 @@ namespace emb {
                     }
                     /**
                      * @brief Link the setting element to a variable
-                     * 
+                     *
                      * @param a_rtVar   Variable to link the setting element to
                      */
                     static void link(_Type& a_rtVar) {
@@ -445,7 +445,7 @@ namespace emb {
                     std::string read_str() const override {
                         return read_setting<std::string>(_File::Name, _NameStr, "");
                     }
-                    
+
                     bool is_default_value() const override {
                         return is_default();
                     }
@@ -480,7 +480,7 @@ namespace emb {
 
             /**
              * @brief Base class of a vector setting element
-             * 
+             *
              * @tparam Name         Class name of the element
              * @tparam NameStr      Class name of the element, as a string
              * @tparam Type         Type of the element
@@ -527,7 +527,7 @@ namespace emb {
                     }
                     /**
                      * @brief Link the vector setting element to a vector variable
-                     * 
+                     *
                      * @param a_rtvecVal Variable to link the setting element to
                      */
                     static void link(std::vector<_Type>& a_rtvecVal) {
@@ -555,10 +555,10 @@ namespace emb {
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
             bool TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::s_bRegistered =
                 SettingElement::register_element(_File::Name, _NameStr, _Name::_create_);
-            
+
             /**
              * @brief Base class of a map setting element
-             * 
+             *
              * @tparam Name         Class name of the element
              * @tparam NameStr      Class name of the element, as a string
              * @tparam Type         Type of the element
@@ -606,7 +606,7 @@ namespace emb {
                     }
                     /**
                      * @brief Link the setting element to a variable
-                     * 
+                     *
                      * @param a_rtmapVal Variable to link the setting element to
                      */
                     static void link(std::map<std::string, _Type>& a_rtmapVal) {
@@ -634,7 +634,7 @@ namespace emb {
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
             bool TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::s_bRegistered =
                 SettingElement::register_element(_File::Name, _NameStr, _Name::_create_);
-            
+
             /**
              * @brief Base class of a each settings file
              */
@@ -661,7 +661,7 @@ namespace emb {
                  * @return std::string  Version of the settings file
                  */
                 int get_version() const;
-            
+
             // protected types
             protected:
                 friend std::default_delete<SettingsFile>;
@@ -670,20 +670,20 @@ namespace emb {
             protected:
                 /**
                  * @brief Construct a new Settings File object
-                 * 
-                 * @param a_strName 
-                 * @param a_eType 
-                 * @param a_strPath 
-                 * @param a_iVersion 
+                 *
+                 * @param a_strName
+                 * @param a_eType
+                 * @param a_strPath
+                 * @param a_iVersion
                  */
                 SettingsFile(std::string const& a_strName, FileType a_eType, std::string const& a_strPath, int a_iVersion);
                 /**
                  * @brief Destroy the Settings File object
-                 * 
+                 *
                  */
                 virtual ~SettingsFile();
                 /**
-                 * @brief 
+                 * @brief
                  */
                 virtual void _register_() noexcept = 0;
                 static bool register_file(char const* a_szFile, creation_method<SettingsFile> a_funcCreationMethod);
@@ -698,7 +698,7 @@ namespace emb {
 
             /**
              * @brief Base class of settings file
-             * 
+             *
              * @tparam Name          Class name of the file
              * @tparam NameStr      Class name of the file, as a string
              * @tparam Type         Type of the file (from emb::settings::FileType)
@@ -726,32 +726,20 @@ namespace emb {
 
                 }
                 static void commit() {
-                    
+
                 }
                 static void abort() {
-                    
+
                 }
-                static void read_linked() {
-                    for(auto const& elm: get_element_names_list(_NameStr)) {
-                        if(auto const& pElm = get_element(_NameStr, elm)) {
-                            pElm->read_linked();
-                        }
-                    }
-                }
-                static void write_linked() {
-                    for(auto const& elm: get_element_names_list(_NameStr)) {
-                        if(auto const& pElm = get_element(_NameStr, elm)) {
-                            pElm->write_linked();
-                        }
-                    }
-                }
+                static void read_linked();
+                static void write_linked();
                 static void backup_to() {
-                    
+
                 }
                 static void restore_from() {
-                    
+
                 }
-            
+
             // protected methods
             protected:
                 /**
@@ -790,18 +778,18 @@ namespace emb {
 
         /**
          * @brief Get the file object
-         * 
-         * @param a_strFileName 
-         * @return std::unique_ptr<SettingsFile> 
+         *
+         * @param a_strFileName
+         * @return std::unique_ptr<SettingsFile>
          */
         std::unique_ptr<internal::SettingsFile> get_file(std::string const& a_strFileName);
 
         /**
          * @brief Get the element object
-         * 
-         * @param a_strFileName 
-         * @param a_strElementName 
-         * @return std::unique_ptr<SettingsElement> 
+         *
+         * @param a_strFileName
+         * @param a_strElementName
+         * @return std::unique_ptr<SettingsElement>
          */
         std::unique_ptr<internal::SettingElement> get_element(std::string const& a_strFileName, std::string const& a_strElementName);
     }

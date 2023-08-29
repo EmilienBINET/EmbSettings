@@ -215,14 +215,14 @@ namespace emb {
                 static emb::settings::DefaultMode mode{emb::settings::DefaultMode::DefaultValueIfAbsentFromFile};
                 return mode;
             }
-            
+
             void remove_tree(boost::property_tree::ptree & a_rTree, std::string const& a_strKeyToRemove) {
                 auto pos = a_strKeyToRemove.find_last_of('.');
                 if(std::string::npos != pos) {
                     try {
                         a_rTree.get_child(a_strKeyToRemove.substr(0, pos)).erase(a_strKeyToRemove.substr(pos+1));
                     }
-                    catch(boost::property_tree::ptree_bad_path) {
+                    catch(boost::property_tree::ptree_bad_path&) {
                         // get_child() may throw if the key does not exist
                     }
                 }
@@ -230,7 +230,7 @@ namespace emb {
                     a_rTree.erase(a_strKeyToRemove);
                 }
             }
-            
+
             //////////////////////////////////////////////////
             ///// SettingElement                         /////
             //////////////////////////////////////////////////
@@ -250,13 +250,13 @@ namespace emb {
             std::string SettingElement::get_key() const {
                 return m_strKey;
             }
-            
+
             void SettingElement::read_linked() const {
                 if (auto fct = files_info()[get_file()].elm_info[get_name()].funcReadLinked) {
                     fct();
                 }
             }
-            
+
             void SettingElement::write_linked() const {
                 if (auto fct = files_info()[get_file()].elm_info[get_name()].funcWriteLinked) {
                     fct();
@@ -270,7 +270,7 @@ namespace emb {
             //void SettingElement::reset_to_default() const {
 
             //}
-            
+
             SettingElement::SettingElement(std::string const& a_strName, std::string const& a_strType, std::string const& a_strFile, std::string const& a_strKey)
                 : m_strName{ a_strName }
                 , m_strType{ a_strType }
@@ -280,7 +280,7 @@ namespace emb {
 
             SettingElement::~SettingElement()
             {}
-            
+
             void SettingElement::link_variable(std::function<void(void)> const& a_funcRead, std::function<void(void)> const& a_funcWrite) {
                 if(auto itFile = files_info().find(get_file()); itFile != files_info().end()) {
                     if(auto itElm = itFile->second.elm_info.find(get_name()); itElm != itFile->second.elm_info.end()) {
@@ -316,19 +316,19 @@ namespace emb {
             std::string SettingsFile::get_name() const {
                 return m_strName;
             }
-            
+
             FileType SettingsFile::get_type() const {
                 return m_eType;
             }
-            
+
             std::string SettingsFile::get_path() const {
                 return m_strPath;
             }
-            
+
             int SettingsFile::get_version() const {
                 return m_iVersion;
             }
-            
+
             SettingsFile::SettingsFile(std::string const& a_strName, FileType a_eType, std::string const& a_strPath, int a_iVersion)
                 : m_strName{ a_strName }
                 , m_eType{ a_eType }
@@ -383,6 +383,6 @@ namespace emb {
             write<std::string>(a_strNewValue);
         }
 */
-        
+
     }
 }
