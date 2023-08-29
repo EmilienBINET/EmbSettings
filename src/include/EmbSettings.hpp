@@ -683,6 +683,7 @@ namespace emb {
             std::string& xml_vector_element_name();
             emb::settings::DefaultMode& default_mode();
             void remove_tree(boost::property_tree::ptree & a_rTree, std::string const& a_strKeyToRemove);
+            std::string stringify_tree(boost::property_tree::ptree const& a_Tree);
         }
 
         /**
