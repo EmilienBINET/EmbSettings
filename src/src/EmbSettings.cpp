@@ -229,6 +229,12 @@ namespace emb {
                 }
             }
 
+            std::string stringify_tree(boost::property_tree::ptree const& a_Tree) {
+                std::stringstream strTmpFilecontent;
+                boost::property_tree::write_json(strTmpFilecontent, a_Tree, false);
+                return strTmpFilecontent.str();
+            }
+
             //////////////////////////////////////////////////
             ///// SettingElement                         /////
             //////////////////////////////////////////////////

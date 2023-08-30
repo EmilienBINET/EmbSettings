@@ -398,6 +398,24 @@ namespace emb {
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
             std::string TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::read_str() const {
+                // Request the boost::property_tree containing the current setting element
+                // The given tree is automatically locked & read on request and written & unlocked on deletion
+                if (auto const& pTree = get_tree(_File::Name, _NameStr)) {
+                    // Get each the subtree corresponding to the key
+                    try {
+                        boost::property_tree::ptree newTree{};
+                        for (auto const& subTree : pTree->get_child(_KeyStr)) {
+                            // Read subTree content and add it to the new tree
+                            newTree.push_back(std::make_pair("", subTree.second));
+                        }
+                        boost::property_tree::ptree newRootTree{};
+                        newRootTree.add_child("root", newTree);
+                        return stringify_tree(newRootTree);
+                    }
+                    catch (boost::property_tree::ptree_bad_path&) {
+                        // get_child() may throw if the key does not exist
+                    }
+                }
                 return "[?]";
             }
 
@@ -445,6 +463,22 @@ namespace emb {
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
             std::string TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::read_str() const {
+                // Request the boost::property_tree containing the current setting element
+                // The given tree is automatically locked & read on request and written & unlocked on deletion
+                if (auto const& pTree = get_tree(_File::Name, _NameStr)) {
+                    // Get each the subtree corresponding to the key
+                    try {
+                        boost::property_tree::ptree newTree{};
+                        for (auto const& subTree : pTree->get_child(_KeyStr)) {
+                            // Read subTree content and add it to the new tree
+                            newTree.put_child(subTree.first, subTree.second);
+                        }
+                        return stringify_tree(newTree);
+                    }
+                    catch (boost::property_tree::ptree_bad_path&) {
+                        // get_child() may throw if the key does not exist
+                    }
+                }
                 return "{?}";
             }
 
