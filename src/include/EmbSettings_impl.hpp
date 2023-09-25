@@ -279,13 +279,14 @@ namespace emb {
                     // Create and set the subtree accordingly to the file type
                     switch(eType) {
                     case FileType::XML:
-                    case FileType::JSON: {
+                    case FileType::JSON:
+                        if(auto subTree = get_sub_tree(pTree, strKey, true)) {
                             // Create a new subtree
-                            boost::property_tree::ptree subTree{};
+                            boost::property_tree::ptree valTree{};
                             // Write the subtree
-                            write_tree(subTree, a_tNew);
+                            write_tree(valTree, a_tNew);
                             // Write the subtree into the main tree
-                            pTree->put_child(strKey + "." + a_strK, subTree);
+                            subTree->put_child(boost::property_tree::ptree::path_type(a_strK, '\0'), valTree);
                         }
                         break;
                     case FileType::INI:

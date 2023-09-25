@@ -377,6 +377,14 @@ namespace emb {
                 }
                 return nullptr;
             }
+
+            boost::optional<boost::property_tree::ptree&> get_sub_tree(tree_ptr const& a_pTree, std::string const& a_strKey, bool a_bCreate) {
+                auto val = a_pTree->get_child_optional(a_strKey);
+                if(!val) {
+                    val = a_pTree->add_child(a_strKey, boost::property_tree::ptree{});
+                }
+                return val;
+            }
         }
 /*
         std::string SettingsElement::read() const {
