@@ -495,32 +495,32 @@ namespace emb {
             ///// TSettingsFile                          /////
             //////////////////////////////////////////////////
 
-            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
-            TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::TSettingsFile()
-                    : SettingsFile{ _NameStr, _Type, _PathStr, _Version }
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
+            TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::TSettingsFile()
+                    : SettingsFile{ _NameStr, _Type, _PathStr, _Version, _VersionClbk }
             {}
 
-            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
-            TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::~TSettingsFile() {
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
+            TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::~TSettingsFile() {
             }
 
-            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
-            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::begin() {
-
-            }
-
-            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
-            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::commit() {
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
+            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::begin() {
 
             }
 
-            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
-            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::abort() {
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
+            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::commit() {
 
             }
 
-            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
-            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::read_linked() {
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
+            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::abort() {
+
+            }
+
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
+            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::read_linked() {
                 for(auto const& elm: get_element_names_list(_NameStr)) {
                     if(auto const& pElm = get_element(_NameStr, elm)) {
                         pElm->read_linked();
@@ -528,8 +528,8 @@ namespace emb {
                 }
             }
 
-            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
-            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::write_linked() {
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
+            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::write_linked() {
                 for(auto const& elm: get_element_names_list(_NameStr)) {
                     if(auto const& pElm = get_element(_NameStr, elm)) {
                         pElm->write_linked();
@@ -537,30 +537,32 @@ namespace emb {
                 }
             }
 
-            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
-            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::backup_to() {
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
+            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::backup_to() {
 
             }
 
-            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
-            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::restore_from() {
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
+            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::restore_from() {
             }
 
-            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
-            std::unique_ptr<SettingsFile> TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::_create_() {
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
+            std::unique_ptr<SettingsFile> TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::_create_() {
                 return std::make_unique<_Name>();
             }
 
-            template<typename _Name, char const* _NameStr, FileType _Type, char const* _PathStr, int _Version>
-            bool TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::s_bRegistered = SettingsFile::register_file(_NameStr, _Name::_create_);
-            template<typename _Name, char const* _NameStr, FileType _Type, char const* _PathStr, int _Version>
-            char const* TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::Name{ _NameStr };
-            template<typename _Name, char const* _NameStr, FileType _Type, char const* _PathStr, int _Version>
-            char const* TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::Path{ _PathStr };
-            template<typename _Name, char const* _NameStr, FileType _Type, char const* _PathStr, int _Version>
-            emb::settings::FileType const TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::Type{ _Type };
-            template<typename _Name, char const* _NameStr, FileType _Type, char const* _PathStr, int _Version>
-            int const TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version>::Version{ _Version };
+            template<typename _Name, char const* _NameStr, FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
+            bool TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::s_bRegistered = SettingsFile::register_file(_NameStr, _Name::_create_);
+            template<typename _Name, char const* _NameStr, FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
+            char const* TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::Name{ _NameStr };
+            template<typename _Name, char const* _NameStr, FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
+            char const* TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::Path{ _PathStr };
+            template<typename _Name, char const* _NameStr, FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
+            emb::settings::FileType const TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::Type{ _Type };
+            template<typename _Name, char const* _NameStr, FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
+            int const TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::Version{ _Version };
+            template<typename _Name, char const* _NameStr, FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
+            version_clbk_t const TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::VersionClbk{ _VersionClbk };
 
         }
     }

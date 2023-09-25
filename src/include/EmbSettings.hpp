@@ -12,8 +12,9 @@
  * @param _type     Type of file (amongst \c emb::settings::FileType enumeration, without the scope: e.g. XML )
  * @param _path     Path of the file on the system. Jockers can be used with the format @{jocker}
  * @param _version  Current version of the file
+ * @param _version_clbk Function pointer to call when versions mismatch
  */
-#define EMBSETTINGS_FILE(_name, _type, _path, _version)                                                                                     \
+#define EMBSETTINGS_FILE(_name, _type, _path, _version, _version_clbk)                                                                      \
 namespace EmbSettings_Private { namespace _name {                                                                                           \
     inline char NameStr[]{ #_name };                                                                                                        \
     inline char PathStr[]{ _path };                                                                                                         \
@@ -23,7 +24,8 @@ class _name final : public emb::settings::internal::TSettingsFile<              
         EmbSettings_Private::_name::NameStr,                                                                                                \
         emb::settings::FileType::_type,                                                                                                     \
         EmbSettings_Private::_name::PathStr,                                                                                                \
-        _version                                                                                                                            \
+        _version,                                                                                                                           \
+        _version_clbk                                                                                                                       \
     > {                                                                                                                                     \
     void _register_() noexcept override { s_bRegistered = s_bRegistered; }                                                                  \
 };
@@ -138,6 +140,13 @@ namespace emb {
         void set_jocker(std::string const& a_strJocker, std::string const& a_strValue);
 
         /**
+         * @brief Defines the name of the node used to store the settings file version. Default is version
+         * @details That name then becomes invalid as a key name
+         * @param a_strName     Name of the node
+         */
+        void set_version_element_name(std::string const& a_strName);
+
+        /**
          * @brief Defines the name of the node used to store each element of a vector in XML format. Default is value
          * @details In XML format, vectors are stored as <vector_name><value>value1</value><value>value2</value></vector_name>
          *          That method affects the <value> and </value> nodes
@@ -165,6 +174,8 @@ namespace emb {
          * @return std::vector<std::string>
          */
         std::vector<std::string> get_element_names_list(std::string const& a_strFileName);
+
+        using version_clbk_t = void(*)(int a_iOldVersion, int a_iNewNersion);
 
         /**
          * @brief The internal namespace contains elements that are not part of the public API and are not meant to be called directly
@@ -595,6 +606,12 @@ namespace emb {
                  * @return std::string  Version of the settings file
                  */
                 int get_version() const;
+                /**
+                 * @brief Get the settings file's version callback
+                 *
+                 * @return version_clbk_t Version callback of the settings file
+                 */
+                version_clbk_t get_version_clbk() const;
 
             // protected types
             protected:
@@ -609,8 +626,9 @@ namespace emb {
                  * @param a_eType
                  * @param a_strPath
                  * @param a_iVersion
+                 * @param a_pVersionClbk
                  */
-                SettingsFile(std::string const& a_strName, FileType a_eType, std::string const& a_strPath, int a_iVersion);
+                SettingsFile(std::string const& a_strName, FileType a_eType, std::string const& a_strPath, int a_iVersion, version_clbk_t a_pVersionClbk);
                 /**
                  * @brief Destroy the Settings File object
                  *
@@ -628,18 +646,20 @@ namespace emb {
                 FileType const m_eType;
                 std::string const m_strPath;
                 int const m_iVersion;
+                version_clbk_t const m_pVersionClbk;
             };
 
             /**
              * @brief Base class of settings file
              *
-             * @tparam Name          Class name of the file
+             * @tparam Name         Class name of the file
              * @tparam NameStr      Class name of the file, as a string
              * @tparam Type         Type of the file (from emb::settings::FileType)
              * @tparam PathStr      Path of the file on the system (may contain jocker in the form of @{jocker})
              * @tparam Version      Version of the file
+             * @tparam VersionClbk  Version callback
              */
-            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version>
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
             class TSettingsFile
                     : public SettingsFile {
             // public attributes
@@ -648,6 +668,7 @@ namespace emb {
                 static char const* Path;
                 static emb::settings::FileType const Type;
                 static int const Version;
+                static version_clbk_t const VersionClbk;
 
             // public methods
             public:

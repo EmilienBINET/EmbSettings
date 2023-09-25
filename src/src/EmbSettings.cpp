@@ -31,6 +31,11 @@ namespace {
         }
     }
 
+    string& version_element_name() {
+        static string version_element_name{ "version" };
+        return version_element_name;
+    }
+
     struct SettingElementInfo {
         emb::settings::internal::creation_method<emb::settings::internal::SettingElement> funcCreate{};
         std::function<void(void)> funcReadLinked{};
@@ -45,6 +50,8 @@ namespace {
 
         emb::settings::FileType eFileType{};
         string strFullFileName{};
+        int iVersion{0};
+        emb::settings::version_clbk_t pVersionClbk{nullptr};
         std::stringstream strFilecontent{};
 
         void read_file() {
@@ -69,6 +76,10 @@ namespace {
             }
             catch (...) {
                 tree = decltype(tree)();
+            }
+            auto iOldVersion = tree.get<int>(version_element_name(), 0);
+            if(iOldVersion != iVersion && pVersionClbk) {
+                pVersionClbk(iOldVersion, iVersion);
             }
         }
 
@@ -105,6 +116,8 @@ namespace {
                 auto pFileInfo = funcCreate();
                 eFileType = pFileInfo->get_type();
                 strFullFileName = pFileInfo->get_path();
+                iVersion = pFileInfo->get_version();
+                pVersionClbk = pFileInfo->get_version_clbk();
                 parse_jockers(strFullFileName);
                 read_file();
             }
@@ -152,6 +165,10 @@ namespace emb {
 
         void set_jocker(std::string const& a_strJocker, std::string const& a_strValue) {
             jockers()[a_strJocker] = a_strValue;
+        }
+
+        void set_version_element_name(std::string const& a_strName) {
+            version_element_name() = a_strName;
         }
 
         void set_xml_vector_element_name(std::string const& a_strName) {
@@ -333,11 +350,16 @@ namespace emb {
                 return m_iVersion;
             }
 
-            SettingsFile::SettingsFile(std::string const& a_strName, FileType a_eType, std::string const& a_strPath, int a_iVersion)
+            version_clbk_t SettingsFile::get_version_clbk() const {
+                return m_pVersionClbk;
+            }
+
+            SettingsFile::SettingsFile(std::string const& a_strName, FileType a_eType, std::string const& a_strPath, int a_iVersion, version_clbk_t a_pVersionClbk)
                 : m_strName{ a_strName }
                 , m_eType{ a_eType }
                 , m_strPath{ a_strPath }
                 , m_iVersion{ a_iVersion }
+                , m_pVersionClbk{ a_pVersionClbk }
             {}
 
             SettingsFile::~SettingsFile()
