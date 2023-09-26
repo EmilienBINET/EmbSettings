@@ -79,7 +79,10 @@ namespace {
             }
             auto iOldVersion = tree.get<int>(version_element_name(), 0);
             if(iOldVersion != iVersion && pVersionClbk) {
-                pVersionClbk(iOldVersion, iVersion);
+                if(pVersionClbk(iOldVersion, iVersion)) {
+                    tree.put<int>(version_element_name(), iVersion);
+                    write_file();
+                }
             }
         }
 
@@ -314,7 +317,10 @@ namespace emb {
             bool SettingElement::register_element(char const* a_szFile, char const* a_szElement, creation_method<SettingElement> a_funcCreationMethod) {
                 DEBUG_SELF_REGISTERING(cout << "register_element(" << a_szFile << "," << a_szElement << ")" << endl);
                 bool bRes{false};
-                if(auto itFile = files_info().find(a_szFile); itFile != files_info().end()) {
+                if(a_funcCreationMethod()->get_key() == version_element_name()) {
+                    cerr << "SettingElement '" << a_szElement << "' cannot be registered with reserved key '" << version_element_name() << "'" << endl;
+                }
+                else if(auto itFile = files_info().find(a_szFile); itFile != files_info().end()) {
                     if(auto itElm = itFile->second.elm_info.find(a_szElement); itElm == itFile->second.elm_info.end()) {
                         itFile->second.elm_info[a_szElement].funcCreate = a_funcCreationMethod;
                         bRes = true;
