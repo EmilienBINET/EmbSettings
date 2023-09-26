@@ -175,7 +175,13 @@ namespace emb {
          */
         std::vector<std::string> get_element_names_list(std::string const& a_strFileName);
 
-        using version_clbk_t = void(*)(int a_iOldVersion, int a_iNewNersion);
+        /**
+         * @brief Type of the version callback that will be called when a settings file version changed (version is 0 if not defined)
+         * @param a_iOldVersion Version read from the file
+         * @param a_iNewNersion Version from the parameter description
+         * @return bool         true to write the new version in the file. false to NOT write it
+         */
+        using version_clbk_t = bool(*)(int a_iOldVersion, int a_iNewNersion);
 
         /**
          * @brief The internal namespace contains elements that are not part of the public API and are not meant to be called directly
