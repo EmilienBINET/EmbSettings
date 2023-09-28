@@ -9,6 +9,7 @@
 #include <map>
 #include <regex>
 #include <iostream>
+#include <experimental/filesystem>
 
 #if 0 // 1 to debug registering
 #define DEBUG_SELF_REGISTERING(_cmd) _cmd
@@ -195,6 +196,45 @@ namespace emb {
                 }
             }
             return vecElements;
+        }
+
+        bool backup_file(std::string a_strFilePath, std::string folderName){
+            
+            std::string fileName;
+
+            std::string fullFilePath;
+
+            parse_jockers(a_strFilePath);
+            unsigned int index = a_strFilePath.find_last_of("/");
+
+            if(index < a_strFilePath.size()){
+                fileName = a_strFilePath.substr(index+1);
+                fullFilePath = a_strFilePath;
+            }else{
+                return false;
+            }
+            
+            unsigned int indexDot = fileName.find_last_of(".");
+            if(indexDot >= fileName.size()){
+                return false;
+            }
+            
+            std::string outputPath = folderName;
+            outputPath += "/" + fileName;
+
+            //std::cout << "copie de " << fullFilePath << " dans " << outputFolder << " en tant que " << outputPath << std::endl;
+
+            if(!std::experimental::filesystem::exists(folderName)){
+                std::experimental::filesystem::create_directories(folderName);
+            }
+            if(std::experimental::filesystem::exists(fullFilePath)){
+                std::experimental::filesystem::copy(fullFilePath, outputPath);
+            }else {
+                return false;
+            }
+
+            return true;
+            
         }
 
         std::unique_ptr<internal::SettingsFile> get_file(std::string const& a_strFileName) {
