@@ -176,13 +176,22 @@ namespace emb {
         std::vector<std::string> get_element_names_list(std::string const& a_strFileName);
 
         /**
-         * @brief Backs the current file up, 
+         * @brief Backs the current file up
          *
          * @param a_strFileName fileName
-         * @param folderName destination folder
+         * @param a_strFolderName destination folder
          * @return bool true is success, false if failure
          */
-        bool backup_file(std::string a_strFilePath, std::string folderName);
+        bool backup_file(std::string const& a_strFileName, std::string const& a_strFolderName);
+
+        /**
+         * @brief Retrieves settings from a backup folder 
+         *
+         * @param a_strFileName fileName
+         * @param a_strFolderName src folder
+         * @return bool true is success, false if failure
+         */
+        bool restore_file(std::string const& a_strFileName, std::string const& a_strFolderName);
 
         using version_clbk_t = void(*)(int a_iOldVersion, int a_iNewNersion);
 
@@ -688,8 +697,8 @@ namespace emb {
                 static void abort();
                 static void read_linked();
                 static void write_linked();
-                static bool backup_to(std::string folderName);
-                static void restore_from();
+                static bool backup_to(std::string const& a_strFolderName);
+                static bool restore_from(std::string const& a_strFolderName);
 
             // protected methods
             protected:

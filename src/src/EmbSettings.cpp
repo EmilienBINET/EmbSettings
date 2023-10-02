@@ -1,4 +1,5 @@
 #include "../include/EmbSettings.hpp"
+#include "EmbSettings_impl.hpp"
 #include <string>
 #define BOOST_BIND_GLOBAL_PLACEHOLDERS // Avoid warning
 #include <boost/property_tree/xml_parser.hpp>
@@ -198,43 +199,97 @@ namespace emb {
             return vecElements;
         }
 
-        bool backup_file(std::string a_strFilePath, std::string folderName){
-            
-            std::string fileName;
+        bool backup_file(std::string const& a_strFileName, std::string const& a_strFolderName){
+            bool bRes{false};
+            if(auto itFile = files_info().find(a_strFileName); itFile != files_info().end()) {
+                auto & rFile = itFile->second;
+                rFile.mutex.lock();
 
-            std::string fullFilePath;
+                //files_info().find(a_strName)->second.read_file();            
 
-            parse_jockers(a_strFilePath);
-            unsigned int index = a_strFilePath.find_last_of("/");
+                // Compute the destination file path
+                std::string outputPath;
+                try {
+                    std::experimental::filesystem::path pathSourceFile{ rFile.strFullFileName };
+                    std::experimental::filesystem::path pathOutputFile{ a_strFolderName };
+                    pathOutputFile /= pathSourceFile.filename();
+                    outputPath = pathOutputFile.string();
+                    bRes = true;
+                }
+                catch(...) {
+                    bRes = false;
+                }
 
-            if(index < a_strFilePath.size()){
-                fileName = a_strFilePath.substr(index+1);
-                fullFilePath = a_strFilePath;
-            }else{
-                return false;
+                // Create the destination folder if necessary
+                if(bRes) {
+                    if(!std::experimental::filesystem::exists(a_strFolderName)) {
+                        bRes = std::experimental::filesystem::create_directories(a_strFolderName);
+                    }
+                }
+
+                // Test that the file to copy exists
+                bRes = bRes && std::experimental::filesystem::exists(rFile.strFullFileName);
+                
+                // Copy the file
+                if(bRes) {
+                    try {
+                        std::experimental::filesystem::copy(rFile.strFullFileName, outputPath, 
+                            std::experimental::filesystem::copy_options::overwrite_existing);
+                    }catch(...) {
+                        bRes = false;
+                    }
+                }
+
+                rFile.mutex.unlock();
             }
-            
-            unsigned int indexDot = fileName.find_last_of(".");
-            if(indexDot >= fileName.size()){
-                return false;
-            }
-            
-            std::string outputPath = folderName;
-            outputPath += "/" + fileName;
+            return bRes;
+        }
 
-            //std::cout << "copie de " << fullFilePath << " dans " << outputFolder << " en tant que " << outputPath << std::endl;
+        bool restore_file(std::string const& a_strFileName, std::string const& a_strFolderName){
+            bool bRes{false};
+            if(auto itFile = files_info().find(a_strFileName); itFile != files_info().end()) {
+                auto & rFile = itFile->second;
+                rFile.mutex.lock();
 
-            if(!std::experimental::filesystem::exists(folderName)){
-                std::experimental::filesystem::create_directories(folderName);
-            }
-            if(std::experimental::filesystem::exists(fullFilePath)){
-                std::experimental::filesystem::copy(fullFilePath, outputPath);
-            }else {
-                return false;
-            }
+                //files_info().find(a_strName)->second.read_file();            
 
-            return true;
-            
+                // Compute the destination file path
+                std::string outputPath;
+                try {
+                    std::experimental::filesystem::path pathSourceFile{ rFile.strFullFileName };
+                    std::experimental::filesystem::path pathOutputFile{ a_strFolderName };
+                    pathOutputFile /= pathSourceFile.filename();
+                    outputPath = pathOutputFile.string();
+                    bRes = true;
+                }
+                catch(...) {
+                    bRes = false;
+                }
+
+                // Create the destination folder if necessary
+                if(bRes) {
+                    if(!std::experimental::filesystem::exists(a_strFolderName)) {
+                        bRes = std::experimental::filesystem::create_directories(a_strFolderName);
+                    }
+                }
+
+                // Test that the file to copy exists
+                bRes = bRes && std::experimental::filesystem::exists(rFile.strFullFileName);
+                
+                // Copy the file
+                if(bRes) {
+                    try {
+                        std::experimental::filesystem::copy(rFile.strFullFileName, outputPath, 
+                            std::experimental::filesystem::copy_options::overwrite_existing);
+                    }catch(...) {
+                        bRes = false;
+                    }
+                }
+
+                files_info().find(a_strFileName)->second.read_file();
+                rFile.mutex.unlock();
+            }
+            return bRes;
         }
 
         std::unique_ptr<internal::SettingsFile> get_file(std::string const& a_strFileName) {
