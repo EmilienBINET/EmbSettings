@@ -279,7 +279,7 @@ namespace emb {
                 // Copy the file
                 if(bRes) {
                     try {
-                        std::experimental::filesystem::copy(rFile.strFullFileName, outputPath, 
+                        std::experimental::filesystem::copy(outputPath, rFile.strFullFileName, 
                             std::experimental::filesystem::copy_options::overwrite_existing);
                     }catch(...) {
                         bRes = false;
