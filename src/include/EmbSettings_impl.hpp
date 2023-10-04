@@ -539,12 +539,13 @@ namespace emb {
             }
 
             template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
-            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::backup_to() {
-
+            bool TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::backup_to(std::string const& a_strFolderName) {
+                return backup_file(_NameStr, a_strFolderName);
             }
 
             template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
-            void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::restore_from() {
+            bool TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::restore_from(std::string const& a_strFolderName) {
+                return restore_file(_NameStr, a_strFolderName);
             }
 
             template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>

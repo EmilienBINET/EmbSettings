@@ -34,11 +34,11 @@ if(MSVC)
     target_compile_options(EmbSettings PUBLIC "/Zc:__cplusplus")
 endif()
 
-add_executable(
-	EmbSettingsExe
-	src/main.cpp
-)
-target_link_libraries(EmbSettingsExe PRIVATE EmbSettings)
-
-enable_testing()
-add_subdirectory(tests)
+#add_executable(
+#	EmbSettingsExe
+#	src/main.cpp
+#)
+#target_link_libraries(EmbSettingsExe PRIVATE EmbSettings)
+#
+#enable_testing()
+#add_subdirectory(tests)

@@ -685,8 +685,8 @@ namespace emb {
                 static void abort();
                 static void read_linked();
                 static void write_linked();
-                static void backup_to();
-                static void restore_from();
+                static bool backup_to(std::string const& a_strFolderName);
+                static bool restore_from(std::string const& a_strFolderName);
 
             // protected methods
             protected:
@@ -712,6 +712,24 @@ namespace emb {
             emb::settings::DefaultMode& default_mode();
             void remove_tree(boost::property_tree::ptree & a_rTree, std::string const& a_strKeyToRemove);
             std::string stringify_tree(boost::property_tree::ptree const& a_Tree);
+
+            /**
+            * @brief Backs the current file up
+            *
+            * @param a_strFileName fileName
+            * @param a_strFolderName destination folder
+            * @return bool true is success, false if failure
+            */
+            bool backup_file(std::string const& a_strFileName, std::string const& a_strFolderName);
+
+            /**
+            * @brief Retrieves settings from a backup folder
+            *
+            * @param a_strFileName fileName
+            * @param a_strFolderName src folder
+            * @return bool true is success, false if failure
+            */
+            bool restore_file(std::string const& a_strFileName, std::string const& a_strFolderName);
         }
 
         /**
