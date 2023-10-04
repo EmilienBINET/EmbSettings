@@ -175,24 +175,6 @@ namespace emb {
          */
         std::vector<std::string> get_element_names_list(std::string const& a_strFileName);
 
-        /**
-         * @brief Backs the current file up
-         *
-         * @param a_strFileName fileName
-         * @param a_strFolderName destination folder
-         * @return bool true is success, false if failure
-         */
-        bool backup_file(std::string const& a_strFileName, std::string const& a_strFolderName);
-
-        /**
-         * @brief Retrieves settings from a backup folder 
-         *
-         * @param a_strFileName fileName
-         * @param a_strFolderName src folder
-         * @return bool true is success, false if failure
-         */
-        bool restore_file(std::string const& a_strFileName, std::string const& a_strFolderName);
-
         using version_clbk_t = void(*)(int a_iOldVersion, int a_iNewNersion);
 
         /**
@@ -724,6 +706,24 @@ namespace emb {
             emb::settings::DefaultMode& default_mode();
             void remove_tree(boost::property_tree::ptree & a_rTree, std::string const& a_strKeyToRemove);
             std::string stringify_tree(boost::property_tree::ptree const& a_Tree);
+
+            /**
+            * @brief Backs the current file up
+            *
+            * @param a_strFileName fileName
+            * @param a_strFolderName destination folder
+            * @return bool true is success, false if failure
+            */
+            bool backup_file(std::string const& a_strFileName, std::string const& a_strFolderName);
+
+            /**
+            * @brief Retrieves settings from a backup folder
+            *
+            * @param a_strFileName fileName
+            * @param a_strFolderName src folder
+            * @return bool true is success, false if failure
+            */
+            bool restore_file(std::string const& a_strFileName, std::string const& a_strFolderName);
         }
 
         /**
