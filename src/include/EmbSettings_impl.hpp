@@ -507,17 +507,17 @@ namespace emb {
 
             template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
             void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::begin() {
-
+                begin_file_transaction(_NameStr);
             }
 
             template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
             void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::commit() {
-
+                commit_file_transaction(_NameStr);
             }
 
             template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
             void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::abort() {
-
+                abort_file_transaction(_NameStr);
             }
 
             template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>

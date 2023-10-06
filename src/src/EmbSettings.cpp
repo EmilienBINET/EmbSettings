@@ -47,6 +47,8 @@ namespace {
     struct SettingsFileInfo {
         emb::settings::internal::creation_method<emb::settings::internal::SettingsFile> funcCreate{};
         recursive_mutex mutex{};
+        bool bTransactionPending{false};
+        boost::property_tree::ptree backupTree{};
         boost::property_tree::ptree tree{};
         map<string, SettingElementInfo> elm_info{};
 
@@ -124,13 +126,17 @@ namespace {
                 iVersion = pFileInfo->get_version();
                 pVersionClbk = pFileInfo->get_version_clbk();
                 parse_jockers(strFullFileName);
-                read_file();
+                if(!bTransactionPending) {
+                    read_file();
+                }
             }
             return emb::settings::internal::tree_ptr{ &tree };
         }
 
         void unlock_tree() {
-            write_file();
+            if(!bTransactionPending) {
+                write_file();
+            }
             mutex.unlock();
         }
     };
@@ -508,6 +514,51 @@ namespace emb {
                 }
                 return bRes;
             }
+
+            void begin_file_transaction(std::string const& a_strFileName) {
+                if(auto itFile = files_info().find(a_strFileName); itFile != files_info().end()) {
+                    auto & rFile = itFile->second;
+                    rFile.mutex.lock();
+
+                    if(!rFile.bTransactionPending) {
+                        rFile.bTransactionPending = true;
+                        rFile.backupTree = rFile.tree;
+                    }
+
+                    rFile.mutex.unlock();
+                }
+            }
+
+            void commit_file_transaction(std::string const& a_strFileName) {
+                if(auto itFile = files_info().find(a_strFileName); itFile != files_info().end()) {
+                    auto & rFile = itFile->second;
+                    rFile.mutex.lock();
+
+                    if(rFile.bTransactionPending) {
+                        rFile.bTransactionPending = false;
+                        rFile.write_file();
+                        rFile.backupTree.clear();
+                    }
+
+                    rFile.mutex.unlock();
+                }
+            }
+
+            void abort_file_transaction(std::string const& a_strFileName) {
+                if(auto itFile = files_info().find(a_strFileName); itFile != files_info().end()) {
+                    auto & rFile = itFile->second;
+                    rFile.mutex.lock();
+
+                    if(rFile.bTransactionPending) {
+                        rFile.bTransactionPending = false;
+                        rFile.tree = rFile.backupTree;
+                        rFile.backupTree.clear();
+                    }
+
+                    rFile.mutex.unlock();
+                }
+            }
+
         }
 /*
         std::string SettingsElement::read() const {

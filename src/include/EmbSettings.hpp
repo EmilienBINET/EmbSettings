@@ -680,8 +680,22 @@ namespace emb {
             public:
                 TSettingsFile();
                 virtual ~TSettingsFile();
+                /**
+                 * @brief Begin a transaction of the settings file.
+                 * @details If a transaction was already begun, that function does nothing.
+                 *          During a transaction, write operations are not written on the file.
+                 */
                 static void begin();
+                /**
+                 * @brief Commit the pending transaction of the settings file
+                 * @details All the changes made to the property tree since the \c begin call are written to the file.
+                 */
                 static void commit();
+                /**
+                 * @brief Abort the pending transaction of the settings file
+                 * @details All the changes made to the property tree since the \c begin call are lost.
+                 *          The property tree is restored to the value is had before the \c begin call.
+                 */
                 static void abort();
                 static void read_linked();
                 static void write_linked();
@@ -730,6 +744,9 @@ namespace emb {
             * @return bool true is success, false if failure
             */
             bool restore_file(std::string const& a_strFileName, std::string const& a_strFolderName);
+            void begin_file_transaction(std::string const& a_strFileName);
+            void commit_file_transaction(std::string const& a_strFileName);
+            void abort_file_transaction(std::string const& a_strFileName);
         }
 
         /**
