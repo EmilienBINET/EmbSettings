@@ -730,6 +730,9 @@ namespace emb {
             * @return bool true is success, false if failure
             */
             bool restore_file(std::string const& a_strFileName, std::string const& a_strFolderName);
+            void begin_file_transaction(std::string const& a_strFileName);
+            void commit_file_transaction(std::string const& a_strFileName);
+            void abort_file_transaction(std::string const& a_strFileName);
         }
 
         /**
