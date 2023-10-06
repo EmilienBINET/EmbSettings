@@ -126,7 +126,9 @@ namespace {
                 iVersion = pFileInfo->get_version();
                 pVersionClbk = pFileInfo->get_version_clbk();
                 parse_jockers(strFullFileName);
-                read_file();
+                if(!bTransactionPending) {
+                    read_file();
+                }
             }
             return emb::settings::internal::tree_ptr{ &tree };
         }
@@ -518,8 +520,10 @@ namespace emb {
                     auto & rFile = itFile->second;
                     rFile.mutex.lock();
 
-                    rFile.bTransactionPending = true;
-                    rFile.backupTree = rFile.tree;
+                    if(!rFile.bTransactionPending) {
+                        rFile.bTransactionPending = true;
+                        rFile.backupTree = rFile.tree;
+                    }
 
                     rFile.mutex.unlock();
                 }
@@ -530,7 +534,11 @@ namespace emb {
                     auto & rFile = itFile->second;
                     rFile.mutex.lock();
 
-                    rFile.bTransactionPending = false;
+                    if(rFile.bTransactionPending) {
+                        rFile.bTransactionPending = false;
+                        rFile.write_file();
+                        rFile.backupTree.clear();
+                    }
 
                     rFile.mutex.unlock();
                 }
@@ -541,8 +549,11 @@ namespace emb {
                     auto & rFile = itFile->second;
                     rFile.mutex.lock();
 
-                    rFile.bTransactionPending = false;
-                    rFile.tree = rFile.backupTree;
+                    if(rFile.bTransactionPending) {
+                        rFile.bTransactionPending = false;
+                        rFile.tree = rFile.backupTree;
+                        rFile.backupTree.clear();
+                    }
 
                     rFile.mutex.unlock();
                 }
