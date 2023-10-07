@@ -26,7 +26,7 @@ void write_tree(boost::property_tree::ptree& a_rTree, EEnum const& tVal) {
 }
 
 namespace MyParams {
-    EMBSETTINGS_FILE(Machine, XML, "Machine.xml", 1);
+    EMBSETTINGS_FILE(Machine, XML, "Machine.xml", 1, nullptr);
     EMBSETTINGS_SCALAR(Param1, double, Machine, "test.param1", 1.5);
     EMBSETTINGS_SCALAR(Param2, int, Machine, "test.param2", -5);
     EMBSETTINGS_SCALAR(Param3, std::string, Machine, "test.param3", "coucou");
