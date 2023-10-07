@@ -10,7 +10,7 @@
 #include <map>
 #include <regex>
 #include <iostream>
-#include <experimental/filesystem>
+#include <filesystem>
 
 #if 0 // 1 to debug registering
 #define DEBUG_SELF_REGISTERING(_cmd) _cmd
@@ -433,8 +433,8 @@ namespace emb {
                     // Compute the destination file path
                     std::string outputPath;
                     try {
-                        std::experimental::filesystem::path pathSourceFile{ rFile.strFullFileName };
-                        std::experimental::filesystem::path pathOutputFile{ a_strFolderName };
+                        std::filesystem::path pathSourceFile{ rFile.strFullFileName };
+                        std::filesystem::path pathOutputFile{ a_strFolderName };
                         pathOutputFile /= pathSourceFile.filename();
                         outputPath = pathOutputFile.string();
                         bRes = true;
@@ -445,19 +445,19 @@ namespace emb {
 
                     // Create the destination folder if necessary
                     if(bRes) {
-                        if(!std::experimental::filesystem::exists(a_strFolderName)) {
-                            bRes = std::experimental::filesystem::create_directories(a_strFolderName);
+                        if(!std::filesystem::exists(a_strFolderName)) {
+                            bRes = std::filesystem::create_directories(a_strFolderName);
                         }
                     }
 
                     // Test that the file to copy exists
-                    bRes = bRes && std::experimental::filesystem::exists(rFile.strFullFileName);
+                    bRes = bRes && std::filesystem::exists(rFile.strFullFileName);
 
                     // Copy the file
                     if(bRes) {
                         try {
-                            std::experimental::filesystem::copy(rFile.strFullFileName, outputPath,
-                                std::experimental::filesystem::copy_options::overwrite_existing);
+                            std::filesystem::copy(rFile.strFullFileName, outputPath,
+                                std::filesystem::copy_options::overwrite_existing);
                         }catch(...) {
                             bRes = false;
                         }
@@ -479,8 +479,8 @@ namespace emb {
                     // Compute the destination file path
                     std::string outputPath;
                     try {
-                        std::experimental::filesystem::path pathSourceFile{ rFile.strFullFileName };
-                        std::experimental::filesystem::path pathOutputFile{ a_strFolderName };
+                        std::filesystem::path pathSourceFile{ rFile.strFullFileName };
+                        std::filesystem::path pathOutputFile{ a_strFolderName };
                         pathOutputFile /= pathSourceFile.filename();
                         outputPath = pathOutputFile.string();
                         bRes = true;
@@ -491,19 +491,19 @@ namespace emb {
 
                     // Create the destination folder if necessary
                     if(bRes) {
-                        if(!std::experimental::filesystem::exists(a_strFolderName)) {
-                            bRes = std::experimental::filesystem::create_directories(a_strFolderName);
+                        if(!std::filesystem::exists(a_strFolderName)) {
+                            bRes = std::filesystem::create_directories(a_strFolderName);
                         }
                     }
 
                     // Test that the file to copy exists
-                    bRes = bRes && std::experimental::filesystem::exists(rFile.strFullFileName);
+                    bRes = bRes && std::filesystem::exists(rFile.strFullFileName);
 
                     // Copy the file
                     if(bRes) {
                         try {
-                            std::experimental::filesystem::copy(outputPath, rFile.strFullFileName,
-                                std::experimental::filesystem::copy_options::overwrite_existing);
+                            std::filesystem::copy(outputPath, rFile.strFullFileName,
+                                std::filesystem::copy_options::overwrite_existing);
                         }catch(...) {
                             bRes = false;
                         }
