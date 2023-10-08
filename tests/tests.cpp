@@ -3,7 +3,7 @@
 
 #include "../src/include/EmbSettings.hpp"
 
-EMBSETTINGS_FILE(File, JSON, "@{dir}/File.xml", 1)
+EMBSETTINGS_FILE(File, JSON, "@{dir}/File.xml", 1, nullptr)
 EMBSETTINGS_SCALAR(Scalar, int, File, "file.key", 1)
 
 TEST_CASE("SettingsFile_static_properties") {
@@ -48,7 +48,7 @@ TEST_CASE("SettingElement_Scalar_static_methods") {
         REQUIRE(2 == Scalar::read());
     }
     SECTION("Element not default") {
-        REQUIRE(!Scalar::is_default());
+        REQUIRE_FALSE(Scalar::is_default());
     }
     SECTION("Element reset") {
         Scalar::reset();
