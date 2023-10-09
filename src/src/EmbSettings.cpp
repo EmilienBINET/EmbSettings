@@ -10,7 +10,7 @@
 #include <map>
 #include <regex>
 #include <iostream>
-#include <filesystem>
+#include "filesystem.hpp"
 
 #if 0 // 1 to debug registering
 #define DEBUG_SELF_REGISTERING(_cmd) _cmd
