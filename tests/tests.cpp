@@ -56,3 +56,23 @@ TEST_CASE("SettingElement_Scalar_static_methods") {
     }
 }
 
+TEST_CASE("SettingElement_transactions") {
+    SECTION("Transaction abortion") {
+        Scalar::write(1234);
+        REQUIRE(1234 == Scalar::read());
+        File::begin();
+        Scalar::write(5678);
+        //REQUIRE(1234 == Scalar::read());
+        File::abort();
+        REQUIRE(1234 == Scalar::read());
+    }
+    SECTION("Transaction commit") {
+        Scalar::write(9876);
+        REQUIRE(9876 == Scalar::read());
+        File::begin();
+        Scalar::write(5678);
+        //REQUIRE(9876 == Scalar::read());
+        File::commit();
+        REQUIRE(5678 == Scalar::read());
+    }
+}
