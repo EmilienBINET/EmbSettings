@@ -86,13 +86,13 @@ int main(int argc, char** argv)
     for (auto const& file : emb::settings::get_file_names_list()) {
         std::cout << "FILE " << file << std::endl;
         if (auto const& fileInfo = emb::settings::get_file(file)) {
-            std::cout << "{" << fileInfo->get_path() << "}" << std::endl;
+            std::cout << "{" << fileInfo->get_path_m() << "}" << std::endl;
         }
         for (auto const& elm : emb::settings::get_element_names_list(file)) {
             std::cout << "- ELM " << elm << std::endl;
             if (auto const& elmInfo = emb::settings::get_element(file, elm)) {
-                std::cout << "  {" << elmInfo->get_key() << "}" << std::endl;
-                std::cout << "  =" << elmInfo->read_str() << "=" << elmInfo->is_default_value() << std::endl;
+                std::cout << "  {" << elmInfo->get_key_m() << "}" << std::endl;
+                std::cout << "  =" << elmInfo->read_str_m() << "=" << elmInfo->is_default_m() << std::endl;
             }
         }
     }

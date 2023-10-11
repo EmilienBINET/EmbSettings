@@ -204,45 +204,45 @@ namespace emb {
                  * @brief Get the setting element's name
                  * @return std::string  Name of the setting element
                  */
-                std::string get_name() const;
+                std::string get_name_m() const;
                 /**
                  * @brief Get the setting element's type
                  * @return std::string  Type of the setting element
                  */
-                std::string get_type() const;
+                std::string get_type_m() const;
                 /**
                  * @brief Get the setting element's file name
                  * @return std::string  File name of the setting element
                  */
-                std::string get_file() const;
+                std::string get_file_m() const;
                 /**
                  * @brief Get the setting element's Key
                  * @return std::string  Key of the setting element
                  */
-                std::string get_key() const;
+                std::string get_key_m() const;
                 /**
                  * @brief Read the linked variables
                  */
-                void read_linked() const;
+                void read_linked_m() const;
                 /**
                  * @brief Write the linked variables
                  */
-                void write_linked() const;
+                void write_linked_m() const;
                 /**
                  * @brief Read the setting element as a string
                  * @return std::string Value of the element
                  */
-                virtual std::string read_str() const = 0;
+                virtual std::string read_str_m() const = 0;
                 /**
                  * @brief Indicate if the setting element has its default value
                  * @return true     the setting element has its default value
                  * @return false    otherwise
                  */
-                virtual bool is_default_value() const { return false; }
+                virtual bool is_default_m() const { return false; }
                 /**
                  * @brief Reset the setting element to its default value
                  */
-                virtual void reset_to_default() const {}
+                virtual void reset_m() const {}
 
             // protected types
             protected:
@@ -301,7 +301,7 @@ namespace emb {
                  * @param a_funcRead    Read function
                  * @param a_funcWrite   Write function
                  */
-                void link_variable(std::function<void(void)> const& a_funcRead, std::function<void(void)> const& a_funcWrite);
+                void link_variable_m(std::function<void(void)> const& a_funcRead, std::function<void(void)> const& a_funcWrite);
                 /**
                  * @brief Link a setting value to a variable
                  * @tparam Type         Type of the setting
@@ -446,11 +446,11 @@ namespace emb {
                  */
                 static void link(_Type& a_rtVar);
 
-                std::string read_str() const override;
+                std::string read_str_m() const override;
 
-                bool is_default_value() const override;
+                bool is_default_m() const override;
 
-                void reset_to_default() const override;
+                void reset_m() const override;
 
             // protected methods
             protected:
@@ -510,7 +510,7 @@ namespace emb {
                  */
                 static void link(std::vector<_Type>& a_rtvecVal);
 
-                std::string read_str() const override;
+                std::string read_str_m() const override;
 
             // protected methods
             protected:
@@ -571,7 +571,7 @@ namespace emb {
                   */
                 static void link(std::map<std::string, _Type>& a_rtmapVal);
 
-                std::string read_str() const override;
+                std::string read_str_m() const override;
 
             // protected methods
             protected:
@@ -596,28 +596,28 @@ namespace emb {
                  * @brief Get the settings file's name
                  * @return std::string  Name of the settings file
                  */
-                std::string get_name() const;
+                std::string get_name_m() const;
                 /**
                  * @brief Get the settings file's type
                  * @return std::string  Type of the settings file
                  */
-                FileType get_type() const;
+                FileType get_type_m() const;
                 /**
                  * @brief Get the settings file's file path
                  * @return std::string  File path of the settings file
                  */
-                std::string get_path() const;
+                std::string get_path_m() const;
                 /**
                  * @brief Get the settings file's version
                  * @return std::string  Version of the settings file
                  */
-                int get_version() const;
+                int get_version_m() const;
                 /**
                  * @brief Get the settings file's version callback
                  *
                  * @return version_clbk_t Version callback of the settings file
                  */
-                version_clbk_t get_version_clbk() const;
+                version_clbk_t get_version_clbk_m() const;
 
             // protected types
             protected:
