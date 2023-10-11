@@ -719,7 +719,7 @@ namespace emb {
                 void operator()(boost::property_tree::ptree* a_pObj);
             };
             using tree_ptr = std::unique_ptr<boost::property_tree::ptree, tree_ptr_deleter>;
-            tree_ptr get_tree(std::string const& a_strFileName, std::string const& a_strElementName);
+            tree_ptr get_tree(std::string const& a_strFileName, std::string const& a_strElementName, bool a_bReadOnly);
             boost::optional<boost::property_tree::ptree&> get_sub_tree(tree_ptr const& a_pTree, std::string const& a_strKey, bool a_bCreate = false);
 
             std::string& xml_vector_element_name();

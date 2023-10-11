@@ -33,7 +33,7 @@ namespace emb {
             Type SettingElement::read_setting(std::string const& a_strFile, std::string const& a_strElement, Type const& a_tDefault) {
                 // Request the boost::property_tree containing the current setting element
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
-                if (auto const& pTree = get_tree(a_strFile, a_strElement)) {
+                if (auto const& pTree = get_tree(a_strFile, a_strElement, true)) {
                     // Get the key that points to where the data is stored in the tree
                     auto strKey = get_element(a_strFile, a_strElement)->get_key();
                     // Get the subtree corresponding to the key
@@ -48,7 +48,7 @@ namespace emb {
             void SettingElement::write_setting(std::string const& a_strFile, std::string const& a_strElement, Type const& a_tNew) {
                 // Request the boost::property_tree containing the current setting element
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
-                if (auto const& pTree = get_tree(a_strFile, a_strElement)) {
+                if (auto const& pTree = get_tree(a_strFile, a_strElement, false)) {
                     // Get the key that points to where the data is stored in the tree
                     auto strKey = get_element(a_strFile, a_strElement)->get_key();
                     // Get the subtree pointed by the key or a new tree if it does not exist
@@ -69,7 +69,7 @@ namespace emb {
                 case DefaultMode::DefaultValueIfAbsentFromFile:
                     // Request the boost::property_tree containing the current setting element
                     // The given tree is automatically locked & read on request and written & unlocked on deletion
-                    if (auto const& pTree = get_tree(Element::File::Name, Element::Name)) {
+                    if (auto const& pTree = get_tree(Element::File::Name, Element::Name, false)) {
                         // Remove the element from the tree
                         remove_tree(*pTree, Element::Key);
                     }
@@ -87,7 +87,7 @@ namespace emb {
                 case DefaultMode::DefaultValueIfAbsentFromFile:
                     // Request the boost::property_tree containing the current setting element
                     // The given tree is automatically locked & read on request and written & unlocked on deletion
-                    if (auto const& pTree = get_tree(Element::File::Name, Element::Name)) {
+                    if (auto const& pTree = get_tree(Element::File::Name, Element::Name, true)) {
                         try {
                             (void)pTree->get_child(Element::Key);
                         }
@@ -119,7 +119,7 @@ namespace emb {
                 std::vector<Type> vecOutput{};
                 // Request the boost::property_tree containing the current setting element
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
-                if (auto const& pTree = get_tree(a_strFile, a_strElement)) {
+                if (auto const& pTree = get_tree(a_strFile, a_strElement, true)) {
                     // Get the key that points to where the data is stored in the tree
                     auto strKey = get_element(a_strFile, a_strElement)->get_key();
                     // Get each the subtree corresponding to the key
@@ -140,7 +140,7 @@ namespace emb {
             void SettingElement::write_setting_vector(std::string const& a_strFile, std::string const& a_strElement, std::vector<Type> const& a_tvecNew) {
                 // Request the boost::property_tree containing the current setting element
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
-                if (auto const& pTree = get_tree(a_strFile, a_strElement)) {
+                if (auto const& pTree = get_tree(a_strFile, a_strElement, false)) {
                     // Get the key that points to where the data is stored in the tree
                     auto strKey = get_element(a_strFile, a_strElement)->get_key();
                     // Get the file type to customize data representation
@@ -183,7 +183,7 @@ namespace emb {
             void SettingElement::add_setting_vector(std::string const& a_strFile, std::string const& a_strElement, Type const& a_tNew) {
                 // Request the boost::property_tree containing the current setting element
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
-                if (auto const& pTree = get_tree(a_strFile, a_strElement)) {
+                if (auto const& pTree = get_tree(a_strFile, a_strElement, false)) {
                     // Get the key that points to where the data is stored in the tree
                     auto strKey = get_element(a_strFile, a_strElement)->get_key();
                     // Get the file type to customize data representation
@@ -219,7 +219,7 @@ namespace emb {
                 std::map<std::string, Type> mapOutput{};
                 // Request the boost::property_tree containing the current setting element
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
-                if (auto const& pTree = get_tree(a_strFile, a_strElement)) {
+                if (auto const& pTree = get_tree(a_strFile, a_strElement, true)) {
                     // Get the key that points to where the data is stored in the tree
                     auto strKey = get_element(a_strFile, a_strElement)->get_key();
                     // Get each the subtree corresponding to the key
@@ -240,7 +240,7 @@ namespace emb {
             void SettingElement::write_setting_map(std::string const& a_strFile, std::string const& a_strElement, std::map<std::string, Type> const& a_tmapNew) {
                 // Request the boost::property_tree containing the current setting element
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
-                if (auto const& pTree = get_tree(a_strFile, a_strElement)) {
+                if (auto const& pTree = get_tree(a_strFile, a_strElement, false)) {
                     // Get the key that points to where the data is stored in the tree
                     auto strKey = get_element(a_strFile, a_strElement)->get_key();
                     // Get the file type to customize data representation
@@ -271,7 +271,7 @@ namespace emb {
             void SettingElement::set_setting_map(std::string const& a_strFile, std::string const& a_strElement, std::string const& a_strK, Type const& a_tNew) {
                 // Request the boost::property_tree containing the current setting element
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
-                if (auto const& pTree = get_tree(a_strFile, a_strElement)) {
+                if (auto const& pTree = get_tree(a_strFile, a_strElement, false)) {
                     // Get the key that points to where the data is stored in the tree
                     auto strKey = get_element(a_strFile, a_strElement)->get_key();
                     // Get the file type to customize data representation
@@ -401,7 +401,7 @@ namespace emb {
             std::string TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::read_str() const {
                 // Request the boost::property_tree containing the current setting element
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
-                if (auto const& pTree = get_tree(_File::Name, _NameStr)) {
+                if (auto const& pTree = get_tree(_File::Name, _NameStr, true)) {
                     // Get each the subtree corresponding to the key
                     try {
                         boost::property_tree::ptree newTree{};
@@ -466,7 +466,7 @@ namespace emb {
             std::string TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::read_str() const {
                 // Request the boost::property_tree containing the current setting element
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
-                if (auto const& pTree = get_tree(_File::Name, _NameStr)) {
+                if (auto const& pTree = get_tree(_File::Name, _NameStr, true)) {
                     // Get each the subtree corresponding to the key
                     try {
                         boost::property_tree::ptree newTree{};

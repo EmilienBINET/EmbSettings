@@ -50,6 +50,7 @@ namespace {
         bool bTransactionPending{false};
         boost::property_tree::ptree backupTree{};
         boost::property_tree::ptree tree{};
+        boost::property_tree::ptree* lockedTree{nullptr};
         map<string, SettingElementInfo> elm_info{};
 
         emb::settings::FileType eFileType{};
@@ -117,7 +118,7 @@ namespace {
             }
         }
 
-        emb::settings::internal::tree_ptr lock_tree() {
+        emb::settings::internal::tree_ptr lock_tree(bool a_bReadOnly) {
             mutex.lock();
             if(strFullFileName.empty()) {
                 auto pFileInfo = funcCreate();
@@ -130,13 +131,20 @@ namespace {
                     read_file();
                 }
             }
-            return emb::settings::internal::tree_ptr{ &tree };
+            if (bTransactionPending && a_bReadOnly) {
+                lockedTree = &backupTree;
+            }
+            else {
+                lockedTree = &tree;
+            }
+            return emb::settings::internal::tree_ptr{ lockedTree };
         }
 
         void unlock_tree() {
             if(!bTransactionPending) {
                 write_file();
             }
+            lockedTree = nullptr;
             mutex.unlock();
         }
     };
@@ -399,16 +407,16 @@ namespace emb {
 
             void tree_ptr_deleter::operator()(boost::property_tree::ptree* a_pObj) {
                 for(auto & file : files_info()) {
-                    if(a_pObj == &file.second.tree) {
+                    if(a_pObj == file.second.lockedTree) {
                         file.second.unlock_tree();
                     }
                 }
             }
 
-            tree_ptr get_tree(std::string const& a_strFileName, std::string const& a_strElementName) {
+            tree_ptr get_tree(std::string const& a_strFileName, std::string const& a_strElementName, bool a_bReadOnly) {
                 if(auto itFile = files_info().find(a_strFileName); itFile != files_info().end()) {
                     if(auto itElm = itFile->second.elm_info.find(a_strElementName); itElm != itFile->second.elm_info.end()) {
-                        return itFile->second.lock_tree();
+                        return itFile->second.lock_tree(a_bReadOnly);
                     }
                 }
                 return nullptr;

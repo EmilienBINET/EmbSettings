@@ -19,6 +19,9 @@ TEST_CASE("SettingsFile_static_properties") {
     SECTION("File version") {
         REQUIRE(1 == File::Version);
     }
+    SECTION("File version callback") {
+        REQUIRE(nullptr == File::VersionClbk);
+    }
 }
 
 TEST_CASE("SettingElement_Scalar_static_properties") {
@@ -62,7 +65,7 @@ TEST_CASE("SettingElement_transactions") {
         REQUIRE(1234 == Scalar::read());
         File::begin();
         Scalar::write(5678);
-        //REQUIRE(1234 == Scalar::read());
+        REQUIRE(1234 == Scalar::read());
         File::abort();
         REQUIRE(1234 == Scalar::read());
     }
@@ -71,7 +74,7 @@ TEST_CASE("SettingElement_transactions") {
         REQUIRE(9876 == Scalar::read());
         File::begin();
         Scalar::write(5678);
-        //REQUIRE(9876 == Scalar::read());
+        REQUIRE(9876 == Scalar::read());
         File::commit();
         REQUIRE(5678 == Scalar::read());
     }
