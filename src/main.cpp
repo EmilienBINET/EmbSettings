@@ -83,7 +83,7 @@ int main(int argc, char** argv)
     print(EEnum::C3);
     print(EEnum2::F6);
 
-    emb::settings::set_jocker("folder1", "c:/temp/");
+    emb::settings::set_joker("folder1", "c:/temp/");
     std::cout << MyParams::Param3::read() << std::endl;
     //MyParams::Param2::write(12);
 

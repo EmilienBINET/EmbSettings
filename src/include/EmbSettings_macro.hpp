@@ -42,7 +42,7 @@
  * @brief Declare a file that can contain settings
  * @param _name     Name of the class representing the file
  * @param _type     Type of file (amongst \c emb::settings::FileType enumeration, without the scope: e.g. XML )
- * @param _path     Path of the file on the system. Jockers can be used with the format @{jocker}
+ * @param _path     Path of the file on the system. Jokers can be used with the format @{joker}
  */
 #define EMBSETTINGS_INTERNAL_FILE_3(_name, _type, _path)                                                                                    \
 namespace EmbSettings_Private { namespace _name {                                                                                           \
@@ -62,7 +62,7 @@ class _name final : public emb::settings::internal::TSettingsFile<              
  * @brief Declare a file that can contain settings
  * @param _name     Name of the class representing the file
  * @param _type     Type of file (amongst \c emb::settings::FileType enumeration, without the scope: e.g. XML )
- * @param _path     Path of the file on the system. Jockers can be used with the format @{jocker}
+ * @param _path     Path of the file on the system. Jokers can be used with the format @{joker}
  * @param _version  Current version of the file
  */
 #define EMBSETTINGS_INTERNAL_FILE_4(_name, _type, _path, _version)                                                                          \
@@ -84,7 +84,7 @@ class _name final : public emb::settings::internal::TSettingsFile<              
  * @brief Declare a file that can contain settings
  * @param _name     Name of the class representing the file
  * @param _type     Type of file (amongst \c emb::settings::FileType enumeration, without the scope: e.g. XML )
- * @param _path     Path of the file on the system. Jockers can be used with the format @{jocker}
+ * @param _path     Path of the file on the system. Jokers can be used with the format @{joker}
  * @param _version  Current version of the file
  * @param _version_clbk Function pointer to call when versions mismatch
  */

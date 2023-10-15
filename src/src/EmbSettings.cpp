@@ -22,13 +22,13 @@ using namespace std;
 
 namespace {
 
-    map<string, string>& jockers() {
-        static map<string, string> jockers{};
-        return jockers;
+    map<string, string>& jokers() {
+        static map<string, string> jokers{};
+        return jokers;
     }
 
-    void parse_jockers(std::string& a_rstrFilePath) {
-        for (auto const& elm : jockers()) {
+    void parse_jokers(std::string& a_rstrFilePath) {
+        for (auto const& elm : jokers()) {
             boost::replace_all(a_rstrFilePath, "@{" + elm.first + "}", elm.second);
         }
     }
@@ -126,7 +126,7 @@ namespace {
                 strFullFileName = pFileInfo->get_path_m();
                 iVersion = pFileInfo->get_version_m();
                 pVersionClbk = pFileInfo->get_version_clbk_m();
-                parse_jockers(strFullFileName);
+                parse_jokers(strFullFileName);
                 if(!bTransactionPending) {
                     read_file();
                 }
@@ -182,8 +182,8 @@ namespace emb {
             return "DefaultMode::?";
         }
 
-        void set_jocker(std::string const& a_strJocker, std::string const& a_strValue) {
-            jockers()[a_strJocker] = a_strValue;
+        void set_joker(std::string const& a_strJoker, std::string const& a_strValue) {
+            jokers()[a_strJoker] = a_strValue;
         }
 
         void set_version_element_name(std::string const& a_strName) {

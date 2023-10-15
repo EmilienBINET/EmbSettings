@@ -11,7 +11,7 @@
  * @brief Declare a file that can contain settings
  * @param 1 [mandatory] Name of the class representing the file
  * @param 2 [mandatory] Type of file (amongst \c emb::settings::FileType enumeration, without the scope: e.g. XML )
- * @param 3 [mandatory] Path of the file on the system. Jockers can be used with the format @{jocker}
+ * @param 3 [mandatory] Path of the file on the system. Jokers can be used with the format @{joker}
  * @param 4 [optional]  Current version of the file
  * @param 5 [optional]  Function pointer to call when versions mismatch
  */
@@ -75,11 +75,11 @@ namespace emb {
         char const* str(DefaultMode a_eDefaultMode);
 
         /**
-         * @brief Defines a jocker value, that can be used in settings files' path
-         * @param a_strJocker   Name of the jocker, without the @{...} pattern
-         * @param a_strValue    Value that will replace the pattern @{a_strJocker}
+         * @brief Defines a joker value, that can be used in settings files' path
+         * @param a_strJoker    Name of the joker, without the @{...} pattern
+         * @param a_strValue    Value that will replace the pattern @{a_strJoker}
          */
-        void set_jocker(std::string const& a_strJocker, std::string const& a_strValue);
+        void set_joker(std::string const& a_strJoker, std::string const& a_strValue);
 
         /**
          * @brief Defines the name of the node used to store the settings file version. Default is version
@@ -621,7 +621,7 @@ namespace emb {
              * @tparam Name         Class name of the file
              * @tparam NameStr      Class name of the file, as a string
              * @tparam Type         Type of the file (from emb::settings::FileType)
-             * @tparam PathStr      Path of the file on the system (may contain jocker in the form of @{jocker})
+             * @tparam PathStr      Path of the file on the system (may contain joker in the form of @{joker})
              * @tparam Version      Version of the file
              * @tparam VersionClbk  Version callback
              */
