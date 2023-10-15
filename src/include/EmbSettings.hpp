@@ -9,39 +9,39 @@
 
 /**
  * @brief Declare a file that can contain settings
- * @param _name         [mandatory] Name of the class representing the file
- * @param _type         [mandatory] Type of file (amongst \c emb::settings::FileType enumeration, without the scope: e.g. XML )
- * @param _path         [mandatory] Path of the file on the system. Jockers can be used with the format @{jocker}
- * @param _version      [optional]  Current version of the file
- * @param _version_clbk [optional]  Function pointer to call when versions mismatch
+ * @param 1 [mandatory] Name of the class representing the file
+ * @param 2 [mandatory] Type of file (amongst \c emb::settings::FileType enumeration, without the scope: e.g. XML )
+ * @param 3 [mandatory] Path of the file on the system. Jockers can be used with the format @{jocker}
+ * @param 4 [optional]  Current version of the file
+ * @param 5 [optional]  Function pointer to call when versions mismatch
  */
 #define EMBSETTINGS_FILE(...) EMBSETTINGS_VFUNC(EMBSETTINGS_INTERNAL_FILE_, __VA_ARGS__)
 
 /**
  * @brief Declare a scalar setting inside a previously declared setting file
- * @param _name         [mandatory] Name of the class representing the setting
- * @param _type         [mandatory] Data type of the setting
- * @param _file         [mandatory] Class name of the file used to save the setting
- * @param _key          [mandatory] Key string representing the position of the setting in the file (using boost property_tree synthax)
- * @param ...           [mandatory] Optionnal default value of the setting if not found in the file (if not provided default value is {} )
+ * @param 1 [mandatory] Name of the class representing the setting
+ * @param 2 [mandatory] Data type of the setting
+ * @param 3 [mandatory] Class name of the file used to save the setting
+ * @param 4 [mandatory] Key string representing the position of the setting in the file (using boost property_tree synthax)
+ * @param 5 [optional]  Default value of the setting if not found in the file (if not provided default value is _type{})
  */
 #define EMBSETTINGS_SCALAR(...) EMBSETTINGS_VFUNC(EMBSETTINGS_INTERNAL_SCALAR_, __VA_ARGS__)
 
 /**
  * @brief Declare a vector setting inside a previously declared setting file
- * @param _name         [mandatory] Name of the class representing the setting
- * @param _type         [mandatory] Base data type of the setting. The final setting's data type is std::vector<_type>
- * @param _file         [mandatory] Class name of the file used to save the setting
- * @param _key          [mandatory] Key string representing the position of the setting in the file (using boost property_tree synthax)
+ * @param 1 [mandatory] Name of the class representing the setting
+ * @param 2 [mandatory] Base data type of the setting. The final setting's data type is std::vector<_type>
+ * @param 3 [mandatory] Class name of the file used to save the setting
+ * @param 4 [mandatory] Key string representing the position of the setting in the file (using boost property_tree synthax)
  */
 #define EMBSETTINGS_VECTOR(...) EMBSETTINGS_VFUNC(EMBSETTINGS_INTERNAL_VECTOR_, __VA_ARGS__)
 
 /**
  * @brief Declare a map setting inside a previously declared setting file
- * @param _name         [mandatory] Name of the class representing the setting
- * @param _type         [mandatory] Base data type of the setting. The final setting's data type is std::map<std::string,_type>
- * @param _file         [mandatory] Class name of the file used to save the setting
- * @param _key          [mandatory] Key string representing the position of the setting in the file (using boost property_tree synthax)
+ * @param 1 [mandatory] Name of the class representing the setting
+ * @param 2 [mandatory] Base data type of the setting. The final setting's data type is std::map<std::string,_type>
+ * @param 3 [mandatory] Class name of the file used to save the setting
+ * @param 4 [mandatory] Key string representing the position of the setting in the file (using boost property_tree synthax)
  */
 #define EMBSETTINGS_MAP(...) EMBSETTINGS_VFUNC(EMBSETTINGS_INTERNAL_MAP_, __VA_ARGS__)
 
@@ -338,7 +338,7 @@ namespace emb {
              * @tparam KeyStr       Key locating the element inside the file
              * @tparam Default      Default value of the element, if not present in the file
              */
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default = nullptr>
             class TSettingScalar
                     : public SettingElement {
             // public attributes
@@ -414,10 +414,19 @@ namespace emb {
              * @tparam TypeStr      Type of the element, as a string
              * @tparam File         Class name of the file when the element must be stored
              * @tparam KeyStr       Key locating the element inside the file
+             * @tparam Default      Default value of the element, if not present in the file
              */
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::vector<_Type> const* _Default = nullptr>
             class TSettingVector
                     : public SettingElement {
+            // public attributes
+            public:
+                static char const* Name;
+                using Type = std::vector<_Type>;
+                using File = _File;
+                static char const* Key;
+                static Type const Default;
+            
             // public methods
             public:
                 /**

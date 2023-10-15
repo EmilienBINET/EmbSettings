@@ -114,14 +114,38 @@ class _name final : public emb::settings::internal::TSettingsFile<              
  * @param _type     Data type of the setting
  * @param _file     Class name of the file used to save the setting
  * @param _key      Key string representing the position of the setting in the file (using boost property_tree synthax)
- * @param ...       Optionnal default value of the setting if not found in the file (if not provided default value is {} )
  */
-#define EMBSETTINGS_INTERNAL_SCALAR_5(_name, _type, _file, _key, ...)                                                                       \
+#define EMBSETTINGS_INTERNAL_SCALAR_4(_name, _type, _file, _key)                                                                            \
 namespace EmbSettings_Private { namespace _name {                                                                                           \
     inline char NameStr[]{ #_name };                                                                                                        \
     inline char TypeStr[]{ #_type };                                                                                                        \
     inline char KeyStr[]{ _key };                                                                                                           \
-    inline _type Default{ __VA_ARGS__ };                                                                                                    \
+} }                                                                                                                                         \
+class _name final : public emb::settings::internal::TSettingScalar<                                                                         \
+        _name,                                                                                                                              \
+        EmbSettings_Private::_name::NameStr,                                                                                                \
+        _type,                                                                                                                              \
+        EmbSettings_Private::_name::TypeStr,                                                                                                \
+        _file,                                                                                                                              \
+        EmbSettings_Private::_name::KeyStr                                                                                                  \
+    > {                                                                                                                                     \
+    void _register_() noexcept override { s_bRegistered = s_bRegistered; }                                                                  \
+};
+
+/**
+ * @brief Declare a scalar setting inside a previously declared setting file
+ * @param _name     Name of the class representing the setting
+ * @param _type     Data type of the setting
+ * @param _file     Class name of the file used to save the setting
+ * @param _key      Key string representing the position of the setting in the file (using boost property_tree synthax)
+ * @param _default  Default value of the setting if not found in the file
+ */
+#define EMBSETTINGS_INTERNAL_SCALAR_5(_name, _type, _file, _key, _default)                                                                  \
+namespace EmbSettings_Private { namespace _name {                                                                                           \
+    inline char NameStr[]{ #_name };                                                                                                        \
+    inline char TypeStr[]{ #_type };                                                                                                        \
+    inline char KeyStr[]{ _key };                                                                                                           \
+    inline _type Default{ _default };                                                                                                       \
 } }                                                                                                                                         \
 class _name final : public emb::settings::internal::TSettingScalar<                                                                         \
         _name,                                                                                                                              \
@@ -159,6 +183,32 @@ class _name final : public emb::settings::internal::TSettingVector<             
         EmbSettings_Private::_name::TypeStr,                                                                                                \
         _file,                                                                                                                              \
         EmbSettings_Private::_name::KeyStr                                                                                                  \
+    > {                                                                                                                                     \
+    void _register_() noexcept override { s_bRegistered = s_bRegistered; }                                                                  \
+};
+
+/**
+ * @brief Declare a vector setting inside a previously declared setting file
+ * @param _name     Name of the class representing the setting
+ * @param _type     Base data type of the setting. The final setting's data type is std::vector<_type>
+ * @param _file     Class name of the file used to save the setting
+ * @param _key      Key string representing the position of the setting in the file (using boost property_tree synthax)
+ * @param _pdefault Pointer to a default value of the setting if not found in the file
+ */
+#define EMBSETTINGS_INTERNAL_VECTOR_5(_name, _type, _file, _key, _pdefault)                                                                 \
+namespace EmbSettings_Private { namespace _name {                                                                                           \
+    inline char NameStr[]{ #_name };                                                                                                        \
+    inline char TypeStr[]{ "std::vector<" #_type ">" };                                                                                     \
+    inline char KeyStr[]{ _key };                                                                                                           \
+} }                                                                                                                                         \
+class _name final : public emb::settings::internal::TSettingVector<                                                                         \
+        _name,                                                                                                                              \
+        EmbSettings_Private::_name::NameStr,                                                                                                \
+        _type,                                                                                                                              \
+        EmbSettings_Private::_name::TypeStr,                                                                                                \
+        _file,                                                                                                                              \
+        EmbSettings_Private::_name::KeyStr,                                                                                                 \
+        _pdefault                                                                                                                           \
     > {                                                                                                                                     \
     void _register_() noexcept override { s_bRegistered = s_bRegistered; }                                                                  \
 };

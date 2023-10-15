@@ -311,7 +311,7 @@ namespace emb {
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
             _Type TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::read() {
-                return read_setting<_Type>(_File::Name, _NameStr, *_Default);
+                return read_setting<_Type>(_File::Name, _NameStr, Default);
             }
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
@@ -362,43 +362,43 @@ namespace emb {
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
             char const* TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::Key{ _KeyStr };
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
-            _Type const TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::Default{ *_Default };
+            _Type const TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::Default{ _Default ? *_Default : _Type{} };
 
             //////////////////////////////////////////////////
             ///// TSettingVector                         /////
             //////////////////////////////////////////////////
 
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::TSettingVector()
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::vector<_Type> const* _Default>
+            TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::TSettingVector()
                     : SettingElement{ _NameStr, _TypeStr, _File::Name, _KeyStr }
             {}
 
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::~TSettingVector() {
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::vector<_Type> const* _Default>
+            TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::~TSettingVector() {
             }
 
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            std::vector<_Type> TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::read() {
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::vector<_Type> const* _Default>
+            std::vector<_Type> TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::read() {
                 return read_setting_vector<_Type>(_File::Name, _NameStr);
             }
 
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            void TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::write(std::vector<_Type> const& a_tvecVal) {
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::vector<_Type> const* _Default>
+            void TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::write(std::vector<_Type> const& a_tvecVal) {
                 write_setting_vector<_Type>(_File::Name, _NameStr, a_tvecVal);
             }
 
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            void TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::add(_Type const& a_tVal) {
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::vector<_Type> const* _Default>
+            void TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::add(_Type const& a_tVal) {
                 add_setting_vector<_Type>(_File::Name, _NameStr, a_tVal);
             }
 
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            void TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::link(std::vector<_Type>& a_rtvecVal) {
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::vector<_Type> const* _Default>
+            void TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::link(std::vector<_Type>& a_rtvecVal) {
                 link_setting<std::vector<_Type>, _Name>(_File::Name, _NameStr, a_rtvecVal);
             }
 
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            std::string TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::read_str_m() const {
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::vector<_Type> const* _Default>
+            std::string TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::read_str_m() const {
                 // Request the boost::property_tree containing the current setting element
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
                 if (auto const& pTree = get_tree(_File::Name, _NameStr, true)) {
@@ -420,14 +420,20 @@ namespace emb {
                 return "[?]";
             }
 
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            std::unique_ptr<SettingElement> TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::_create_() {
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::vector<_Type> const* _Default>
+            std::unique_ptr<SettingElement> TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::_create_() {
                 return std::make_unique<_Name>();
             }
 
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            bool TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::s_bRegistered =
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::vector<_Type> const* _Default>
+            bool TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::s_bRegistered =
                 SettingElement::register_element(_File::Name, _NameStr, _Name::_create_);
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::vector<_Type> const* _Default>
+            char const* TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::Name{ _NameStr };
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::vector<_Type> const* _Default>
+            char const* TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::Key{ _KeyStr };
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::vector<_Type> const* _Default>
+            std::vector<_Type> const TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::Default{ _Default ? *_Default : std::vector<_Type>{} };
 
             //////////////////////////////////////////////////
             ///// TSettingMap                            /////

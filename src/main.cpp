@@ -27,12 +27,15 @@ void write_tree(boost::property_tree::ptree& a_rTree, EEnum const& tVal) {
 
 namespace MyParams {
     EMBSETTINGS_FILE(Machine, XML, "Machine.xml", 1, nullptr);
-    EMBSETTINGS_SCALAR(Param1, double, Machine, "test.param1", 1.5);
+    EMBSETTINGS_SCALAR(Param1, double, Machine, "test.param1");
     EMBSETTINGS_SCALAR(Param2, int, Machine, "test.param2", -5);
     EMBSETTINGS_SCALAR(Param3, std::string, Machine, "test.param3", "coucou");
     EMBSETTINGS_VECTOR(ParamVector, std::string, Machine, "test.vector");
     EMBSETTINGS_MAP(ParamMap, std::string, Machine, "test.map");
     EMBSETTINGS_SCALAR(ParamEnum, EEnum, Machine, "test.enum", EEnum::D4);
+
+    std::vector<std::string> defaultV{"Z", "Y", "X"};
+    EMBSETTINGS_VECTOR(ParamVectorD, std::string, Machine, "test.vector2", &defaultV);
 }
 
 namespace Test {
@@ -82,6 +85,10 @@ int main(int argc, char** argv)
     //MyParams::Param2::write(12);
 
     print(MyParams::ParamEnum::read());
+    print(MyParams::Param1::read());
+
+    auto v = MyParams::ParamVectorD::read();
+    auto v2 = (MyParams::ParamVectorD::Default);
 
     for (auto const& file : emb::settings::get_file_names_list()) {
         std::cout << "FILE " << file << std::endl;
