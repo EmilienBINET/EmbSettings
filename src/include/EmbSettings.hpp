@@ -1,4 +1,5 @@
 #pragma once
+#include "EmbSettings_macro.hpp"
 #include <string>
 #include <memory>
 #include <map>
@@ -8,102 +9,41 @@
 
 /**
  * @brief Declare a file that can contain settings
- * @param _name     Name of the class representing the file
- * @param _type     Type of file (amongst \c emb::settings::FileType enumeration, without the scope: e.g. XML )
- * @param _path     Path of the file on the system. Jockers can be used with the format @{jocker}
- * @param _version  Current version of the file
- * @param _version_clbk Function pointer to call when versions mismatch
+ * @param _name         [mandatory] Name of the class representing the file
+ * @param _type         [mandatory] Type of file (amongst \c emb::settings::FileType enumeration, without the scope: e.g. XML )
+ * @param _path         [mandatory] Path of the file on the system. Jockers can be used with the format @{jocker}
+ * @param _version      [optional]  Current version of the file
+ * @param _version_clbk [optional]  Function pointer to call when versions mismatch
  */
-#define EMBSETTINGS_FILE(_name, _type, _path, _version, _version_clbk)                                                                      \
-namespace EmbSettings_Private { namespace _name {                                                                                           \
-    inline char NameStr[]{ #_name };                                                                                                        \
-    inline char PathStr[]{ _path };                                                                                                         \
-} }                                                                                                                                         \
-class _name final : public emb::settings::internal::TSettingsFile<                                                                          \
-        _name,                                                                                                                              \
-        EmbSettings_Private::_name::NameStr,                                                                                                \
-        emb::settings::FileType::_type,                                                                                                     \
-        EmbSettings_Private::_name::PathStr,                                                                                                \
-        _version,                                                                                                                           \
-        _version_clbk                                                                                                                       \
-    > {                                                                                                                                     \
-    void _register_() noexcept override { s_bRegistered = s_bRegistered; }                                                                  \
-};
+#define EMBSETTINGS_FILE(...) EMBSETTINGS_VFUNC(EMBSETTINGS_INTERNAL_FILE_, __VA_ARGS__)
 
 /**
  * @brief Declare a scalar setting inside a previously declared setting file
- * @param _name     Name of the class representing the setting
- * @param _type     Data type of the setting
- * @param _file     Class name of the file used to save the setting
- * @param _key      Key string representing the position of the setting in the file (using boost property_tree synthax)
- * @param ...       Optionnal default value of the setting if not found in the file (if not provided default value is {} )
+ * @param _name         [mandatory] Name of the class representing the setting
+ * @param _type         [mandatory] Data type of the setting
+ * @param _file         [mandatory] Class name of the file used to save the setting
+ * @param _key          [mandatory] Key string representing the position of the setting in the file (using boost property_tree synthax)
+ * @param ...           [mandatory] Optionnal default value of the setting if not found in the file (if not provided default value is {} )
  */
-#define EMBSETTINGS_SCALAR(_name, _type, _file, _key, ...)                                                                                  \
-namespace EmbSettings_Private { namespace _name {                                                                                           \
-    inline char NameStr[]{ #_name };                                                                                                        \
-    inline char TypeStr[]{ #_type };                                                                                                        \
-    inline char KeyStr[]{ _key };                                                                                                           \
-    inline _type Default{ __VA_ARGS__ };                                                                                                    \
-} }                                                                                                                                         \
-class _name final : public emb::settings::internal::TSettingScalar<                                                                         \
-        _name,                                                                                                                              \
-        EmbSettings_Private::_name::NameStr,                                                                                                \
-        _type,                                                                                                                              \
-        EmbSettings_Private::_name::TypeStr,                                                                                                \
-        _file,                                                                                                                              \
-        EmbSettings_Private::_name::KeyStr,                                                                                                 \
-        &EmbSettings_Private::_name::Default                                                                                                \
-    > {                                                                                                                                     \
-    void _register_() noexcept override { s_bRegistered = s_bRegistered; }                                                                  \
-};
+#define EMBSETTINGS_SCALAR(...) EMBSETTINGS_VFUNC(EMBSETTINGS_INTERNAL_SCALAR_, __VA_ARGS__)
 
 /**
  * @brief Declare a vector setting inside a previously declared setting file
- * @param _name     Name of the class representing the setting
- * @param _type     Base data type of the setting. The final setting's data type is std::vector<_type>
- * @param _file     Class name of the file used to save the setting
- * @param _key      Key string representing the position of the setting in the file (using boost property_tree synthax)
+ * @param _name         [mandatory] Name of the class representing the setting
+ * @param _type         [mandatory] Base data type of the setting. The final setting's data type is std::vector<_type>
+ * @param _file         [mandatory] Class name of the file used to save the setting
+ * @param _key          [mandatory] Key string representing the position of the setting in the file (using boost property_tree synthax)
  */
-#define EMBSETTINGS_VECTOR(_name, _type, _file, _key)                                                                                       \
-namespace EmbSettings_Private { namespace _name {                                                                                           \
-    inline char NameStr[]{ #_name };                                                                                                        \
-    inline char TypeStr[]{ "std::vector<" #_type ">" };                                                                                     \
-    inline char KeyStr[]{ _key };                                                                                                           \
-} }                                                                                                                                         \
-class _name final : public emb::settings::internal::TSettingVector<                                                                         \
-        _name,                                                                                                                              \
-        EmbSettings_Private::_name::NameStr,                                                                                                \
-        _type,                                                                                                                              \
-        EmbSettings_Private::_name::TypeStr,                                                                                                \
-        _file,                                                                                                                              \
-        EmbSettings_Private::_name::KeyStr                                                                                                  \
-    > {                                                                                                                                     \
-    void _register_() noexcept override { s_bRegistered = s_bRegistered; }                                                                  \
-};
+#define EMBSETTINGS_VECTOR(...) EMBSETTINGS_VFUNC(EMBSETTINGS_INTERNAL_VECTOR_, __VA_ARGS__)
 
 /**
  * @brief Declare a map setting inside a previously declared setting file
- * @param _name     Name of the class representing the setting
- * @param _type     Base data type of the setting. The final setting's data type is std::map<std::string,_type>
- * @param _file     Class name of the file used to save the setting
- * @param _key      Key string representing the position of the setting in the file (using boost property_tree synthax)
+ * @param _name         [mandatory] Name of the class representing the setting
+ * @param _type         [mandatory] Base data type of the setting. The final setting's data type is std::map<std::string,_type>
+ * @param _file         [mandatory] Class name of the file used to save the setting
+ * @param _key          [mandatory] Key string representing the position of the setting in the file (using boost property_tree synthax)
  */
-#define EMBSETTINGS_MAP(_name, _type, _file, _key)                                                                                          \
-namespace EmbSettings_Private { namespace _name {                                                                                           \
-    inline char NameStr[]{ #_name };                                                                                                        \
-    inline char TypeStr[]{ "std::map<std::string," #_type ">" };                                                                            \
-    inline char KeyStr[]{ _key };                                                                                                           \
-} }                                                                                                                                         \
-class _name final : public emb::settings::internal::TSettingMap<                                                                            \
-        _name,                                                                                                                              \
-        EmbSettings_Private::_name::NameStr,                                                                                                \
-        _type,                                                                                                                              \
-        EmbSettings_Private::_name::TypeStr,                                                                                                \
-        _file,                                                                                                                              \
-        EmbSettings_Private::_name::KeyStr                                                                                                  \
-    > {                                                                                                                                     \
-    void _register_() noexcept override { s_bRegistered = s_bRegistered; }                                                                  \
-};
+#define EMBSETTINGS_MAP(...) EMBSETTINGS_VFUNC(EMBSETTINGS_INTERNAL_MAP_, __VA_ARGS__)
 
 namespace emb {
     namespace settings {
@@ -665,7 +605,7 @@ namespace emb {
              * @tparam Version      Version of the file
              * @tparam VersionClbk  Version callback
              */
-            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version = 0, version_clbk_t _VersionClbk = nullptr>
             class TSettingsFile
                     : public SettingsFile {
             // public attributes
