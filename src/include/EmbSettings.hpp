@@ -286,6 +286,21 @@ namespace emb {
                 template<typename Type>
                 static void add_setting_vector(std::string const& a_strFile, std::string const& a_strElement, Type const& a_tNew);
                 /**
+                 * @brief Reset a vetcor setting element to its default value
+                 * @tparam Element      Vector setting element to reset
+                 */
+                template<typename Element>
+                static void reset_setting_vector();
+                /**
+                 * @brief Indicate if a vector setting element has its default value
+                 *
+                 * @tparam Element      Vector setting element to test
+                 * @return true         The vector setting element has its default value
+                 * @return false        Otherwise
+                 */
+                template<typename Element>
+                static bool is_default_setting_vector();
+                /**
                  * @brief
                  *
                  * @tparam Type
@@ -456,6 +471,16 @@ namespace emb {
                  * @param a_tVal    New value of the setting element
                  */
                 static void add(_Type const& a_tVal);
+                /**
+                 * @brief Reset the vector setting element to its default value
+                 */
+                static void reset();
+                /**
+                 * @brief Indicate if vector setting element has its default value
+                 * @return true     The vector setting element has its default value
+                 * @return false    Otherwise
+                 */
+                static bool is_default();
                 /**
                  * @brief Link the vector setting element to a vector variable
                  *

@@ -122,6 +122,8 @@ int main(int argc, char** argv)
     MyParams::ParamVector::add("z26");
     MyParams::ParamMap::write({ { "A", "a1" }, { "B", "b2" }, { "C", "c3" }, { "D", "d4" } });
     MyParams::ParamMap::set("Z", "Z26");
+    MyParams::ParamVector::is_default();
+    MyParams::ParamVector::reset();
 
     MyParams::Param2::reset();
 
