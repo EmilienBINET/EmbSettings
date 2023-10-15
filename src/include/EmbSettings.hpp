@@ -260,10 +260,11 @@ namespace emb {
                  * @tparam Type
                  * @param a_strFile
                  * @param a_strElement  Name of the setting element in the file
+                 * @param a_tvecDefault Default value to return if the setting element is not found in file
                  * @return std::vector<Type>
                  */
                 template<typename Type>
-                static std::vector<Type> read_setting_vector(std::string const& a_strFile, std::string const& a_strElement);
+                static std::vector<Type> read_setting_vector(std::string const& a_strFile, std::string const& a_strElement, std::vector<Type> const& a_tvecDefault);
                 /**
                  * @brief
                  *
@@ -290,10 +291,11 @@ namespace emb {
                  * @tparam Type
                  * @param a_strFile
                  * @param a_strElement  Name of the setting element in the file
+                 * @param a_tmapDefault Default value to return if the setting element is not found in file
                  * @return std::map<std::string, Type>
                  */
                 template<typename Type>
-                static std::map<std::string, Type> read_setting_map(std::string const& a_strFile, std::string const& a_strElement);
+                static std::map<std::string, Type> read_setting_map(std::string const& a_strFile, std::string const& a_strElement, std::map<std::string, Type> const& a_tmapDefault);
                 /**
                  * @brief
                  *

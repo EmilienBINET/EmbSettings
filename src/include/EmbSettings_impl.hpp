@@ -115,7 +115,7 @@ namespace emb {
             }
 
             template<typename Type>
-            std::vector<Type> SettingElement::read_setting_vector(std::string const& a_strFile, std::string const& a_strElement) {
+            std::vector<Type> SettingElement::read_setting_vector(std::string const& a_strFile, std::string const& a_strElement, std::vector<Type> const& a_tvecDefault) {
                 std::vector<Type> vecOutput{};
                 // Request the boost::property_tree containing the current setting element
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
@@ -131,6 +131,7 @@ namespace emb {
                     }
                     catch(boost::property_tree::ptree_bad_path&) {
                         // get_child() may throw if the key does not exist
+                        vecOutput = a_tvecDefault;
                     }
                 }
                 return vecOutput;
@@ -215,7 +216,7 @@ namespace emb {
             }
 
             template<typename Type>
-            std::map<std::string, Type> SettingElement::read_setting_map(std::string const& a_strFile, std::string const& a_strElement) {
+            std::map<std::string, Type> SettingElement::read_setting_map(std::string const& a_strFile, std::string const& a_strElement, std::map<std::string, Type> const& a_tmapDefault) {
                 std::map<std::string, Type> mapOutput{};
                 // Request the boost::property_tree containing the current setting element
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
@@ -231,6 +232,7 @@ namespace emb {
                     }
                     catch(boost::property_tree::ptree_bad_path&) {
                         // get_child() may throw if the key does not exist
+                        mapOutput = a_tmapDefault;
                     }
                 }
                 return mapOutput;
@@ -379,7 +381,7 @@ namespace emb {
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::vector<_Type> const* _Default>
             std::vector<_Type> TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::read() {
-                return read_setting_vector<_Type>(_File::Name, _NameStr);
+                return read_setting_vector<_Type>(_File::Name, _NameStr, Default);
             }
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::vector<_Type> const* _Default>
@@ -450,7 +452,7 @@ namespace emb {
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
             std::map<std::string, _Type> TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::read() {
-                return read_setting_map<_Type>(_File::Name, _NameStr);
+                return read_setting_map<_Type>(_File::Name, _NameStr, Default);
             }
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>

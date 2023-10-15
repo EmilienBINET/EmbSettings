@@ -9,6 +9,7 @@ add_library(
 	EmbSettings
 
 	src/include/EmbSettings.hpp
+	src/include/EmbSettings_macro.hpp
 	src/include/EmbSettings_impl.hpp
 	src/src/EmbSettings.cpp
 )
