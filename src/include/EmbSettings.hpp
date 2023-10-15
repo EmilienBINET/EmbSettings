@@ -33,6 +33,7 @@
  * @param 2 [mandatory] Base data type of the setting. The final setting's data type is std::vector<_type>
  * @param 3 [mandatory] Class name of the file used to save the setting
  * @param 4 [mandatory] Key string representing the position of the setting in the file (using boost property_tree synthax)
+ * @param 5 [optional]  Pointer to a default value of the setting if not found in the file
  */
 #define EMBSETTINGS_VECTOR(...) EMBSETTINGS_VFUNC(EMBSETTINGS_INTERNAL_VECTOR_, __VA_ARGS__)
 
@@ -42,6 +43,7 @@
  * @param 2 [mandatory] Base data type of the setting. The final setting's data type is std::map<std::string,_type>
  * @param 3 [mandatory] Class name of the file used to save the setting
  * @param 4 [mandatory] Key string representing the position of the setting in the file (using boost property_tree synthax)
+ * @param 5 [optional]  Pointer to a default value of the setting if not found in the file
  */
 #define EMBSETTINGS_MAP(...) EMBSETTINGS_VFUNC(EMBSETTINGS_INTERNAL_MAP_, __VA_ARGS__)
 
@@ -483,10 +485,19 @@ namespace emb {
              * @tparam TypeStr      Type of the element, as a string
              * @tparam File         Class name of the file when the element must be stored
              * @tparam KeyStr       Key locating the element inside the file
+             * @tparam Default      Default value of the element, if not present in the file
              */
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default = nullptr>
             class TSettingMap
                     : public SettingElement {
+            // public attributes
+            public:
+                static char const* Name;
+                using Type = std::map<std::string, _Type>;
+                using File = _File;
+                static char const* Key;
+                static Type const Default;
+            
             // public methods
             public:
                 /**

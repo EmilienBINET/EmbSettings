@@ -240,3 +240,29 @@ class _name final : public emb::settings::internal::TSettingMap<                
     > {                                                                                                                                     \
     void _register_() noexcept override { s_bRegistered = s_bRegistered; }                                                                  \
 };
+
+/**
+ * @brief Declare a map setting inside a previously declared setting file
+ * @param _name     Name of the class representing the setting
+ * @param _type     Base data type of the setting. The final setting's data type is std::map<std::string,_type>
+ * @param _file     Class name of the file used to save the setting
+ * @param _key      Key string representing the position of the setting in the file (using boost property_tree synthax)
+ * @param _pdefault Pointer to a default value of the setting if not found in the file
+ */
+#define EMBSETTINGS_INTERNAL_MAP_5(_name, _type, _file, _key, _pdefault)                                                                    \
+namespace EmbSettings_Private { namespace _name {                                                                                           \
+    inline char NameStr[]{ #_name };                                                                                                        \
+    inline char TypeStr[]{ "std::map<std::string," #_type ">" };                                                                            \
+    inline char KeyStr[]{ _key };                                                                                                           \
+} }                                                                                                                                         \
+class _name final : public emb::settings::internal::TSettingMap<                                                                            \
+        _name,                                                                                                                              \
+        EmbSettings_Private::_name::NameStr,                                                                                                \
+        _type,                                                                                                                              \
+        EmbSettings_Private::_name::TypeStr,                                                                                                \
+        _file,                                                                                                                              \
+        EmbSettings_Private::_name::KeyStr,                                                                                                 \
+        _pdefault                                                                                                                           \
+    > {                                                                                                                                     \
+    void _register_() noexcept override { s_bRegistered = s_bRegistered; }                                                                  \
+};

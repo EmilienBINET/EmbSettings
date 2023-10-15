@@ -439,37 +439,37 @@ namespace emb {
             ///// TSettingMap                            /////
             //////////////////////////////////////////////////
 
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::TSettingMap()
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
+            TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::TSettingMap()
                     : SettingElement{ _NameStr, _TypeStr, _File::Name, _KeyStr }
             {}
 
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::~TSettingMap() {
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
+            TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::~TSettingMap() {
             }
 
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            std::map<std::string, _Type> TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::read() {
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
+            std::map<std::string, _Type> TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::read() {
                 return read_setting_map<_Type>(_File::Name, _NameStr);
             }
 
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            void TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::write(std::map<std::string, _Type> const& a_tmapVal) {
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
+            void TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::write(std::map<std::string, _Type> const& a_tmapVal) {
                 write_setting_map<_Type>(_File::Name, _NameStr, a_tmapVal);
             }
 
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            void TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::set(std::string const& a_strKey, _Type const& a_tVal) {
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
+            void TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::set(std::string const& a_strKey, _Type const& a_tVal) {
                 set_setting_map<_Type>(_File::Name, _NameStr, a_strKey, a_tVal);
             }
 
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            void TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::link(std::map<std::string, _Type>& a_rtmapVal) {
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
+            void TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::link(std::map<std::string, _Type>& a_rtmapVal) {
                 link_setting<std::map<std::string, _Type>, _Name>(_File::Name, _NameStr, a_rtmapVal);
             }
 
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            std::string TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::read_str_m() const {
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
+            std::string TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::read_str_m() const {
                 // Request the boost::property_tree containing the current setting element
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
                 if (auto const& pTree = get_tree(_File::Name, _NameStr, true)) {
@@ -489,14 +489,20 @@ namespace emb {
                 return "{?}";
             }
 
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            std::unique_ptr<SettingElement> TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::_create_() {
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
+            std::unique_ptr<SettingElement> TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::_create_() {
                 return std::make_unique<_Name>();
             }
 
-            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            bool TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::s_bRegistered =
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
+            bool TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::s_bRegistered =
                 SettingElement::register_element(_File::Name, _NameStr, _Name::_create_);
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
+            char const* TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::Name{ _NameStr };
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
+            char const* TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::Key{ _KeyStr };
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
+            std::map<std::string, _Type> const TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::Default{ _Default ? *_Default : std::map<std::string, _Type>{} };
 
             //////////////////////////////////////////////////
             ///// TSettingsFile                          /////

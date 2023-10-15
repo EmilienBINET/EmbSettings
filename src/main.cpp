@@ -36,6 +36,9 @@ namespace MyParams {
 
     std::vector<std::string> defaultV{"Z", "Y", "X"};
     EMBSETTINGS_VECTOR(ParamVectorD, std::string, Machine, "test.vector2", &defaultV);
+
+    std::map<std::string, std::string> defaultM{{"A", "26"}, {"B", "27"}};
+    EMBSETTINGS_MAP(ParamMapD, std::string, Machine, "test.map2", &defaultM);
 }
 
 namespace Test {
@@ -89,6 +92,9 @@ int main(int argc, char** argv)
 
     auto v = MyParams::ParamVectorD::read();
     auto v2 = (MyParams::ParamVectorD::Default);
+
+    auto m = MyParams::ParamMapD::read();
+    auto m2 = (MyParams::ParamMapD::Default);
 
     for (auto const& file : emb::settings::get_file_names_list()) {
         std::cout << "FILE " << file << std::endl;
