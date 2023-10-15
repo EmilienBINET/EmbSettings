@@ -339,6 +339,47 @@ namespace emb {
                 }
             }
 
+            template<typename Element>
+            void SettingElement::reset_setting_map() {
+                switch (default_mode()) {
+                case DefaultMode::DefaultValueIfAbsentFromFile:
+                    // Request the boost::property_tree containing the current setting element
+                    // The given tree is automatically locked & read on request and written & unlocked on deletion
+                    if (auto const& pTree = get_tree(Element::File::Name, Element::Name, false)) {
+                        // Remove the element from the tree
+                        remove_tree(*pTree, Element::Key);
+                    }
+                    break;
+                case DefaultMode::DefaultValueWrittenInFile:
+                    write_setting_map<typename Element::Type::mapped_type>(Element::File::Name, Element::Name, Element::Default);
+                    break;
+                }
+            }
+
+            template<typename Element>
+            bool SettingElement::is_default_setting_map() {
+                bool bRes{ false };
+                switch (default_mode()) {
+                case DefaultMode::DefaultValueIfAbsentFromFile:
+                    // Request the boost::property_tree containing the current setting element
+                    // The given tree is automatically locked & read on request and written & unlocked on deletion
+                    if (auto const& pTree = get_tree(Element::File::Name, Element::Name, true)) {
+                        try {
+                            (void)pTree->get_child(Element::Key);
+                        }
+                        catch (boost::property_tree::ptree_bad_path&) {
+                            // get_child() may throw if the key does not exist
+                            bRes = true;
+                        }
+                    }
+                    break;
+                case DefaultMode::DefaultValueWrittenInFile:
+                    bRes = Element::Default == read_setting_map<typename Element::Type::mapped_type>(Element::File::Name, Element::Name, Element::Default);
+                    break;
+                }
+                return bRes;
+            }
+
             //////////////////////////////////////////////////
             ///// TSettingScalar                         /////
             //////////////////////////////////////////////////
@@ -514,6 +555,16 @@ namespace emb {
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
             void TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::set(std::string const& a_strKey, _Type const& a_tVal) {
                 set_setting_map<_Type>(_File::Name, _NameStr, a_strKey, a_tVal);
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
+            void TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::reset() {
+                reset_setting_map<_Name>();
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
+            bool TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::is_default() {
+                return is_default_setting_map<_Name>();
             }
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
