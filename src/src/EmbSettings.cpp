@@ -122,10 +122,10 @@ namespace {
             mutex.lock();
             if(strFullFileName.empty()) {
                 auto pFileInfo = funcCreate();
-                eFileType = pFileInfo->get_type();
-                strFullFileName = pFileInfo->get_path();
-                iVersion = pFileInfo->get_version();
-                pVersionClbk = pFileInfo->get_version_clbk();
+                eFileType = pFileInfo->get_type_m();
+                strFullFileName = pFileInfo->get_path_m();
+                iVersion = pFileInfo->get_version_m();
+                pVersionClbk = pFileInfo->get_version_clbk_m();
                 parse_jockers(strFullFileName);
                 if(!bTransactionPending) {
                     read_file();
@@ -275,30 +275,30 @@ namespace emb {
             ///// SettingElement                         /////
             //////////////////////////////////////////////////
 
-            std::string SettingElement::get_name() const {
+            std::string SettingElement::get_name_m() const {
                 return m_strName;
             }
 
-            std::string SettingElement::get_type() const {
+            std::string SettingElement::get_type_m() const {
                 return m_strType;
             }
 
-            std::string SettingElement::get_file() const {
+            std::string SettingElement::get_file_m() const {
                 return m_strFile;
             }
 
-            std::string SettingElement::get_key() const {
+            std::string SettingElement::get_key_m() const {
                 return m_strKey;
             }
 
-            void SettingElement::read_linked() const {
-                if (auto fct = files_info()[get_file()].elm_info[get_name()].funcReadLinked) {
+            void SettingElement::read_linked_m() const {
+                if (auto fct = files_info()[get_file_m()].elm_info[get_name_m()].funcReadLinked) {
                     fct();
                 }
             }
 
-            void SettingElement::write_linked() const {
-                if (auto fct = files_info()[get_file()].elm_info[get_name()].funcWriteLinked) {
+            void SettingElement::write_linked_m() const {
+                if (auto fct = files_info()[get_file_m()].elm_info[get_name_m()].funcWriteLinked) {
                     fct();
                 }
             }
@@ -321,9 +321,9 @@ namespace emb {
             SettingElement::~SettingElement()
             {}
 
-            void SettingElement::link_variable(std::function<void(void)> const& a_funcRead, std::function<void(void)> const& a_funcWrite) {
-                if(auto itFile = files_info().find(get_file()); itFile != files_info().end()) {
-                    if(auto itElm = itFile->second.elm_info.find(get_name()); itElm != itFile->second.elm_info.end()) {
+            void SettingElement::link_variable_m(std::function<void(void)> const& a_funcRead, std::function<void(void)> const& a_funcWrite) {
+                if(auto itFile = files_info().find(get_file_m()); itFile != files_info().end()) {
+                    if(auto itElm = itFile->second.elm_info.find(get_name_m()); itElm != itFile->second.elm_info.end()) {
                         itElm->second.funcReadLinked = a_funcRead;
                         itElm->second.funcWriteLinked = a_funcWrite;
                     }
@@ -333,7 +333,7 @@ namespace emb {
             bool SettingElement::register_element(char const* a_szFile, char const* a_szElement, creation_method<SettingElement> a_funcCreationMethod) {
                 DEBUG_SELF_REGISTERING(cout << "register_element(" << a_szFile << "," << a_szElement << ")" << endl);
                 bool bRes{false};
-                if(a_funcCreationMethod()->get_key() == version_element_name()) {
+                if(a_funcCreationMethod()->get_key_m() == version_element_name()) {
                     cerr << "SettingElement '" << a_szElement << "' cannot be registered with reserved key '" << version_element_name() << "'" << endl;
                 }
                 else if(auto itFile = files_info().find(a_szFile); itFile != files_info().end()) {
@@ -356,23 +356,23 @@ namespace emb {
             ///// SettingsFile                           /////
             //////////////////////////////////////////////////
 
-            std::string SettingsFile::get_name() const {
+            std::string SettingsFile::get_name_m() const {
                 return m_strName;
             }
 
-            FileType SettingsFile::get_type() const {
+            FileType SettingsFile::get_type_m() const {
                 return m_eType;
             }
 
-            std::string SettingsFile::get_path() const {
+            std::string SettingsFile::get_path_m() const {
                 return m_strPath;
             }
 
-            int SettingsFile::get_version() const {
+            int SettingsFile::get_version_m() const {
                 return m_iVersion;
             }
 
-            version_clbk_t SettingsFile::get_version_clbk() const {
+            version_clbk_t SettingsFile::get_version_clbk_m() const {
                 return m_pVersionClbk;
             }
 

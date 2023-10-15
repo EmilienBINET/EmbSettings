@@ -35,7 +35,7 @@ namespace emb {
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
                 if (auto const& pTree = get_tree(a_strFile, a_strElement, true)) {
                     // Get the key that points to where the data is stored in the tree
-                    auto strKey = get_element(a_strFile, a_strElement)->get_key();
+                    auto strKey = get_element(a_strFile, a_strElement)->get_key_m();
                     // Get the subtree corresponding to the key
                     if(auto const& subTree = pTree->get_child_optional(strKey)) {
                         return read_tree(*subTree, a_tDefault);
@@ -50,7 +50,7 @@ namespace emb {
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
                 if (auto const& pTree = get_tree(a_strFile, a_strElement, false)) {
                     // Get the key that points to where the data is stored in the tree
-                    auto strKey = get_element(a_strFile, a_strElement)->get_key();
+                    auto strKey = get_element(a_strFile, a_strElement)->get_key_m();
                     // Get the subtree pointed by the key or a new tree if it does not exist
                     boost::property_tree::ptree subTree{};
                     auto& rSubTree = pTree->get_child(strKey, subTree);
@@ -107,7 +107,7 @@ namespace emb {
             template<typename Type, typename Element>
             void SettingElement::link_setting(std::string const& a_strFile, std::string const& a_strElement, Type& a_rtVariable) {
                 if(auto const& pElm = get_element(a_strFile, a_strElement)) {
-                    pElm->link_variable(
+                    pElm->link_variable_m(
                         [&a_rtVariable] { a_rtVariable = Element::read(); },
                         [&a_rtVariable] { Element::write(a_rtVariable); }
                     );
@@ -121,7 +121,7 @@ namespace emb {
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
                 if (auto const& pTree = get_tree(a_strFile, a_strElement, true)) {
                     // Get the key that points to where the data is stored in the tree
-                    auto strKey = get_element(a_strFile, a_strElement)->get_key();
+                    auto strKey = get_element(a_strFile, a_strElement)->get_key_m();
                     // Get each the subtree corresponding to the key
                     try {
                         for(auto const& subTree : pTree->get_child(strKey)) {
@@ -142,9 +142,9 @@ namespace emb {
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
                 if (auto const& pTree = get_tree(a_strFile, a_strElement, false)) {
                     // Get the key that points to where the data is stored in the tree
-                    auto strKey = get_element(a_strFile, a_strElement)->get_key();
+                    auto strKey = get_element(a_strFile, a_strElement)->get_key_m();
                     // Get the file type to customize data representation
-                    auto eType = emb::settings::get_file(a_strFile)->get_type();
+                    auto eType = emb::settings::get_file(a_strFile)->get_type_m();
                     // Remove old subtree
                     remove_tree(*pTree, strKey);
                     // Create and add the subtree accordingly to the file type
@@ -185,9 +185,9 @@ namespace emb {
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
                 if (auto const& pTree = get_tree(a_strFile, a_strElement, false)) {
                     // Get the key that points to where the data is stored in the tree
-                    auto strKey = get_element(a_strFile, a_strElement)->get_key();
+                    auto strKey = get_element(a_strFile, a_strElement)->get_key_m();
                     // Get the file type to customize data representation
-                    auto eType = emb::settings::get_file(a_strFile)->get_type();
+                    auto eType = emb::settings::get_file(a_strFile)->get_type_m();
                     // Create and add the subtree accordingly to the file type
                     switch(eType) {
                     case FileType::XML: {
@@ -221,7 +221,7 @@ namespace emb {
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
                 if (auto const& pTree = get_tree(a_strFile, a_strElement, true)) {
                     // Get the key that points to where the data is stored in the tree
-                    auto strKey = get_element(a_strFile, a_strElement)->get_key();
+                    auto strKey = get_element(a_strFile, a_strElement)->get_key_m();
                     // Get each the subtree corresponding to the key
                     try {
                         for(auto const& subTree : pTree->get_child(strKey)) {
@@ -242,9 +242,9 @@ namespace emb {
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
                 if (auto const& pTree = get_tree(a_strFile, a_strElement, false)) {
                     // Get the key that points to where the data is stored in the tree
-                    auto strKey = get_element(a_strFile, a_strElement)->get_key();
+                    auto strKey = get_element(a_strFile, a_strElement)->get_key_m();
                     // Get the file type to customize data representation
-                    auto eType = emb::settings::get_file(a_strFile)->get_type();
+                    auto eType = emb::settings::get_file(a_strFile)->get_type_m();
                     // Remove old subtree
                     remove_tree(*pTree, strKey);
                     // Create and add the subtree accordingly to the file type
@@ -273,9 +273,9 @@ namespace emb {
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
                 if (auto const& pTree = get_tree(a_strFile, a_strElement, false)) {
                     // Get the key that points to where the data is stored in the tree
-                    auto strKey = get_element(a_strFile, a_strElement)->get_key();
+                    auto strKey = get_element(a_strFile, a_strElement)->get_key_m();
                     // Get the file type to customize data representation
-                    auto eType = emb::settings::get_file(a_strFile)->get_type();
+                    auto eType = emb::settings::get_file(a_strFile)->get_type_m();
                     // Create and set the subtree accordingly to the file type
                     switch(eType) {
                     case FileType::XML:
@@ -335,17 +335,17 @@ namespace emb {
             }
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
-            std::string TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::read_str() const {
+            std::string TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::read_str_m() const {
                 return read_setting<std::string>(_File::Name, _NameStr, "");
             }
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
-            bool TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::is_default_value() const {
+            bool TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::is_default_m() const {
                 return is_default();
             }
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
-            void TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::reset_to_default() const {
+            void TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::reset_m() const {
                 reset();
             }
 
@@ -398,7 +398,7 @@ namespace emb {
             }
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            std::string TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::read_str() const {
+            std::string TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::read_str_m() const {
                 // Request the boost::property_tree containing the current setting element
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
                 if (auto const& pTree = get_tree(_File::Name, _NameStr, true)) {
@@ -463,7 +463,7 @@ namespace emb {
             }
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr>
-            std::string TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::read_str() const {
+            std::string TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr>::read_str_m() const {
                 // Request the boost::property_tree containing the current setting element
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
                 if (auto const& pTree = get_tree(_File::Name, _NameStr, true)) {
@@ -524,7 +524,7 @@ namespace emb {
             void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::read_linked() {
                 for(auto const& elm: get_element_names_list(_NameStr)) {
                     if(auto const& pElm = get_element(_NameStr, elm)) {
-                        pElm->read_linked();
+                        pElm->read_linked_m();
                     }
                 }
             }
@@ -533,7 +533,7 @@ namespace emb {
             void TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::write_linked() {
                 for(auto const& elm: get_element_names_list(_NameStr)) {
                     if(auto const& pElm = get_element(_NameStr, elm)) {
-                        pElm->write_linked();
+                        pElm->write_linked_m();
                     }
                 }
             }
