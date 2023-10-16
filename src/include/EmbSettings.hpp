@@ -180,11 +180,11 @@ namespace emb {
                  * @return true     the setting element has its default value
                  * @return false    otherwise
                  */
-                virtual bool is_default_m() const { return false; }
+                virtual bool is_default_m() const = 0;
                 /**
                  * @brief Reset the setting element to its default value
                  */
-                virtual void reset_m() const {}
+                virtual void reset_m() const = 0;
 
             // protected types
             protected:
@@ -419,11 +419,20 @@ namespace emb {
                  * @param a_rtVar   Variable to link the setting element to
                  */
                 static void link(_Type& a_rtVar);
-
+                /**
+                 * @brief Read the setting element as a string
+                 * @return std::string Value of the element
+                 */
                 std::string read_str_m() const override;
-
+                /**
+                 * @brief Indicate if the setting element has its default value
+                 * @return true     the setting element has its default value
+                 * @return false    otherwise
+                 */
                 bool is_default_m() const override;
-
+                /**
+                 * @brief Reset the setting element to its default value
+                 */
                 void reset_m() const override;
 
             // protected methods
@@ -502,8 +511,21 @@ namespace emb {
                  * @param a_rtvecVal Variable to link the setting element to
                  */
                 static void link(std::vector<_Type>& a_rtvecVal);
-
+                /**
+                 * @brief Read the setting element as a string
+                 * @return std::string Value of the element
+                 */
                 std::string read_str_m() const override;
+                /**
+                 * @brief Indicate if the setting element has its default value
+                 * @return true     the setting element has its default value
+                 * @return false    otherwise
+                 */
+                bool is_default_m() const override;
+                /**
+                 * @brief Reset the setting element to its default value
+                 */
+                void reset_m() const override;
 
             // protected methods
             protected:
@@ -582,8 +604,21 @@ namespace emb {
                   * @param a_rtmapVal Variable to link the setting element to
                   */
                 static void link(std::map<std::string, _Type>& a_rtmapVal);
-
+                /**
+                 * @brief Read the setting element as a string
+                 * @return std::string Value of the element
+                 */
                 std::string read_str_m() const override;
+                /**
+                 * @brief Indicate if the setting element has its default value
+                 * @return true     the setting element has its default value
+                 * @return false    otherwise
+                 */
+                bool is_default_m() const override;
+                /**
+                 * @brief Reset the setting element to its default value
+                 */
+                void reset_m() const override;
 
             // protected methods
             protected:

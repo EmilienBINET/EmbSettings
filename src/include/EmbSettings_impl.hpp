@@ -524,6 +524,16 @@ namespace emb {
             }
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::vector<_Type> const* _Default>
+            bool TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::is_default_m() const {
+                return is_default();
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::vector<_Type> const* _Default>
+            void TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::reset_m() const {
+                reset();
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::vector<_Type> const* _Default>
             std::unique_ptr<SettingElement> TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::_create_() {
                 return std::make_unique<_Name>();
             }
@@ -600,6 +610,16 @@ namespace emb {
                     }
                 }
                 return "{?}";
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
+            bool TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::is_default_m() const {
+                return is_default();
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
+            void TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::reset_m() const {
+                reset();
             }
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
