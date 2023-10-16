@@ -12,6 +12,7 @@ add_library(
 	src/include/EmbSettings_macro.hpp
 	src/include/EmbSettings_impl.hpp
 	src/src/EmbSettings.cpp
+	src/src/filesystem.hpp
 )
 
 # Need C++17
