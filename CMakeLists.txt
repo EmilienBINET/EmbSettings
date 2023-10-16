@@ -37,7 +37,7 @@ if(MSVC)
 endif()
 
 # Example
-if(1)
+if(0)
     add_executable(
         EmbSettingsExe
         src/main.cpp
