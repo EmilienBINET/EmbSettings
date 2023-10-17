@@ -25,6 +25,15 @@ namespace emb {
                 a_rTree.put<T>("", tVal);
             }
 
+            template<typename T>
+            std::string stringify_type(T const& tVal) {
+                return std::to_string(tVal);
+            }
+
+            inline std::string stringify_type(std::string const& tVal) {
+                return tVal;
+            }
+
             //////////////////////////////////////////////////
             ///// SettingElement                         /////
             //////////////////////////////////////////////////
@@ -420,7 +429,7 @@ namespace emb {
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
             std::string TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::read_str_m() const {
-                return read_setting<std::string>(_File::Name, _NameStr, "");
+                return read_setting<std::string>(_File::Name, _NameStr, stringify_type(Default));
             }
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
@@ -515,6 +524,16 @@ namespace emb {
             }
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::vector<_Type> const* _Default>
+            bool TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::is_default_m() const {
+                return is_default();
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::vector<_Type> const* _Default>
+            void TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::reset_m() const {
+                reset();
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::vector<_Type> const* _Default>
             std::unique_ptr<SettingElement> TSettingVector<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::_create_() {
                 return std::make_unique<_Name>();
             }
@@ -591,6 +610,16 @@ namespace emb {
                     }
                 }
                 return "{?}";
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
+            bool TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::is_default_m() const {
+                return is_default();
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>
+            void TSettingMap<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::reset_m() const {
+                reset();
             }
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, std::map<std::string, _Type> const* _Default>

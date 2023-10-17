@@ -15,7 +15,7 @@
  * @param 4 [optional]  Current version of the file
  * @param 5 [optional]  Function pointer to call when versions mismatch
  */
-#define EMBSETTINGS_FILE(...) EMBSETTINGS_VFUNC(EMBSETTINGS_INTERNAL_FILE_, __VA_ARGS__)
+#define EMBSETTINGS_FILE(...) EMBSETTINGS_INTERNAL_VFUNC(EMBSETTINGS_INTERNAL_FILE_, __VA_ARGS__)
 
 /**
  * @brief Declare a scalar setting inside a previously declared setting file
@@ -23,9 +23,9 @@
  * @param 2 [mandatory] Data type of the setting
  * @param 3 [mandatory] Class name of the file used to save the setting
  * @param 4 [mandatory] Key string representing the position of the setting in the file (using boost property_tree synthax)
- * @param 5 [optional]  Default value of the setting if not found in the file (if not provided default value is _type{})
+ * @param 5 [optional]  Default value of the setting if not found in the file (if not provided default value is {})
  */
-#define EMBSETTINGS_SCALAR(...) EMBSETTINGS_VFUNC(EMBSETTINGS_INTERNAL_SCALAR_, __VA_ARGS__)
+#define EMBSETTINGS_SCALAR(...) EMBSETTINGS_INTERNAL_VFUNC(EMBSETTINGS_INTERNAL_SCALAR_, __VA_ARGS__)
 
 /**
  * @brief Declare a vector setting inside a previously declared setting file
@@ -33,9 +33,9 @@
  * @param 2 [mandatory] Base data type of the setting. The final setting's data type is std::vector<_type>
  * @param 3 [mandatory] Class name of the file used to save the setting
  * @param 4 [mandatory] Key string representing the position of the setting in the file (using boost property_tree synthax)
- * @param 5 [optional]  Pointer to a default value of the setting if not found in the file
+ * @param 5 [optional]  Pointer to a default value of the setting if not found in the file (if not provided default value is {})
  */
-#define EMBSETTINGS_VECTOR(...) EMBSETTINGS_VFUNC(EMBSETTINGS_INTERNAL_VECTOR_, __VA_ARGS__)
+#define EMBSETTINGS_VECTOR(...) EMBSETTINGS_INTERNAL_VFUNC(EMBSETTINGS_INTERNAL_VECTOR_, __VA_ARGS__)
 
 /**
  * @brief Declare a map setting inside a previously declared setting file
@@ -43,9 +43,9 @@
  * @param 2 [mandatory] Base data type of the setting. The final setting's data type is std::map<std::string,_type>
  * @param 3 [mandatory] Class name of the file used to save the setting
  * @param 4 [mandatory] Key string representing the position of the setting in the file (using boost property_tree synthax)
- * @param 5 [optional]  Pointer to a default value of the setting if not found in the file
+ * @param 5 [optional]  Pointer to a default value of the setting if not found in the file (if not provided default value is {})
  */
-#define EMBSETTINGS_MAP(...) EMBSETTINGS_VFUNC(EMBSETTINGS_INTERNAL_MAP_, __VA_ARGS__)
+#define EMBSETTINGS_MAP(...) EMBSETTINGS_INTERNAL_VFUNC(EMBSETTINGS_INTERNAL_MAP_, __VA_ARGS__)
 
 namespace emb {
     namespace settings {
@@ -180,11 +180,11 @@ namespace emb {
                  * @return true     the setting element has its default value
                  * @return false    otherwise
                  */
-                virtual bool is_default_m() const { return false; }
+                virtual bool is_default_m() const = 0;
                 /**
                  * @brief Reset the setting element to its default value
                  */
-                virtual void reset_m() const {}
+                virtual void reset_m() const = 0;
 
             // protected types
             protected:
@@ -419,11 +419,20 @@ namespace emb {
                  * @param a_rtVar   Variable to link the setting element to
                  */
                 static void link(_Type& a_rtVar);
-
+                /**
+                 * @brief Read the setting element as a string
+                 * @return std::string Value of the element
+                 */
                 std::string read_str_m() const override;
-
+                /**
+                 * @brief Indicate if the setting element has its default value
+                 * @return true     the setting element has its default value
+                 * @return false    otherwise
+                 */
                 bool is_default_m() const override;
-
+                /**
+                 * @brief Reset the setting element to its default value
+                 */
                 void reset_m() const override;
 
             // protected methods
@@ -502,8 +511,21 @@ namespace emb {
                  * @param a_rtvecVal Variable to link the setting element to
                  */
                 static void link(std::vector<_Type>& a_rtvecVal);
-
+                /**
+                 * @brief Read the setting element as a string
+                 * @return std::string Value of the element
+                 */
                 std::string read_str_m() const override;
+                /**
+                 * @brief Indicate if the setting element has its default value
+                 * @return true     the setting element has its default value
+                 * @return false    otherwise
+                 */
+                bool is_default_m() const override;
+                /**
+                 * @brief Reset the setting element to its default value
+                 */
+                void reset_m() const override;
 
             // protected methods
             protected:
@@ -582,8 +604,21 @@ namespace emb {
                   * @param a_rtmapVal Variable to link the setting element to
                   */
                 static void link(std::map<std::string, _Type>& a_rtmapVal);
-
+                /**
+                 * @brief Read the setting element as a string
+                 * @return std::string Value of the element
+                 */
                 std::string read_str_m() const override;
+                /**
+                 * @brief Indicate if the setting element has its default value
+                 * @return true     the setting element has its default value
+                 * @return false    otherwise
+                 */
+                bool is_default_m() const override;
+                /**
+                 * @brief Reset the setting element to its default value
+                 */
+                void reset_m() const override;
 
             // protected methods
             protected:

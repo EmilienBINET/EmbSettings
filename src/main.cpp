@@ -25,6 +25,10 @@ void write_tree(boost::property_tree::ptree& a_rTree, EEnum const& tVal) {
     a_rTree.put<int>("", (int)tVal);
 }
 
+std::string stringify_type(EEnum const& tVal) {
+    return std::to_string((int)tVal);
+}
+
 namespace MyParams {
     EMBSETTINGS_FILE(Machine, XML, "Machine.xml", 1, nullptr);
     EMBSETTINGS_SCALAR(Param1, double, Machine, "test.param1");
