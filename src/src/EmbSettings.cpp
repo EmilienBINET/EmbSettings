@@ -268,7 +268,14 @@ namespace emb {
             std::string stringify_tree(boost::property_tree::ptree const& a_Tree) {
                 std::stringstream strTmpFilecontent;
                 boost::property_tree::write_json(strTmpFilecontent, a_Tree, false);
-                return strTmpFilecontent.str();
+                std::string str{strTmpFilecontent.str()};
+                if(str.find_last_of("\n") == str.size() - 1) {
+                    str = str.substr(0, str.size() - 1);
+                }
+                if(0 == str.find("{\"root\":")) {
+                    str = str.substr(8, str.length() - 8 - 1);
+                }
+                return str;
             }
 
             //////////////////////////////////////////////////
