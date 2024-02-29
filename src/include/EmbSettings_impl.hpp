@@ -34,6 +34,10 @@ namespace emb {
                 return tVal;
             }
 
+            inline std::string stringify_type(bool const& tVal) {
+                return tVal ? "true" : "false";
+            }
+
             //////////////////////////////////////////////////
             ///// SettingElement                         /////
             //////////////////////////////////////////////////
