@@ -22,7 +22,7 @@ target_include_directories(EmbSettings PUBLIC src/include)
 target_include_directories(EmbSettings PUBLIC C:/boost/boost_1_82_0)
 
 set_target_properties(EmbSettings PROPERTIES PUBLIC_HEADER "src/include/EmbSettings.hpp")
-install(TARGETS EmbSettings)
+#install(TARGETS EmbSettings)
 
 if(0)
     add_definitions(-DUSE_VLD)
