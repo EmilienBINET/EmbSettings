@@ -21,6 +21,8 @@ target_compile_features(EmbSettings PUBLIC cxx_std_17)
 target_include_directories(EmbSettings PUBLIC src/include)
 target_include_directories(EmbSettings PUBLIC C:/boost/boost_1_82_0)
 
+target_link_libraries( EmbSettings PRIVATE "stdc++fs" ) # When using experimental/filesystem
+
 set_target_properties(EmbSettings PROPERTIES PUBLIC_HEADER "src/include/EmbSettings.hpp")
 #install(TARGETS EmbSettings)
 
