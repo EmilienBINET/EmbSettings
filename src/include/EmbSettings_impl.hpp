@@ -698,6 +698,16 @@ namespace emb {
             }
 
             template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
+            bool TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::backup_to(std::ostream & a_streamOutput) {
+                return backup_file_to_stream(_NameStr, a_streamOutput);
+            }
+
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
+            bool TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::restore_from(std::istream & a_streamInput) {
+                return restore_file_from_stream(_NameStr, a_streamInput);
+            }
+
+            template<typename _Name, char const* _NameStr, emb::settings::FileType _Type, char const* _PathStr, int _Version, version_clbk_t _VersionClbk>
             std::unique_ptr<SettingsFile> TSettingsFile<_Name, _NameStr, _Type, _PathStr, _Version, _VersionClbk>::_create_() {
                 return std::make_unique<_Name>();
             }

@@ -118,6 +118,23 @@ namespace {
             }
         }
 
+        friend ostream& operator<<(ostream & a_streamOutput, SettingsFileInfo & a_stFileInfo) {
+            a_stFileInfo.read_file();
+            a_streamOutput << a_stFileInfo.strFilecontent.str();
+            return a_streamOutput;
+        }
+
+        friend istream& operator>>(istream & a_streamInput, SettingsFileInfo & a_stFileInfo) {
+            std::string strTemp{};
+            a_streamInput >> strTemp;
+            std::ofstream os(a_stFileInfo.strFullFileName, std::ios::binary);
+            if (os.is_open()) {
+                os << strTemp;
+            }
+            a_stFileInfo.read_file();
+            return a_streamInput;
+        }
+
         emb::settings::internal::tree_ptr lock_tree(bool a_bReadOnly) {
             mutex.lock();
             if(strFullFileName.empty()) {
@@ -383,6 +400,14 @@ namespace emb {
                 return m_pVersionClbk;
             }
 
+            bool SettingsFile::backup_to_m(std::ostream & a_streamOutput) const {
+                return backup_file_to_stream(get_name_m(), a_streamOutput);
+            }
+
+            bool SettingsFile::restore_from_m(std::istream & a_streamInput) const {
+                return restore_file_from_stream(get_name_m(), a_streamInput);
+            }
+
             SettingsFile::SettingsFile(std::string const& a_strName, FileType a_eType, std::string const& a_strPath, int a_iVersion, version_clbk_t a_pVersionClbk)
                 : m_strName{ a_strName }
                 , m_eType{ a_eType }
@@ -443,8 +468,6 @@ namespace emb {
                     auto & rFile = itFile->second;
                     rFile.mutex.lock();
 
-                    //files_info().find(a_strName)->second.read_file();
-
                     // Compute the destination file path
                     std::string outputPath;
                     try {
@@ -489,8 +512,6 @@ namespace emb {
                     auto & rFile = itFile->second;
                     rFile.mutex.lock();
 
-                    //files_info().find(a_strName)->second.read_file();
-
                     // Compute the destination file path
                     std::string outputPath;
                     try {
@@ -526,6 +547,30 @@ namespace emb {
 
                     files_info().find(a_strFileName)->second.read_file();
                     rFile.mutex.unlock();
+                }
+                return bRes;
+            }
+
+            bool backup_file_to_stream(std::string const& a_strFileName, std::ostream & a_streamOutput) {
+                bool bRes{false};
+                if(auto itFile = files_info().find(a_strFileName); itFile != files_info().end()) {
+                    auto & rFile = itFile->second;
+                    rFile.mutex.lock();
+                    a_streamOutput << rFile;
+                    rFile.mutex.unlock();
+                    bRes = true;
+                }
+                return bRes;
+            }
+
+            bool restore_file_from_stream(std::string const& a_strFileName, std::istream & a_streamInput) {
+                bool bRes{false};
+                if(auto itFile = files_info().find(a_strFileName); itFile != files_info().end()) {
+                    auto & rFile = itFile->second;
+                    rFile.mutex.lock();
+                    a_streamInput >> rFile;
+                    rFile.mutex.unlock();
+                    bRes = true;
                 }
                 return bRes;
             }
