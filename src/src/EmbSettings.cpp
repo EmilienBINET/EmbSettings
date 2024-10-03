@@ -125,11 +125,14 @@ namespace {
         }
 
         friend istream& operator>>(istream & a_streamInput, SettingsFileInfo & a_stFileInfo) {
-            std::string strTemp{};
-            a_streamInput >> strTemp;
-            std::ofstream os(a_stFileInfo.strFullFileName, std::ios::binary);
-            if (os.is_open()) {
-                os << strTemp;
+            {
+                std::ofstream os(a_stFileInfo.strFullFileName, std::ios::binary);
+                if (os.is_open()) {
+                    std::string strTemp{};
+                    while(a_streamInput >> strTemp) {
+                        os << strTemp;
+                    }
+                }
             }
             a_stFileInfo.read_file();
             return a_streamInput;
