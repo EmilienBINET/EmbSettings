@@ -18,8 +18,10 @@ add_library(
 # Need C++17
 target_compile_features(EmbSettings PUBLIC cxx_std_17)
 
+find_package(Boost REQUIRED)
+
+target_include_directories(EmbSettings PUBLIC ${Boost_INCLUDE_DIRS})
 target_include_directories(EmbSettings PUBLIC src/include)
-target_include_directories(EmbSettings PUBLIC C:/boost/boost_1_82_0)
 
 target_link_libraries( EmbSettings PRIVATE "stdc++fs" ) # When using experimental/filesystem
 
