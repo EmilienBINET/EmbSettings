@@ -23,7 +23,9 @@ find_package(Boost REQUIRED)
 target_include_directories(EmbSettings PUBLIC ${Boost_INCLUDE_DIRS})
 target_include_directories(EmbSettings PUBLIC src/include)
 
-target_link_libraries( EmbSettings PRIVATE "stdc++fs" ) # When using experimental/filesystem
+if (UNIX)
+    target_link_libraries( EmbSettings PRIVATE "stdc++fs" ) # When using experimental/filesystem
+endif()
 
 set_target_properties(EmbSettings PROPERTIES PUBLIC_HEADER "src/include/EmbSettings.hpp")
 #install(TARGETS EmbSettings)
