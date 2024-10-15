@@ -5,7 +5,14 @@
 #include <map>
 #include <vector>
 #include <functional>
+#ifdef _
+#pragma push_macro("_")
+#undef _
 #include <boost/property_tree/ptree.hpp>
+#pragma pop_macro("_")
+#else
+#include <boost/property_tree/ptree.hpp>
+#endif
 
 /**
  * @brief Declare a file that can contain settings
