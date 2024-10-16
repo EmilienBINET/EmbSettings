@@ -18,11 +18,17 @@ add_library(
 # Need C++17
 target_compile_features(EmbSettings PUBLIC cxx_std_17)
 
+find_package(Boost REQUIRED)
+
+target_include_directories(EmbSettings PUBLIC ${Boost_INCLUDE_DIRS})
 target_include_directories(EmbSettings PUBLIC src/include)
-target_include_directories(EmbSettings PUBLIC C:/boost/boost_1_82_0)
+
+if (UNIX)
+    target_link_libraries( EmbSettings PRIVATE "stdc++fs" ) # When using experimental/filesystem
+endif()
 
 set_target_properties(EmbSettings PROPERTIES PUBLIC_HEADER "src/include/EmbSettings.hpp")
-install(TARGETS EmbSettings)
+#install(TARGETS EmbSettings)
 
 if(0)
     add_definitions(-DUSE_VLD)
@@ -37,7 +43,7 @@ if(MSVC)
 endif()
 
 # Example
-if(1)
+if(0)
     add_executable(
         EmbSettingsExe
         src/main.cpp

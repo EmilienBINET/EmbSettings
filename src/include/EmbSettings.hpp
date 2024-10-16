@@ -5,7 +5,14 @@
 #include <map>
 #include <vector>
 #include <functional>
+#ifdef _
+#pragma push_macro("_")
+#undef _
 #include <boost/property_tree/ptree.hpp>
+#pragma pop_macro("_")
+#else
+#include <boost/property_tree/ptree.hpp>
+#endif
 
 /**
  * @brief Declare a file that can contain settings
@@ -469,7 +476,7 @@ namespace emb {
                 using File = _File;
                 static char const* Key;
                 static Type const Default;
-            
+
             // public methods
             public:
                 /**
@@ -561,7 +568,7 @@ namespace emb {
                 using File = _File;
                 static char const* Key;
                 static Type const Default;
-            
+
             // public methods
             public:
                 /**
@@ -665,6 +672,8 @@ namespace emb {
                  * @return version_clbk_t Version callback of the settings file
                  */
                 version_clbk_t get_version_clbk_m() const;
+                bool backup_to_m(std::ostream & a_streamOutput) const;
+                bool restore_from_m(std::istream & a_streamInput) const;
 
             // protected types
             protected:
@@ -748,6 +757,8 @@ namespace emb {
                 static void write_linked();
                 static bool backup_to(std::string const& a_strFolderName);
                 static bool restore_from(std::string const& a_strFolderName);
+                static bool backup_to(std::ostream & a_streamOutput);
+                static bool restore_from(std::istream & a_streamInput);
 
             // protected methods
             protected:
@@ -782,6 +793,7 @@ namespace emb {
             * @return bool true is success, false if failure
             */
             bool backup_file(std::string const& a_strFileName, std::string const& a_strFolderName);
+            bool backup_file_to_stream(std::string const& a_strFileName, std::ostream & a_streamOutput);
 
             /**
             * @brief Retrieves settings from a backup folder
@@ -791,6 +803,7 @@ namespace emb {
             * @return bool true is success, false if failure
             */
             bool restore_file(std::string const& a_strFileName, std::string const& a_strFolderName);
+            bool restore_file_from_stream(std::string const& a_strFileName, std::istream & a_streamInput);
             void begin_file_transaction(std::string const& a_strFileName);
             void commit_file_transaction(std::string const& a_strFileName);
             void abort_file_transaction(std::string const& a_strFileName);
