@@ -63,7 +63,8 @@ namespace {
             std::ifstream is(strFullFileName, std::ios::binary);
             if (is.is_open()) {
                 std::stringstream buffer;
-                strFilecontent.str(std::string()); // clear
+                strFilecontent.str(std::string()); // clear content
+                strFilecontent.clear(); // clear internal status (eof...)
                 strFilecontent << is.rdbuf();
             }
             try {
