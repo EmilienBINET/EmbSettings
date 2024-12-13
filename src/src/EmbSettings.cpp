@@ -559,9 +559,10 @@ namespace emb {
                 bool bRes{false};
                 if(auto itFile = files_info().find(a_strFileName); itFile != files_info().end()) {
                     auto & rFile = itFile->second;
-                    rFile.mutex.lock();
-                    a_streamOutput << rFile;
-                    rFile.mutex.unlock();
+                    {
+                        auto const pTree{ rFile.lock_tree(true) };
+                        a_streamOutput << rFile;
+                    }
                     bRes = true;
                 }
                 return bRes;
@@ -571,9 +572,10 @@ namespace emb {
                 bool bRes{false};
                 if(auto itFile = files_info().find(a_strFileName); itFile != files_info().end()) {
                     auto & rFile = itFile->second;
-                    rFile.mutex.lock();
-                    a_streamInput >> rFile;
-                    rFile.mutex.unlock();
+                    {
+                        auto const pTree{ rFile.lock_tree(false) };
+                        a_streamInput >> rFile;
+                    }
                     bRes = true;
                 }
                 return bRes;
