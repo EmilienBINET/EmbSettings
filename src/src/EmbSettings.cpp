@@ -129,10 +129,7 @@ namespace {
             {
                 std::ofstream os(a_stFileInfo.strFullFileName, std::ios::binary);
                 if (os.is_open()) {
-                    std::string strTemp{};
-                    while(a_streamInput >> strTemp) {
-                        os << strTemp;
-                    }
+                    os << a_streamInput.rdbuf();
                 }
             }
             a_stFileInfo.read_file();
