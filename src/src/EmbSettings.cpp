@@ -63,7 +63,8 @@ namespace {
             std::ifstream is(strFullFileName, std::ios::binary);
             if (is.is_open()) {
                 std::stringstream buffer;
-                strFilecontent.str(std::string()); // clear
+                strFilecontent.str(std::string()); // clear content
+                strFilecontent.clear(); // clear internal status (eof...)
                 strFilecontent << is.rdbuf();
             }
             try {
@@ -128,10 +129,7 @@ namespace {
             {
                 std::ofstream os(a_stFileInfo.strFullFileName, std::ios::binary);
                 if (os.is_open()) {
-                    std::string strTemp{};
-                    while(a_streamInput >> strTemp) {
-                        os << strTemp;
-                    }
+                    os << a_streamInput.rdbuf();
                 }
             }
             a_stFileInfo.read_file();
@@ -558,9 +556,10 @@ namespace emb {
                 bool bRes{false};
                 if(auto itFile = files_info().find(a_strFileName); itFile != files_info().end()) {
                     auto & rFile = itFile->second;
-                    rFile.mutex.lock();
-                    a_streamOutput << rFile;
-                    rFile.mutex.unlock();
+                    {
+                        auto const pTree{ rFile.lock_tree(true) };
+                        a_streamOutput << rFile;
+                    }
                     bRes = true;
                 }
                 return bRes;
@@ -570,9 +569,10 @@ namespace emb {
                 bool bRes{false};
                 if(auto itFile = files_info().find(a_strFileName); itFile != files_info().end()) {
                     auto & rFile = itFile->second;
-                    rFile.mutex.lock();
-                    a_streamInput >> rFile;
-                    rFile.mutex.unlock();
+                    {
+                        auto const pTree{ rFile.lock_tree(false) };
+                        a_streamInput >> rFile;
+                    }
                     bRes = true;
                 }
                 return bRes;
