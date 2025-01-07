@@ -38,6 +38,13 @@ namespace emb {
                 return tVal ? "true" : "false";
             }
 
+            inline std::string stringify_type(double const& tVal) {
+                std::ostringstream out;
+                out.precision(17);
+                out << std::noshowpoint << tVal;
+                return std::move(out).str();
+            }
+
             //////////////////////////////////////////////////
             ///// SettingElement                         /////
             //////////////////////////////////////////////////
@@ -433,7 +440,7 @@ namespace emb {
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
             std::string TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::read_str_m() const {
-                return read_setting<std::string>(_File::Name, _NameStr, stringify_type(Default));
+                return stringify_type(read());
             }
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
