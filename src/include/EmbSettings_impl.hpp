@@ -71,6 +71,9 @@ namespace emb {
                 if (auto const& pTree = get_tree(a_strFile, a_strElement, false)) {
                     // Get the key that points to where the data is stored in the tree
                     auto strKey = get_element(a_strFile, a_strElement)->get_key_m();
+                    // There is a bug if a parameter is written with an empty value (at least in JSON, may happen also in other types)
+                    // so we need to remove the key first, to avoid to see '"key": ""' texts multiply in the settings file
+                    remove_tree(*pTree, strKey);
                     // Get the subtree pointed by the key or a new tree if it does not exist
                     boost::property_tree::ptree subTree{};
                     auto& rSubTree = pTree->get_child(strKey, subTree);
