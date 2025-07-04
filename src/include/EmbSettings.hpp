@@ -183,6 +183,11 @@ namespace emb {
                  */
                 virtual std::string read_str_m() const = 0;
                 /**
+                 * @brief Write the setting element as a string
+                 * @param a_strNew Value of the element
+                 */
+                virtual void write_str_m(std::string const& a_strNew) const = 0;
+                /**
                  * @brief Indicate if the setting element has its default value
                  * @return true     the setting element has its default value
                  * @return false    otherwise
@@ -432,6 +437,11 @@ namespace emb {
                  */
                 std::string read_str_m() const override;
                 /**
+                 * @brief Write the setting element as a string
+                 * @param a_strNew Value of the element
+                 */
+                void write_str_m(std::string const& a_strNew) const override;
+                /**
                  * @brief Indicate if the setting element has its default value
                  * @return true     the setting element has its default value
                  * @return false    otherwise
@@ -524,6 +534,11 @@ namespace emb {
                  */
                 std::string read_str_m() const override;
                 /**
+                 * @brief Write the setting element as a string
+                 * @param a_strNew Value of the element
+                 */
+                void write_str_m(std::string const& a_strNew) const override {}
+                /**
                  * @brief Indicate if the setting element has its default value
                  * @return true     the setting element has its default value
                  * @return false    otherwise
@@ -606,16 +621,21 @@ namespace emb {
                  */
                 static bool is_default();
                 /**
-                  * @brief Link the setting element to a variable
-                  *
-                  * @param a_rtmapVal Variable to link the setting element to
-                  */
+                 * @brief Link the setting element to a variable
+                 *
+                 * @param a_rtmapVal Variable to link the setting element to
+                 */
                 static void link(std::map<std::string, _Type>& a_rtmapVal);
                 /**
                  * @brief Read the setting element as a string
                  * @return std::string Value of the element
                  */
                 std::string read_str_m() const override;
+                /**
+                 * @brief Write the setting element as a string
+                 * @param a_strNew Value of the element
+                 */
+                void write_str_m(std::string const& a_strNew) const override {}
                 /**
                  * @brief Indicate if the setting element has its default value
                  * @return true     the setting element has its default value

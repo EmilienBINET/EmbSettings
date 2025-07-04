@@ -447,6 +447,11 @@ namespace emb {
             }
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
+            void TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::write_str_m(std::string const& a_strNew) const {
+                write_setting<std::string>(_File::Name, _NameStr, a_strNew);
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
             bool TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::is_default_m() const {
                 return is_default();
             }
