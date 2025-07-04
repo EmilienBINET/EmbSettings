@@ -38,6 +38,11 @@ namespace {
         return version_element_name;
     }
 
+    emb::settings::MonitoringCallback& monitoring_callback() {
+        static emb::settings::MonitoringCallback fctMonitoringCallback{};
+        return fctMonitoringCallback;
+    }
+
     struct SettingElementInfo {
         emb::settings::internal::creation_method<emb::settings::internal::SettingElement> funcCreate{};
         std::function<void(void)> funcReadLinked{};
@@ -200,6 +205,16 @@ namespace emb {
             return "DefaultMode::?";
         }
 
+        char const* str(MonitoringOperation a_eMonitoringOperation) {
+            #define str_MonitoringOperation_case(__elm) case MonitoringOperation::__elm : return #__elm;
+            switch (a_eMonitoringOperation) {
+                str_MonitoringOperation_case(Read)
+                str_MonitoringOperation_case(Write)
+                str_MonitoringOperation_case(Reset)
+            }
+            return "MonitoringOperation::?";
+        }
+
         void set_joker(std::string const& a_strJoker, std::string const& a_strValue) {
             jokers()[a_strJoker] = a_strValue;
         }
@@ -214,6 +229,10 @@ namespace emb {
 
         void set_default_value_mode(DefaultMode a_eDefaultMode) {
             internal::default_mode() = a_eDefaultMode;
+        }
+
+        void set_monitoring_callback(MonitoringCallback const& a_fctMonitoringCallback) {
+            monitoring_callback() = a_fctMonitoringCallback;
         }
 
         std::vector<std::string> get_file_names_list() {
@@ -266,6 +285,13 @@ namespace emb {
             emb::settings::DefaultMode& default_mode() {
                 static emb::settings::DefaultMode mode{emb::settings::DefaultMode::DefaultValueIfAbsentFromFile};
                 return mode;
+            }
+
+            void call_monitoring_callback(MonitoringInformation const& a_stInformation) {
+                MonitoringCallback& fctCallback{monitoring_callback()};
+                if(fctCallback) {
+                    fctCallback(a_stInformation);
+                }
             }
 
             void remove_tree(boost::property_tree::ptree & a_rTree, std::string const& a_strKeyToRemove) {
@@ -623,15 +649,6 @@ namespace emb {
             }
 
         }
-/*
-        std::string SettingsElement::read() const {
-            return read<std::string>("");
-        }
-
-        void SettingsElement::write(std::string const& a_strNewValue) const {
-            write<std::string>(a_strNewValue);
-        }
-*/
 
     }
 }

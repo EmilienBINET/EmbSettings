@@ -51,6 +51,7 @@ namespace emb {
 
             template<typename Type>
             Type SettingElement::read_setting(std::string const& a_strFile, std::string const& a_strElement, Type const& a_tDefault) {
+                Type tResult{ a_tDefault };
                 // Request the boost::property_tree containing the current setting element
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
                 if (auto const& pTree = get_tree(a_strFile, a_strElement, true)) {
@@ -58,14 +59,19 @@ namespace emb {
                     auto strKey = get_element(a_strFile, a_strElement)->get_key_m();
                     // Get the subtree corresponding to the key
                     if(auto const& subTree = pTree->get_child_optional(strKey)) {
-                        return read_tree(*subTree, a_tDefault);
+                        tResult = read_tree(*subTree, a_tDefault);
                     }
                 }
-                return a_tDefault;
+                call_monitoring_callback(emb::settings::MonitoringInformation{
+                    emb::settings::MonitoringOperation::Read,
+                    a_strFile, a_strElement,
+                    stringify_type(tResult)
+                });
+                return tResult;
             }
 
             template<typename Type>
-            void SettingElement::write_setting(std::string const& a_strFile, std::string const& a_strElement, Type const& a_tNew) {
+            void SettingElement::write_setting(std::string const& a_strFile, std::string const& a_strElement, Type const& a_tNew, bool a_bMonitor) {
                 // Request the boost::property_tree containing the current setting element
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
                 if (auto const& pTree = get_tree(a_strFile, a_strElement, false)) {
@@ -84,6 +90,13 @@ namespace emb {
                         pTree->add_child(strKey, subTree);
                     }
                 }
+                if(a_bMonitor) {
+                    call_monitoring_callback(emb::settings::MonitoringInformation{
+                        emb::settings::MonitoringOperation::Write,
+                        a_strFile, a_strElement,
+                        stringify_type(a_tNew)
+                    });
+                }
             }
 
             template<typename Element>
@@ -98,9 +111,14 @@ namespace emb {
                     }
                     break;
                 case DefaultMode::DefaultValueWrittenInFile:
-                    write_setting<typename Element::Type>(Element::File::Name, Element::Name, Element::Default);
+                    write_setting<typename Element::Type>(Element::File::Name, Element::Name, Element::Default, false);
                     break;
                 }
+                call_monitoring_callback(emb::settings::MonitoringInformation{
+                    emb::settings::MonitoringOperation::Reset,
+                    Element::File::Name, Element::Name,
+                    stringify_type(Element::Default)
+                });
             }
 
             template<typename Element>
