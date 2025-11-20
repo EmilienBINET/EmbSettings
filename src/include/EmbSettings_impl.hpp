@@ -38,12 +38,20 @@ namespace emb {
                 return tVal ? "true" : "false";
             }
 
+            inline std::string stringify_type(double const& tVal) {
+                std::ostringstream out;
+                out.precision(17);
+                out << std::noshowpoint << tVal;
+                return std::move(out).str();
+            }
+
             //////////////////////////////////////////////////
             ///// SettingElement                         /////
             //////////////////////////////////////////////////
 
             template<typename Type>
             Type SettingElement::read_setting(std::string const& a_strFile, std::string const& a_strElement, Type const& a_tDefault) {
+                Type tResult{ a_tDefault };
                 // Request the boost::property_tree containing the current setting element
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
                 if (auto const& pTree = get_tree(a_strFile, a_strElement, true)) {
@@ -51,19 +59,27 @@ namespace emb {
                     auto strKey = get_element(a_strFile, a_strElement)->get_key_m();
                     // Get the subtree corresponding to the key
                     if(auto const& subTree = pTree->get_child_optional(strKey)) {
-                        return read_tree(*subTree, a_tDefault);
+                        tResult = read_tree(*subTree, a_tDefault);
                     }
                 }
-                return a_tDefault;
+                call_monitoring_callback(emb::settings::MonitoringInformation{
+                    emb::settings::MonitoringOperation::Read,
+                    a_strFile, a_strElement,
+                    stringify_type(tResult)
+                });
+                return tResult;
             }
 
             template<typename Type>
-            void SettingElement::write_setting(std::string const& a_strFile, std::string const& a_strElement, Type const& a_tNew) {
+            void SettingElement::write_setting(std::string const& a_strFile, std::string const& a_strElement, Type const& a_tNew, bool a_bMonitor) {
                 // Request the boost::property_tree containing the current setting element
                 // The given tree is automatically locked & read on request and written & unlocked on deletion
                 if (auto const& pTree = get_tree(a_strFile, a_strElement, false)) {
                     // Get the key that points to where the data is stored in the tree
                     auto strKey = get_element(a_strFile, a_strElement)->get_key_m();
+                    // There is a bug if a parameter is written with an empty value (at least in JSON, may happen also in other types)
+                    // so we need to remove the key first, to avoid to see '"key": ""' texts multiply in the settings file
+                    remove_tree(*pTree, strKey);
                     // Get the subtree pointed by the key or a new tree if it does not exist
                     boost::property_tree::ptree subTree{};
                     auto& rSubTree = pTree->get_child(strKey, subTree);
@@ -73,6 +89,13 @@ namespace emb {
                     if(rSubTree == subTree) {
                         pTree->add_child(strKey, subTree);
                     }
+                }
+                if(a_bMonitor) {
+                    call_monitoring_callback(emb::settings::MonitoringInformation{
+                        emb::settings::MonitoringOperation::Write,
+                        a_strFile, a_strElement,
+                        stringify_type(a_tNew)
+                    });
                 }
             }
 
@@ -88,9 +111,14 @@ namespace emb {
                     }
                     break;
                 case DefaultMode::DefaultValueWrittenInFile:
-                    write_setting<typename Element::Type>(Element::File::Name, Element::Name, Element::Default);
+                    write_setting<typename Element::Type>(Element::File::Name, Element::Name, Element::Default, false);
                     break;
                 }
+                call_monitoring_callback(emb::settings::MonitoringInformation{
+                    emb::settings::MonitoringOperation::Reset,
+                    Element::File::Name, Element::Name,
+                    stringify_type(Element::Default)
+                });
             }
 
             template<typename Element>
@@ -433,7 +461,12 @@ namespace emb {
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
             std::string TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::read_str_m() const {
-                return read_setting<std::string>(_File::Name, _NameStr, stringify_type(Default));
+                return stringify_type(read());
+            }
+
+            template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>
+            void TSettingScalar<_Name, _NameStr, _Type, _TypeStr, _File, _KeyStr, _Default>::write_str_m(std::string const& a_strNew) const {
+                write_setting<std::string>(_File::Name, _NameStr, a_strNew);
             }
 
             template<typename _Name, char const* _NameStr, typename _Type, char const* _TypeStr, typename _File, char const* _KeyStr, _Type const* _Default>

@@ -110,6 +110,34 @@ namespace emb {
         void set_default_value_mode(DefaultMode a_eDefaultMode);
 
         /**
+         * @brief Monitoring operation type
+         */
+        enum class MonitoringOperation {
+            Read,   ///< A setting element has been read
+            Write,  ///< A setting element has been written
+            Reset,  ///< A setting element has been reset
+        };
+        char const* str(MonitoringOperation a_eMonitoringOperation);
+        /**
+         * @brief Monitoring information struct
+         */
+        struct MonitoringInformation {
+            MonitoringOperation eOperation{};
+            std::string strFileName{};
+            std::string strElementName{};
+            std::string strValue{};
+        };
+        /**
+         * @brief Monitoring callback used to monitor (log) operations on settings
+         */
+        using MonitoringCallback = std::function<void(MonitoringInformation const& a_stInformation)>;
+        /**
+         * @brief Defines the monitoring callback that will be called at each operation (read, write, reset...)
+         * @param a_fctMonitorCallback Callback to set, empty or nullptr to disable
+         */
+        void set_monitoring_callback(MonitoringCallback const& a_fctMonitoringCallback = {});
+
+        /**
          * @brief Get the file names list object
          *
          * @return std::vector<std::string>
@@ -183,6 +211,11 @@ namespace emb {
                  */
                 virtual std::string read_str_m() const = 0;
                 /**
+                 * @brief Write the setting element as a string
+                 * @param a_strNew Value of the element
+                 */
+                virtual void write_str_m(std::string const& a_strNew) const = 0;
+                /**
                  * @brief Indicate if the setting element has its default value
                  * @return true     the setting element has its default value
                  * @return false    otherwise
@@ -227,9 +260,10 @@ namespace emb {
                  * @param a_strFile     Name of the file where the setting element is stored
                  * @param a_strElement  Name of the setting element in the file
                  * @param a_tNew        Value to write
+                 * @param a_bMonitor    True to monitor write operation
                  */
                 template<typename Type>
-                static void write_setting(std::string const& a_strFile, std::string const& a_strElement, Type const& a_tNew);
+                static void write_setting(std::string const& a_strFile, std::string const& a_strElement, Type const& a_tNew, bool a_bMonitor=true);
                 /**
                  * @brief Reset a setting element to its default value
                  * @tparam Element      Setting element to reset
@@ -432,6 +466,11 @@ namespace emb {
                  */
                 std::string read_str_m() const override;
                 /**
+                 * @brief Write the setting element as a string
+                 * @param a_strNew Value of the element
+                 */
+                void write_str_m(std::string const& a_strNew) const override;
+                /**
                  * @brief Indicate if the setting element has its default value
                  * @return true     the setting element has its default value
                  * @return false    otherwise
@@ -524,6 +563,11 @@ namespace emb {
                  */
                 std::string read_str_m() const override;
                 /**
+                 * @brief Write the setting element as a string
+                 * @param a_strNew Value of the element
+                 */
+                void write_str_m(std::string const& a_strNew) const override {}
+                /**
                  * @brief Indicate if the setting element has its default value
                  * @return true     the setting element has its default value
                  * @return false    otherwise
@@ -606,16 +650,21 @@ namespace emb {
                  */
                 static bool is_default();
                 /**
-                  * @brief Link the setting element to a variable
-                  *
-                  * @param a_rtmapVal Variable to link the setting element to
-                  */
+                 * @brief Link the setting element to a variable
+                 *
+                 * @param a_rtmapVal Variable to link the setting element to
+                 */
                 static void link(std::map<std::string, _Type>& a_rtmapVal);
                 /**
                  * @brief Read the setting element as a string
                  * @return std::string Value of the element
                  */
                 std::string read_str_m() const override;
+                /**
+                 * @brief Write the setting element as a string
+                 * @param a_strNew Value of the element
+                 */
+                void write_str_m(std::string const& a_strNew) const override {}
                 /**
                  * @brief Indicate if the setting element has its default value
                  * @return true     the setting element has its default value
@@ -782,6 +831,7 @@ namespace emb {
 
             std::string& xml_vector_element_name();
             emb::settings::DefaultMode& default_mode();
+            void call_monitoring_callback(emb::settings::MonitoringInformation const& a_stInformation);
             void remove_tree(boost::property_tree::ptree & a_rTree, std::string const& a_strKeyToRemove);
             std::string stringify_tree(boost::property_tree::ptree const& a_Tree);
 
