@@ -508,15 +508,17 @@ namespace emb {
                         bRes = false;
                     }
 
+                    std::error_code ec{};
+                    (void) ec; // MAKE COMPILER HAPPY
                     // Create the destination folder if necessary
                     if(bRes) {
-                        if(!std::filesystem::exists(a_strFolderName)) {
+                        if(!std::filesystem::exists(a_strFolderName, ec)) {
                             bRes = std::filesystem::create_directories(a_strFolderName);
                         }
                     }
 
                     // Test that the file to copy exists
-                    bRes = bRes && std::filesystem::exists(rFile.strFullFileName);
+                    bRes = bRes && std::filesystem::exists(rFile.strFullFileName, ec);
 
                     // Copy the file
                     if(bRes) {
@@ -552,15 +554,17 @@ namespace emb {
                         bRes = false;
                     }
 
+                    std::error_code ec{};
+                    (void) ec; // MAKE COMPILER HAPPY
                     // Create the destination folder if necessary
                     if(bRes) {
-                        if(!std::filesystem::exists(a_strFolderName)) {
+                        if(!std::filesystem::exists(a_strFolderName, ec)) {
                             bRes = std::filesystem::create_directories(a_strFolderName);
                         }
                     }
 
                     // Test that the file to copy exists
-                    bRes = bRes && std::filesystem::exists(rFile.strFullFileName);
+                    bRes = bRes && std::filesystem::exists(rFile.strFullFileName, ec);
 
                     // Copy the file
                     if(bRes) {
