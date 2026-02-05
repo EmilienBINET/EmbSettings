@@ -116,9 +116,9 @@ namespace {
                     std::ofstream os(strFullFileName, std::ios::binary);
                     if (os.is_open()) {
                         os << strTmpFilecontent.str();
+                        strFilecontent.str(strTmpFilecontent.str());
                     }
                 }
-                strFilecontent.str(strTmpFilecontent.str());
             }
             catch (...) {
             }
