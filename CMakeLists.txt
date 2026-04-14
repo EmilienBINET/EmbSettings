@@ -18,6 +18,11 @@ add_library(
 # Need C++17
 target_compile_features(EmbSettings PUBLIC cxx_std_17)
 
+# Disable warnings about the FindBoost module beeing removed.
+if( POLICY CMP0167 )
+  cmake_policy( SET CMP0167 NEW )
+endif()
+
 find_package(Boost REQUIRED)
 
 target_include_directories(EmbSettings PUBLIC ${Boost_INCLUDE_DIRS})
