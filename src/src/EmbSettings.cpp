@@ -143,7 +143,7 @@ namespace {
 
         emb::settings::internal::tree_ptr lock_tree(bool a_bReadOnly) {
             mutex.lock();
-            if(strFullFileName.empty()) {
+            if(strFullFileName.empty() || std::string::npos != strFullFileName.find("@{")) {
                 auto pFileInfo = funcCreate();
                 eFileType = pFileInfo->get_type_m();
                 strFullFileName = pFileInfo->get_path_m();
