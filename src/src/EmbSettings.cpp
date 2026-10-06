@@ -60,6 +60,7 @@ namespace {
 
         emb::settings::FileType eFileType{};
         string strFullFileName{};
+        bool bDefaultValuesWritten{false};
         int iVersion{0};
         emb::settings::version_clbk_t pVersionClbk{nullptr};
         std::stringstream strFilecontent{};
@@ -87,6 +88,22 @@ namespace {
             }
             catch (...) {
                 tree = decltype(tree)();
+            }
+            if (emb::settings::DefaultMode::DefaultValueWrittenInFile == emb::settings::internal::default_mode() && !bDefaultValuesWritten) {
+                bDefaultValuesWritten = true;
+                for (auto const& stElmPair : elm_info) {
+                    auto const& fctCreate = stElmPair.second.funcCreate;
+                    if (fctCreate) {
+                        auto const pSetting = fctCreate();
+                        if (pSetting) {
+                            // Get the subtree corresponding to the key
+                            if (!tree.get_child_optional(pSetting->get_key_m())) {
+                                // The key does not exist in the file => reset
+                                pSetting->reset_m();
+                            }
+                        }
+                    }
+                }
             }
             auto iOldVersion = tree.get<int>(version_element_name(), 0);
             if(iOldVersion != iVersion && pVersionClbk) {
